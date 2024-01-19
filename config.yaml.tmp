@@ -1,0 +1,8 @@
+browser_type: edge
+browser_url: https://www.baidu.com
+
+openai:
+  # key
+  api_key:
+  #  xxxxx/v1/
+  api_url: 

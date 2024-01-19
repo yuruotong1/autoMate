@@ -1,0 +1,8 @@
+
+# Ignore IDE and editor files
+.idea/
+.vscode/
+
+# Ignore environment-specific files
+.venv
+config.yaml
