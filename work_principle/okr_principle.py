@@ -1,13 +1,14 @@
-from work_principle.okr_principle import OKR_KeyResult
 from work_principle.five_w_two_h import FiveWTwoH
+
 class OKR_Object:
+
     def __init__(self, content):
         self.content = content
         self.key_results = []
         self.progress = 0
         self.five_w_two_h = FiveWTwoH()
 
-    def add_key_result(self, key_result:OKR_KeyResult):
+    def add_key_result(self, key_result):
         self.key_results.append(key_result)
         key_result.set_objective(self)
 

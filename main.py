@@ -1,6 +1,5 @@
-
 from agent.manager_agent import ManagerAgent
-from work_principle.okr_principle import OKR
+from work_principle.okr_principle import OKR_Object
 
 
 class AutoMate:
@@ -9,10 +8,9 @@ class AutoMate:
     
     
     def rule_define(self):
-        o_kr = OKR()
-        o_kr.set_objective(input("请输入任务: "))
-        ManagerAgent().call_gpt(o_kr)
-
+        # o_kr = OKR_Object(input("请输入任务: "))
+        o_kr = OKR_Object("对比一下copilot和curson谁更好用")
+        ManagerAgent().optimization_Object(o_kr)
 
 
 

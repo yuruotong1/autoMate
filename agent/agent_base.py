@@ -2,7 +2,7 @@ import openai
 import yaml
 
 
-class Agent:
+class AgentBase:
     def __init__(self, role):
         """
         Initialize an Agent object.
