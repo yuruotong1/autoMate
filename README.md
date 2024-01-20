@@ -16,8 +16,31 @@ autoMate定义了三种角色：
 
 # OKR工作体系
 
-市面上的大模型是对任务理解不透彻，如何解决这个问题呢？我想到了OKR工作体系，把上层的O向下拆解成KR，并且中间不断对焦！我认为这是一个非常高效的工作体系，AutoMate 引入OKR就像是给整个团队配上了高级导航系统，各agent都能清清楚楚知道自己要完成的任务，同时不断与上级对焦能够避免任务失真。
+大模型的回答内容缺少精准度，本质上是对任务理解不透彻，如何解决这个问题呢？我想到了OKR工作体系，把上层的O向下拆解成KR，并且中间不断对焦！我认为这是一个非常高效的工作体系，AutoMate 引入OKR就像是给整个团队配上了高级导航系统，各agent都能清清楚楚知道自己要完成的任务，同时不断与上级对焦能够避免任务失真。
 
+在 o_kr.py 中定义了目标（Objective）并为每个目标关联多个关键成果（Key Results），用户可以通过实例化`OKR_Object`来创建一个目标，然后通过`add_key_result`方法添加关联的关键成果。每个关键成果的进度可以通过`set_progress`方法单独更新。目标的总体进度将根据其所有关键成果的进度自动更新，示例代码如下：
+
+```python
+from o_kr import OKR_Object, OKR_KeyResult
+
+# 创建一个目标
+objective = OKR_Object("提升品牌知名度")
+
+# 创建关键成果并添加到目标中
+kr1 = OKR_KeyResult("完成市场调研")
+kr2 = OKR_KeyResult("开展线上营销活动")
+objective.add_key_result(kr1)
+objective.add_key_result(kr2)
+
+# 更新关键成果的进度
+kr1.set_progress(50)
+kr2.set_progress(75)
+
+# 打印目标的进度
+print(objective.progress)  # 输出应该是两个关键成果进度的平均值
+```
 
 # 工具
 使用selenium工具操作浏览器进行网络搜索和内容爬取。
+
+
