@@ -1,4 +1,4 @@
-class FiveWTwoH:
+class ObjectComponents:
     def __init__(self) -> None:
         self.content = [
             {"target": "任务主体", "content": "", "descriptions": "任务主体"},

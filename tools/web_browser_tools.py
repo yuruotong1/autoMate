@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from tools.tools_base import ToolsBase
 
 class WebBrowser(ToolsBase):
+    def get_describe(self):
+        return ["最新信息", "链接", "具体针对性信息", "专业信息"]
 
     def run(self):
         # Load browser configuration from YAML file

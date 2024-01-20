@@ -1,12 +1,12 @@
-from work_principle.five_w_two_h import FiveWTwoH
+from work_principle.object_components import ObjectComponents
 
 class OKR_Object:
 
-    def __init__(self, content):
-        self.content = content
+    def __init__(self, raw_user_task):
+        self.raw_user_task = raw_user_task
         self.key_results = []
         self.progress = 0
-        self.five_w_two_h = FiveWTwoH()
+        self.task = ObjectComponents()
 
     def add_key_result(self, key_result):
         self.key_results.append(key_result)
