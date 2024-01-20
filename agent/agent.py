@@ -37,7 +37,8 @@ class Agent:
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",  # GPT-3.5 model
             messages=[
-                {"role": "user", "content": self.role +","+ input_text}
+                {"role": "system", "content": self.role},
+                {"role": "user", "content": input_text}
             ],
             temperature=0.2
         )

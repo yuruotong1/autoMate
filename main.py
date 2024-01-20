@@ -10,10 +10,11 @@ class AutoMate:
     def rule_define(self):
         o_kr = OKR()
         o_kr.set_objective(input("请输入任务: "))
+        
 
 
 
 if __name__ == "__main__":
     automator = AutoMate()
-    automator.main()
+    automator.rule_define()
     # print(automator.call_chatgpt_api("Hello"))
