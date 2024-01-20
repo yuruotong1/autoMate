@@ -1,18 +1,11 @@
-from o_kr import OKR_KeyResult
+from work_principle.okr_principle import OKR_KeyResult
+from work_principle.five_w_two_h import FiveWTwoH
 class OKR_Object:
-    """
-    Represents an objective in an Objectives and Key Results (OKR) tracker.
-
-    Attributes:
-        name (str): The name of the objective.
-        key_results (list): A list of KeyResult objects representing the key results of the objective.
-        progress (int): The progress of the objective, calculated based on the progress of its key results.
-    """
-
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, content):
+        self.content = content
         self.key_results = []
         self.progress = 0
+        self.five_w_two_h = FiveWTwoH()
 
     def add_key_result(self, key_result:OKR_KeyResult):
         self.key_results.append(key_result)
@@ -24,6 +17,16 @@ class OKR_Object:
             self.progress = 100
         else:
             self.progress = sum(key_results_progress) / len(key_results_progress)
+
+    def set_smart_score(self, dimension, score):
+        if dimension in self.smart:
+            self.smart[dimension] = score
+
+    def get_smart_score(self, dimension):
+        if dimension in self.smart:
+            return self.smart[dimension]
+        else:
+            return None
 
 
 class OKR_KeyResult:

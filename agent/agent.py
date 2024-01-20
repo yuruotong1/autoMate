@@ -14,10 +14,23 @@ class Agent:
             None
         """
         self.role = role
+        
+
+    def set_role(self, new_role):
+        """
+        Set the role of the agent.
+
+        Args:
+            new_role (str): The new role of the agent.
+
+        Returns:
+            None
+        """
+        self.role = new_role
 
     
 
-    def call(self, input_text):
+    def call_gpt(self, input_text):
         """
         Make a call to the OpenAI chat API.
 
