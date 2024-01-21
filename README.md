@@ -54,6 +54,21 @@ assert "Python" in driver.title
 driver.quit()
 ```
 # 安装和运行
+
+## 修改 config
+运行前需要配置一下config.yaml文件，将目录中的config.yaml.tmp更名为config.yaml，输入你的chatgpt的api_key和api_url！
+
+
+## 安装依赖
+建议使用 python3.9，安装依赖：
+
 ```commandline
 pip install -r requirements.txt
+```
+
+## 运行
+
+运行：
+```commandline
+python main.py
 ```
