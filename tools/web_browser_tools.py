@@ -12,10 +12,11 @@ from selenium.webdriver.common.by import By
 from tools.tools_base import ToolsBase
 
 class WebBrowser(ToolsBase):
-    def get_describe(self):
-        return ["最新信息", "链接", "具体针对性信息", "专业信息"]
+    def __init__(self):
+        self.name = "web_browser"
+        self.description = "利用浏览器进行搜索，入参格式为字符串"
 
-    def run(self):
+    def run(self, param=None):
         # Load browser configuration from YAML file
         with open("config.yaml", "r") as file:
             config = yaml.safe_load(file)

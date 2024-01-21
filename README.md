@@ -43,6 +43,17 @@ print(objective.progress)  # 输出应该是两个关键成果进度的平均值
 ```
 
 # 工具
-使用selenium工具操作浏览器进行网络搜索和内容爬取。
+使用selenium工具操作浏览器进行网络搜索和内容爬取。以下是一个简单的示例：
 
+```python
+from selenium import webdriver
 
+driver = webdriver.Firefox()
+driver.get("http://www.python.org")
+assert "Python" in driver.title
+driver.quit()
+```
+# 安装和运行
+```commandline
+pip install -r requirements.txt
+```

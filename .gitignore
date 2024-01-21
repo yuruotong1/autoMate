@@ -6,3 +6,6 @@
 # Ignore environment-specific files
 .venv
 config.yaml
+
+# Ignore Python cache files
+**/__pycache__/
