@@ -6,7 +6,9 @@ from tools.tools_base import ToolsBase
 class LLMTools(ToolsBase):
     def __init__(self):
         self.name = "llm_tools"
-        self.description = "利用大模型进行回答，入参格式为字典：{role:大模型的角色, content:问题}"
+        self.description = "利用大模型进行回答"
+        self.request_param='字典，如{"content": "天气怎么样"}'
+        self.return_content = "大模型结果"
     
     def run(self, param=None):
         """

@@ -11,10 +11,12 @@ from selenium.webdriver.common.by import By
 
 from tools.tools_base import ToolsBase
 
-class WebBrowser(ToolsBase):
+class WebBrowserUrl(ToolsBase):
     def __init__(self):
         self.name = "web_browser"
-        self.description = "利用浏览器进行搜索，入参格式为字符串"
+        self.description = "利用selenium对指定URL进行访问"
+        self.request_param = '字典，如{"usrl": ""}'
+        self.return_content = '{"driver": "selenium的webdriver，driver用于继续在此见面上进行操作，可作为web_element工具的入参", "content": "网页xml结构"'
 
     def run(self, param=None):
         # Load browser configuration from YAML file
@@ -47,9 +49,8 @@ class WebBrowser(ToolsBase):
                 webdriver_manager = OperaDriverManager()
                 driver = webdriver.Opera(webdriver_manager.install(), options=options)
         driver.implicitly_wait(10)
-        browser_url = config.get("browser_url")
-        driver.get(browser_url)
-        driver.find_element(by=By.XPATH, value='//*[@id="kw"]').send_keys("陈")
-        driver.find_element(by=By.XPATH, value='//*[@id="su"]').click()
-        print(driver.page_source)
+        # browser_url = config.get("browser_url")
+        # driver.get(browser_url)
+        driver.get(param["url"])
         driver.quit()
+        return driver.page_source

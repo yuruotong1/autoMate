@@ -19,7 +19,7 @@ class ManagerAgent(AgentBase):
                 call_openai_res = json.loads(self.call_gpt(prompt))
                 if call_openai_res["isOk"] == "no":
                     okr_object.raw_user_task = okr_object.raw_user_task + f"，{i['target']}：" + input(
-                        f"【警告】{call_openai_res['content']}\n请您补充信息：")
+                        f"【任务】{okr_object.raw_user_task}\n\n【警告】{call_openai_res['content']}\n请您补充信息：")
             i['content'] = call_openai_res["content"]
 
 
