@@ -13,6 +13,7 @@ from tools.tools_base import ToolsBase
 
 class WebBrowserElement(ToolsBase):
     def __init__(self):
+        super().__init__()
         self.name = "web_element"
         self.description = "利用selenium对指定xpath进行点击或者输入内容"
         self.request_param = '字典，如{"driver": "driver", "xpath": "", "action":"click或send_text"}'

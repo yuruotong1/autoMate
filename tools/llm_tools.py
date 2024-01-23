@@ -5,6 +5,7 @@ from tools.tools_base import ToolsBase
 
 class LLMTools(ToolsBase):
     def __init__(self):
+        super().__init__()
         self.name = "llm_tools"
         self.description = "利用大模型进行回答"
         self.request_param='字典，如{"content": "天气怎么样"}'
@@ -20,11 +21,8 @@ class LLMTools(ToolsBase):
         Returns:
             str: The generated text from the chat API.
         """
-        with open("config.yaml", "r") as file:
-            config = yaml.safe_load(file).get("openai")
-
-        openai.api_key = config.get("api_key")
-        openai.base_url = config.get("api_url")
+        openai.api_key = self.config.OPEN_AI.get("api_key")
+        openai.base_url = self.config.OPEN_AI.get("api_url")
         messages = []
         if "role" in param:
             messages.append({"role": "system", "content": param["role"]})

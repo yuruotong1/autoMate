@@ -1,6 +1,7 @@
 import logging
 from agent.agent_base import AgentBase
 from tools.tools_base import ToolsBase
+from tools.tools_factory import ToolsFactory
 from work_principle.okr_principle import OKR_Object
 
 class PlanAgent(AgentBase):
@@ -12,8 +13,8 @@ class PlanAgent(AgentBase):
     # 根据object和已有的工具能力拆解成key result，key
     def aligning(self, okr_object: OKR_Object):
         raw = okr_object.raw_user_task
-        tools_list = [i().get_info() for i in self.get_subclasses(ToolsBase)]
-        r = self.call_gpt(f"object为'{raw}'， 工具列表为{tools_list}")
+        r = self.call_gpt(f"object为'{raw}'， 工具列表为{list(ToolsFactory().get_tools())}")
+        self.logger.info(f"prompt：object为'{raw}'， 工具列表为{list(ToolsFactory().get_tools())}")
         self.logger.info(f"Alignment result: {r}")
         # return r
 
