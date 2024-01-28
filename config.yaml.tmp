@@ -1,5 +1,6 @@
-browser_type: edge
-browser_url: https://www.baidu.com
+browser:
+    browser_type: edge
+    browser_url: https://www.baidu.com
 
 openai:
   # key

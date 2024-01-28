@@ -3,7 +3,7 @@ import yaml
 
 class Config:
     def __init__(self):
-        self.config = self._load_config('../config.yaml')
+        self.config = self._load_config('./config.yaml')
         self.OPEN_AI = self.config["openai"]
         self.BROWSER = self.config["browser"]
 
