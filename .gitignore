@@ -7,5 +7,6 @@
 .venv
 config.yaml
 
+**.lock
 # Ignore Python cache files
 **/__pycache__/
