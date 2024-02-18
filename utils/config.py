@@ -1,9 +1,14 @@
+import os
+
 import yaml
 
 
 class Config:
     def __init__(self):
-        self.config = self._load_config('./config.yaml')
+        # 项目根目录
+        project_root_path = os.path.abspath(os.path.dirname(__file__))
+        # 上一层目录
+        self.config = self._load_config(os.path.join(project_root_path, "..", "config.yaml"))
         self.OPEN_AI = self.config["openai"]
         self.BROWSER = self.config["browser"]
 

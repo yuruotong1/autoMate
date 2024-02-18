@@ -1,5 +1,6 @@
-import openai
-import yaml
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_openai import ChatOpenAI
+
 from tools.tools_base import ToolsBase
 
 
@@ -8,32 +9,13 @@ class LLMTools(ToolsBase):
         super().__init__()
         self.name = "llm_tools"
         self.description = "利用大模型进行回答"
-        self.request_param='字典，如{"content": "天气怎么样"}'
+        self.request_param = '字典，如{"content": "天气怎么样"}'
         self.return_content = "大模型结果"
-    
+        self.api_key = self.config.OPEN_AI.get("api_key")
+        self.base_url = self.config.OPEN_AI.get("api_url")
+
     def run(self, param=None):
-        """
-        Make a call to the OpenAI chat API.
-
-        Args:
-            param: The input text for the chat API.
-
-        Returns:
-            str: The generated text from the chat API.
-        """
-        openai.api_key = self.config.OPEN_AI.get("api_key")
-        openai.base_url = self.config.OPEN_AI.get("api_url")
-        messages = []
-        if "role" in param:
-            messages.append({"role": "system", "content": param["role"]})
-        messages.append({"role": "user", "content": param["content"]})
-
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",  # GPT-3.5 model
-            messages=messages,
-            temperature=0.2
-        )
-
-        generated_text = response.choices[0].message.content
-
-        return generated_text
+        chat = ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo", openai_api_key=self.api_key,
+                          openai_api_base=self.base_url)
+        return chat([SystemMessage("你是一个点菜机器人"),
+                     HumanMessage("我想要一份牛排")]).content
