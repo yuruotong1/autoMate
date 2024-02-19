@@ -1,10 +1,10 @@
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
-from tools.tools_base import ToolsBase
+from tools.tool_base import ToolBase
 
 
-class LLMTools(ToolsBase):
+class LLMTools(ToolBase):
     def __init__(self):
         super().__init__()
         self.name = "llm_tools"

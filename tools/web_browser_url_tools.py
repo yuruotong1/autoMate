@@ -5,10 +5,10 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.service import Service as EdgeService
 from selenium.webdriver.chrome.service import Service as ChromeService
 
-from tools.tools_base import ToolsBase
+from tools.tool_base import ToolBase
 
 
-class WebBrowserUrl(ToolsBase):
+class WebBrowserUrl(ToolBase):
     def __init__(self):
         super().__init__()
         self.name = "web_browser"

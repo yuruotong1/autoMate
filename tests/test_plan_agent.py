@@ -1,10 +1,9 @@
-import unittest
 
 from agent.plan_agent import PlanAgent
 from work_principle.okr_principle import OKR_Object
 
 
-class TestPlanAgent(unittest.TestCase):
+class TestPlanAgent:
     def test_aligning(self):
         # Create an instance of the PlanAgent class
         plan_agent = PlanAgent()
@@ -15,5 +14,3 @@ class TestPlanAgent(unittest.TestCase):
         plan_agent.aligning(okr_object)
 
 
-if __name__ == '__main__':
-    unittest.main()

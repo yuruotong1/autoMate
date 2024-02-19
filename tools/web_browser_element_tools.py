@@ -9,9 +9,10 @@ from webdriver_manager.opera import OperaDriverManager
 from selenium.webdriver.edge.service import Service as EdgeService
 from selenium.webdriver.common.by import By
 
-from tools.tools_base import ToolsBase
+from tools.tool_base import ToolBase
 
-class WebBrowserElement(ToolsBase):
+
+class WebBrowserElement(ToolBase):
     def __init__(self):
         super().__init__()
         self.name = "web_element"
@@ -28,5 +29,3 @@ class WebBrowserElement(ToolsBase):
         elif action == "send_text":
             driver.find_element(By.XPATH, xpath).send_keys(param["text"])
         return True
-
-       

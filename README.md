@@ -60,10 +60,20 @@ driver.quit()
 
 
 ## 安装依赖
-建议使用 python3.9，安装依赖：
+安装python的3.9+版本。
 
+安装包依赖管理工具 poetry，打开 PowerShell 或命令提示符，使用以下命令下载并安装 Poetry：
+```cmd
+curl -sSL https://install.python-poetry.org/ | python
+```
+配置 poetry，将虚拟环境配置到当前项目目录：
 ```commandline
-pip install -r requirements.txt
+poetry config virtualenvs.in-project true
+```
+创建虚拟环境并安装依赖：
+```commandline
+poetry env use python
+poetry install
 ```
 
 ## 运行
