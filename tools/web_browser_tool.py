@@ -1,15 +1,12 @@
-import logging
-import os
-from typing import Optional, Type, Any
+from typing import Optional, Type
 
-from langchain_core.tools import BaseTool
-from selenium.webdriver.chrome.service import Service as ChromeService
-from langchain_core.callbacks import CallbackManagerForToolRun, AsyncCallbackManagerForToolRun
 from langchain.pydantic_v1 import BaseModel, Field
+from langchain_core.callbacks import CallbackManagerForToolRun, AsyncCallbackManagerForToolRun
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium.webdriver.edge.service import Service as EdgeService
 
 from tools.tool_base import ToolBase
 from utils.config import Config
@@ -43,10 +40,11 @@ class WebBrowserTool(ToolBase):
             return ""
         driver.implicitly_wait(10)
         driver.get(url)
+        s = driver.page_source
         driver.quit()
-        print(f"res {driver.page_source}")
+        # print(f"res {driver.page_source}")
 
-        return driver.page_source
+        return s
 
     async def _arun(
             self, url: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
