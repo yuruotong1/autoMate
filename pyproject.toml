@@ -2,7 +2,7 @@
 name = "automate"
 version = "0.1.0"
 description = ""
-authors = ["yuruo <yuruotong1@163.com>"]
+authors = ["yuruotong"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
