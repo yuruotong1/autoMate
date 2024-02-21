@@ -1,4 +1,4 @@
-from langchain.agents import create_openai_functions_agent, AgentExecutor
+from langchain.agents import create_openai_functions_agent, AgentExecutor, AgentType, create_react_agent
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder, PromptTemplate, \
     HumanMessagePromptTemplate
 
@@ -31,7 +31,7 @@ class AutoMate:
     #     PlanAgent().aligning(o_kr)
 
     def run(self):
-        rompt = ChatPromptTemplate.from_messages(
+        prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessagePromptTemplate(
                     prompt=PromptTemplate(input_variables=[], template='你是一个工作助手')),
@@ -42,7 +42,7 @@ class AutoMate:
         )
         model = LLMUtil().llm()
         tools = [SearchEngineTool()]
-        agent = create_openai_functions_agent(model, tools, rompt)
+        agent = create_openai_functions_agent(model, tools, prompt)
         agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
         r = input("请输入你的问题：\n")
         agent_executor.invoke({"input": r})

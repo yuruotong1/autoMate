@@ -14,15 +14,6 @@ from utils.llm_util import LLMUtil
 
 
 class TestWebBrowser:
-    def test_web_browser(self):
-        model = LLMUtil().llm()
-        tools = [SearchEngine()]
-        model_with_functions = model.bind_functions(tools)
-        s = model_with_functions.invoke([HumanMessage(
-            content="帮我查询一下这个网页的内容 https://mbd.baidu.com/newspage/data/landingsuper?context=%7B%22nid%22%3A"
-                    "%22news_9510051560337988929%22%7D&n_type=-1&p_from=-1")])
-        print(s.additional_kwargs["function_call"])
-
     def test_agent(self):
         prompt = ChatPromptTemplate.from_messages(
             [
