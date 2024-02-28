@@ -24,7 +24,7 @@ class WebBrowserUrl():
             driver = webdriver.Chrome(service=ChromeService(webdriver_manager.install()), options=options)
         elif browser_type == "edge":
             options = webdriver.EdgeOptions()
-            options.add_argument("--headless")  # Enable headless mode
+            # options.add_argument("--headless")  # Enable headless mode
             webdriver_manager = EdgeChromiumDriverManager()
             driver = webdriver.Edge(service=EdgeService(webdriver_manager.install()), options=options)
         else:

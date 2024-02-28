@@ -11,6 +11,7 @@ class Config:
         self.config = self._load_config(os.path.join(project_root_path, "..", "config.yaml"))
         self.OPEN_AI = self.config["openai"]
         self.BROWSER = self.config["browser"]
+        self.LEAN_CLOUD = self.config["leancloud"]
 
     # Load content from a yaml file and return as variables
     def _load_config(self, file_path):

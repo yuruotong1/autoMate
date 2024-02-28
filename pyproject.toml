@@ -14,6 +14,9 @@ webdriver-manager = "4.0.1"
 langchain = "0.1.7"
 langchain-openai = "0.0.6"
 pytest = "^8.0.1"
+pyqt6 = "^6.6.1"
+leancloud = "^2.9.12"
+
 
 [build-system]
 requires = ["poetry-core"]

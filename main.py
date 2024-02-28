@@ -1,10 +1,17 @@
+import os
+import sys
+
+import leancloud
+from PyQt6.QtWidgets import QApplication, QWidget
 from langchain.agents import create_openai_functions_agent, AgentExecutor, AgentType, create_react_agent
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder, PromptTemplate, \
     HumanMessagePromptTemplate
 
+from ui.login_page import LoginPage
 from agent.manager_agent import ManagerAgent
 from agent.plan_agent import PlanAgent
 from tools.search_engine_tool import SearchEngineTool
+from utils.config import Config
 from utils.llm_util import LLMUtil
 from work_principle.okr_principle import OKR_Object
 import logging
@@ -47,8 +54,31 @@ class AutoMate:
         r = input("请输入你的问题：\n")
         agent_executor.invoke({"input": r})
 
+    def run_ui(self):
+        config = Config()
+        leancloud.init(config.LEAN_CLOUD["id"], config.LEAN_CLOUD["key"])
+        # 从文件中判断是否有session
+        tmp_file = "./session"
+        if os.path.exists(tmp_file):
+            with open(tmp_file, 'rb') as file:
+                session_token = file.read()
+                leancloud.User.become(session_token)
+                authenticated = leancloud.User.get_current().is_authenticated()
+                if not authenticated:
+                    self.goto_login_page()
+                else:
+                    print("登陆成功")
+        else:
+            self.goto_login_page()
+
+    def goto_login_page(self):
+        app = QApplication(sys.argv)
+        w = LoginPage()
+        w.show()
+        sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     automator = AutoMate()
-    automator.run()
+    automator.run_ui()
     # print(automator.call_chatgpt_api("Hello"))
