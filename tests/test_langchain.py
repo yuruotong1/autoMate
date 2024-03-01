@@ -18,3 +18,4 @@ class TestLangChain:
         info = "\n".join(f"{i+1}. {data.title}" for i, data in enumerate(search_datas))
         choice = input(f"下面是百度搜索结果，请选择你觉得有用的信息以逗号分割，如1,3,4，直接回车代表all in：\n{info}")
         choice = list(map(int, choice.split(",")))
+
