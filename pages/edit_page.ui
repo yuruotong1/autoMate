@@ -23,7 +23,7 @@
       <height>461</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,2,10">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>1</number>
      </property>
@@ -42,13 +42,7 @@
        <item>
         <widget class="QLineEdit" name="functionSearch"/>
        </item>
-       <item>
-        <widget class="QListView" name="functionModules"/>
-       </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QListView" name="serial"/>
      </item>
     </layout>
    </widget>

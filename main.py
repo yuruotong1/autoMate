@@ -65,6 +65,8 @@ class AutoMate:
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    page = AutoMate()
-    page.run_ui()
+    # page = AutoMate()
+    # page.run_ui()
+    page = EditPage()
+    page.show()
     sys.exit(app.exec())
