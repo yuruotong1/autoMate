@@ -1,7 +1,8 @@
-from PyQt6 import QtGui
-from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray, QDataStream
-from PyQt6.QtGui import QDrag, QIcon
+from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray
+from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray
+from PyQt6.QtGui import QDrag, QStandardItem
 from PyQt6.QtWidgets import QListView, QAbstractItemView, QStyle, QApplication
+
 from pages.bse_page import BasePage
 from utils.qt_util import QtUtil
 
@@ -19,26 +20,33 @@ class FunctionListView(QListView):
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.clicked.connect(self.list_view_click)
 
-    def startDrag(self, actions):
-        # 获取当前选中的项
-        item = self.currentIndex()
-        drag_data = item.data()
-        if drag_data:
-            print(f"拖拽了数据{drag_data}")
-        # 创建一个QDrag对象
-        drag = QDrag(self)
-        # 设置拖拽的数据
-        drag.setMimeData(self.model().mimeData([item]))
-        # 设置拖拽的图标
-        drag.setPixmap(self.viewport().grab(self.visualRect(item)))
-        # 设置拖拽的热点
-        drag.setHotSpot(QPoint(drag.pixmap().width() // 2, drag.pixmap().height() // 2))
-        # 开始拖拽操作
-        drag.exec(actions)
+    # def startDrag(self, actions):
+    #     # 获取当前选中的项
+    #     item = self.currentIndex()
+    #     drag_data = item.data()
+    #     if drag_data:
+    #         print(f"拖拽了数据{drag_data}")
+    #     # 创建一个QDrag对象
+    #     drag = QDrag(self)
+    #
+    #     # 设置拖拽的数据
+    #     drag.setMimeData(self.model().mimeData([item]))
+    #     # 设置拖拽的图标
+    #     drag.setPixmap(self.viewport().grab(self.visualRect(item)))
+    #     # 设置拖拽的热点
+    #     drag.setHotSpot(QPoint(drag.pixmap().width() // 2, drag.pixmap().height() // 2))
+    #     # 开始拖拽操作
+    #     drag.exec(actions)
 
     @staticmethod
     def list_view_click(index):
         print(f"你点击了{index.data()}")
+
+
+class ActionListViewItem(QStandardItem):
+    def __init__(self, text, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setText(text)
 
 
 class ActionListView(QListView):
@@ -94,10 +102,14 @@ class ActionListView(QListView):
             the_drag_item = self.model().itemData(the_drag_index)
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
+            byte_array = QByteArray()
+            byte_array.append(the_drag_item[0].encode())
+            mime_data.setData(self.my_mime_type, byte_array)
+
             # 设置拖拽缩略图
             drag = QDrag(self)
             icon = self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarNormalButton)
-            drag.setMimeData(self.model().mimeData([self.currentIndex()]))
+            drag.setMimeData(mime_data)
             pixmap = icon.pixmap(10, 10)
             drag.setPixmap(pixmap)
             # 删除的行需要根据theInsertRow和theDragRow的大小关系来判断
@@ -168,9 +180,13 @@ class ActionListView(QListView):
             self.old_highlighted_row = self.the_highlighted_row
             self.the_drag_row = -2
             self.update(self.model().index(self.old_highlighted_row, 0))
-            self.update(self.model().index(self.old_highlighted_row+1, 0))
+            self.update(self.model().index(self.old_highlighted_row + 1, 0))
             if (self.the_insert_row == self.the_drag_row) or (self.the_insert_row == self.the_drag_row + 1):
                 return
+            item_data = e.mimeData().data(self.my_mime_type)
+            self.model().insertRow(self.the_insert_row)
+            self.model().setData(self.model().index(self.the_insert_row, 0),
+                                 ActionListViewItem(item_data.data().decode()))
 
 
 class EditPage(BasePage):

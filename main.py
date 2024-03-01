@@ -1,21 +1,18 @@
+import logging
 import os
 import sys
 
 import leancloud
-from PyQt6.QtWidgets import QApplication, QWidget
-from langchain.agents import create_openai_functions_agent, AgentExecutor, AgentType, create_react_agent
+from PyQt6.QtWidgets import QApplication
+from langchain.agents import create_openai_functions_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder, PromptTemplate, \
     HumanMessagePromptTemplate
 
 from pages.edit_page import EditPage
 from pages.login_page import LoginPage
-from agent.manager_agent import ManagerAgent
-from agent.plan_agent import PlanAgent
 from tools.search_engine_tool import SearchEngineTool
 from utils.config import Config
 from utils.llm_util import LLMUtil
-from work_principle.okr_principle import OKR_Object
-import logging
 
 # 设置日志
 logging.basicConfig(level=logging.INFO)
@@ -49,7 +46,7 @@ class AutoMate:
         # 从文件中判断是否有session
         tmp_file = "./session"
         if os.path.exists(tmp_file):
-            with (open(tmp_file, 'rb') as file):
+            with open(tmp_file, 'rb') as file:
                 session_token = file.read()
                 leancloud.User.become(session_token)
                 authenticated = leancloud.User.get_current().is_authenticated()
