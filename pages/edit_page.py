@@ -1,26 +1,11 @@
 from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag, QStandardItem, QStandardItemModel
-from PyQt6.QtWidgets import QListView, QAbstractItemView, QStyle, QApplication
+from PyQt6.QtWidgets import QListView, QStyle, QApplication
 
 from pages.bse_page import BasePage
+from pages.edit_function_page import FunctionListView
 from pages.styled_item_delegate import StyledItemDelegate
 from utils.qt_util import QtUtil
-
-
-class FunctionListView(QListView):
-    def __init__(self):
-        # 支持元素拖拽
-        super().__init__()
-        self.setDragEnabled(True)
-        self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
-
-        # 禁止双击编辑
-        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.clicked.connect(self.list_view_click)
-
-    @staticmethod
-    def list_view_click(index):
-        print(f"你点击了{index.data()}")
 
 
 class ActionListViewItem(QStandardItem):
@@ -30,6 +15,8 @@ class ActionListViewItem(QStandardItem):
 
 
 class ActionListView(QListView):
+    my_mime_type = "ActionListView/data_drag"
+
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
@@ -52,7 +39,6 @@ class ActionListView(QListView):
         func_list = QStringListModel()
         func_list.setStringList(["鼠标操作", "键盘操作", "文件操作"])
         self.setModel(func_list)
-        self.my_mime_type = "TestListView/text-icon-icon_hover"
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
@@ -85,7 +71,6 @@ class ActionListView(QListView):
             byte_array = QByteArray()
             byte_array.append(the_drag_item[0].encode())
             mime_data.setData(self.my_mime_type, byte_array)
-
             # 设置拖拽缩略图
             drag = QDrag(self)
             icon = self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarNormalButton)
@@ -104,8 +89,13 @@ class ActionListView(QListView):
 
     def dragEnterEvent(self, e):
         source = e.source()
-        # 从动作列表中进行拖拽，而非从其他 listview 中拖拽过来的元素
+        # 从动作列表中进行拖拽
         if source and (source == self):
+            self.is_drag = True
+            e.setDropAction(Qt.DropAction.MoveAction)
+            e.accept()
+        # 从功能列表中拖拽过来
+        elif source and source != self:
             self.is_drag = True
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()
@@ -120,68 +110,61 @@ class ActionListView(QListView):
         e.accept()
 
     def dragMoveEvent(self, e):
-        source = e.source()
-        # 从动作列表中进行拖拽，而非从其他 listview 中拖拽过来的元素
-        if source and (source == self):
-            self.old_highlighted_row = self.the_highlighted_row
-            # 当鼠标移动到两个元素之间时，选中上一个元素
-            pos = QPoint()
-            pos.setX(int(e.position().x()))
-            pos.setY(int(e.position().y()) - self.offset)
-            self.the_highlighted_row = self.indexAt(pos).row()
-            # 拖动元素的当前位置不超上边界
-            if e.position().y() >= self.offset:
+        self.old_highlighted_row = self.the_highlighted_row
+        # 当鼠标移动到两个元素之间时，选中上一个元素
+        pos = QPoint()
+        pos.setX(int(e.position().x()))
+        pos.setY(int(e.position().y()) - self.offset)
+        self.the_highlighted_row = self.indexAt(pos).row()
+        # 拖动元素的当前位置不超上边界
+        if e.position().y() >= self.offset:
 
-                # 把元素拖到底部，且目标位置不存在任何元素，选中最后一个元素
-                if self.the_highlighted_row == -1:
-                    self.the_highlighted_row = self.model().rowCount() - 1
+            # 把元素拖到底部，且目标位置不存在任何元素，选中最后一个元素
+            if self.the_highlighted_row == -1:
+                self.the_highlighted_row = self.model().rowCount() - 1
 
-                # 如果拖动前位置和拖动后位置不相同
-                if self.old_highlighted_row != self.the_highlighted_row:
-                    # 刷新旧区域使dropIndicator消失
-                    self.update(self.model().index(self.old_highlighted_row, 0))
-                    self.update(self.model().index(self.old_highlighted_row + 1, 0))
+            # 如果拖动前位置和拖动后位置不相同
+            if self.old_highlighted_row != self.the_highlighted_row:
+                # 刷新旧区域使dropIndicator消失
+                self.update(self.model().index(self.old_highlighted_row, 0))
+                self.update(self.model().index(self.old_highlighted_row + 1, 0))
 
-                    # 刷新新区域使dropIndicator显示
-                    self.update(self.model().index(self.the_highlighted_row, 0))
-                    self.update(self.model().index(self.the_highlighted_row + 1, 0))
-                # 如果拖动前位置和拖动后位置相同
-                else:
-                    self.update(self.model().index(self.the_highlighted_row, 0))
-                    self.update(self.model().index(self.the_highlighted_row + 1, 0))
-                self.the_insert_row = self.the_highlighted_row + 1
-            # 插到第一行
+                # 刷新新区域使dropIndicator显示
+                self.update(self.model().index(self.the_highlighted_row, 0))
+                self.update(self.model().index(self.the_highlighted_row + 1, 0))
+            # 如果拖动前位置和拖动后位置相同
             else:
-                self.the_highlighted_row = -1
-                self.update(self.model().index(0, 0))
-                self.update(self.model().index(1, 0))
-                self.the_insert_row = 0
+                self.update(self.model().index(self.the_highlighted_row, 0))
+                self.update(self.model().index(self.the_highlighted_row + 1, 0))
+            self.the_insert_row = self.the_highlighted_row + 1
+        # 插到第一行
+        else:
+            self.the_highlighted_row = -1
+            self.update(self.model().index(0, 0))
+            self.update(self.model().index(1, 0))
+            self.the_insert_row = 0
 
-            e.setDropAction(Qt.DropAction.MoveAction)
-            e.accept()
+        e.setDropAction(Qt.DropAction.MoveAction)
+        e.accept()
 
     def dropEvent(self, e):
-        # 获取拖拽的数据
-        source = e.source()
-        # 从动作列表中进行拖拽，而非从其他 listview 中拖拽过来的元素
-        if source and (source == self):
-            self.is_drag = False
-            self.old_highlighted_row = self.the_highlighted_row
-            self.the_highlighted_row = -2
-            self.update(self.model().index(self.old_highlighted_row, 0))
-            self.update(self.model().index(self.old_highlighted_row + 1, 0))
-            if (self.the_insert_row == self.the_drag_row) or (self.the_insert_row == self.the_drag_row + 1):
-                return
-            # 向指定行插入数据
-            item_data = e.mimeData().data(self.my_mime_type)
-            self.model().insertRow(self.the_insert_row)
-            self.model().setItem(self.the_insert_row, 0,
-                                 ActionListViewItem(item_data.data().decode()))
-            # 插入行保持选中状态
-            if self.the_drag_row == self.the_selected_row:
-                self.setCurrentIndex(self.model().index(self.the_insert_row, 0))
-            e.setDropAction(Qt.DropAction.MoveAction)
-            e.accept()
+        self.is_drag = False
+        self.old_highlighted_row = self.the_highlighted_row
+        self.the_highlighted_row = -2
+        self.update(self.model().index(self.old_highlighted_row, 0))
+        self.update(self.model().index(self.old_highlighted_row + 1, 0))
+        if (self.the_insert_row == self.the_drag_row) or (self.the_insert_row == self.the_drag_row + 1):
+            return
+        # 向指定行插入数据
+        item_data = e.mimeData().data(self.my_mime_type)
+        self.model().insertRow(self.the_insert_row)
+        self.model().setItem(self.the_insert_row, 0,
+                             ActionListViewItem(item_data.data().decode()))
+        # 插入行保持选中状态
+        if self.the_drag_row == self.the_selected_row:
+            self.setCurrentIndex(self.model().index(self.the_insert_row, 0))
+        e.setDropAction(Qt.DropAction.MoveAction)
+        e.accept()
 
 
 class EditPage(BasePage):
