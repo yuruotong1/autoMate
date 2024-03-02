@@ -33,10 +33,10 @@ class ActionListView(QListView):
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
-        self.setMouseTracking(True)
-        self.setDragEnabled(True)
-        self.setDropIndicatorShown(False)
-        self.setDefaultDropAction(Qt.DropAction.MoveAction)
+        # self.setMouseTracking(True)
+        # self.setDragEnabled(True)
+        # self.setDropIndicatorShown(False)
+        # self.setDefaultDropAction(Qt.DropAction.MoveAction)
 
         # 拖动到当前位置对应的元素序号
         self.the_highlighted_row = -2
@@ -131,6 +131,11 @@ class ActionListView(QListView):
             self.the_highlighted_row = self.indexAt(pos).row()
             # 拖动元素的当前位置不超上边界
             if e.position().y() >= self.offset:
+
+                # 把元素拖到底部，且目标位置不存在任何元素，选中最后一个元素
+                if self.the_highlighted_row == -1:
+                    self.the_highlighted_row = self.model().rowCount() - 1
+
                 # 如果拖动前位置和拖动后位置不相同
                 if self.old_highlighted_row != self.the_highlighted_row:
                     # 刷新旧区域使dropIndicator消失
