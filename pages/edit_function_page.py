@@ -2,11 +2,15 @@ from PyQt6.QtCore import Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QStandardItemModel, QStandardItem, QDrag
 from PyQt6.QtWidgets import QListView, QAbstractItemView
 
+from functions.function_base import FunctionBase
+from functions.open_application_func import OpenApplicationFunc
+
 
 class FunctionListItem(QStandardItem):
-    def __init__(self, text, *args, **kwargs):
+    def __init__(self, func: FunctionBase, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setText(text)
+        self.func = func
+        self.setText(func.name)
 
 
 class FunctionListView(QListView):
@@ -20,13 +24,13 @@ class FunctionListView(QListView):
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         list_model = QStandardItemModel()
-        list_model.appendRow(FunctionListItem("打开应用"))
-        list_model.appendRow(FunctionListItem("执行代码"))
-        list_model.appendRow(FunctionListItem("浏览器操作"))
-        list_model.appendRow(FunctionListItem("浏览器点击"))
-        list_model.appendRow(FunctionListItem("浏览器输入"))
-        list_model.appendRow(FunctionListItem("键盘按键"))
-        list_model.appendRow(FunctionListItem("鼠标"))
+        list_model.appendRow(FunctionListItem(OpenApplicationFunc()))
+        # list_model.appendRow(FunctionListItem("执行代码"))
+        # list_model.appendRow(FunctionListItem("浏览器操作"))
+        # list_model.appendRow(FunctionListItem("浏览器点击"))
+        # list_model.appendRow(FunctionListItem("浏览器输入"))
+        # list_model.appendRow(FunctionListItem("键盘按键"))
+        # list_model.appendRow(FunctionListItem("鼠标"))
         self.setModel(list_model)
 
     # 记录拖拽初始位置
