@@ -1,9 +1,9 @@
 from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray
-from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray
-from PyQt6.QtGui import QDrag, QStandardItem
+from PyQt6.QtGui import QDrag, QStandardItem, QStandardItemModel
 from PyQt6.QtWidgets import QListView, QAbstractItemView, QStyle, QApplication
 
 from pages.bse_page import BasePage
+from pages.styled_item_delegate import StyledItemDelegate
 from utils.qt_util import QtUtil
 
 
@@ -13,30 +13,10 @@ class FunctionListView(QListView):
         super().__init__()
         self.setDragEnabled(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
-        func_list = QStringListModel()
-        func_list.setStringList(["鼠标操作", "键盘操作", "文件操作"])
-        self.setModel(func_list)
+
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.clicked.connect(self.list_view_click)
-
-    # def startDrag(self, actions):
-    #     # 获取当前选中的项
-    #     item = self.currentIndex()
-    #     drag_data = item.data()
-    #     if drag_data:
-    #         print(f"拖拽了数据{drag_data}")
-    #     # 创建一个QDrag对象
-    #     drag = QDrag(self)
-    #
-    #     # 设置拖拽的数据
-    #     drag.setMimeData(self.model().mimeData([item]))
-    #     # 设置拖拽的图标
-    #     drag.setPixmap(self.viewport().grab(self.visualRect(item)))
-    #     # 设置拖拽的热点
-    #     drag.setHotSpot(QPoint(drag.pixmap().width() // 2, drag.pixmap().height() // 2))
-    #     # 开始拖拽操作
-    #     drag.exec(actions)
 
     @staticmethod
     def list_view_click(index):
@@ -114,8 +94,10 @@ class ActionListView(QListView):
             drag.setPixmap(pixmap)
             # 删除的行需要根据theInsertRow和theDragRow的大小关系来判断
             if drag.exec(Qt.DropAction.MoveAction) == Qt.DropAction.MoveAction:
+                # 元素向上拖动，会在上面新增一个，因此要删除的位置需要+1
                 if self.the_insert_row < self.the_drag_row:
                     the_remove_row = self.the_drag_row + 1
+                # 元素向下拖动，会在下面新增一个，因此直接删除即可
                 else:
                     the_remove_row = self.the_drag_row
                 self.model().removeRow(the_remove_row)
@@ -158,10 +140,12 @@ class ActionListView(QListView):
                     # 刷新新区域使dropIndicator显示
                     self.update(self.model().index(self.the_highlighted_row, 0))
                     self.update(self.model().index(self.the_highlighted_row + 1, 0))
+                # 如果拖动前位置和拖动后位置相同
                 else:
                     self.update(self.model().index(self.the_highlighted_row, 0))
                     self.update(self.model().index(self.the_highlighted_row + 1, 0))
                 self.the_insert_row = self.the_highlighted_row + 1
+            # 插到第一行
             else:
                 self.the_highlighted_row = -1
                 self.update(self.model().index(0, 0))
@@ -178,15 +162,21 @@ class ActionListView(QListView):
         if source and (source == self):
             self.is_drag = False
             self.old_highlighted_row = self.the_highlighted_row
-            self.the_drag_row = -2
+            self.the_highlighted_row = -2
             self.update(self.model().index(self.old_highlighted_row, 0))
             self.update(self.model().index(self.old_highlighted_row + 1, 0))
             if (self.the_insert_row == self.the_drag_row) or (self.the_insert_row == self.the_drag_row + 1):
                 return
+            # 向指定行插入数据
             item_data = e.mimeData().data(self.my_mime_type)
             self.model().insertRow(self.the_insert_row)
-            self.model().setData(self.model().index(self.the_insert_row, 0),
+            self.model().setItem(self.the_insert_row, 0,
                                  ActionListViewItem(item_data.data().decode()))
+            # 插入行保持选中状态
+            if self.the_drag_row == self.the_selected_row:
+                self.setCurrentIndex(self.model().index(self.the_insert_row, 0))
+            e.setDropAction(Qt.DropAction.MoveAction)
+            e.accept()
 
 
 class EditPage(BasePage):
@@ -196,9 +186,24 @@ class EditPage(BasePage):
 
     def setup_up(self):
         self.ui = QtUtil.load_ui("edit_page.ui")
-        function_modules = FunctionListView()
-        self.ui.verticalLayout.addWidget(function_modules)
+        function_list_view = FunctionListView()
+        self.ui.verticalLayout.addWidget(function_list_view)
         action_list = ActionListView()
+        action_list.setStyleSheet(
+            "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
+            "QListView::Item{height:40px; border:0px; padding-left:14px; color:rgba(200, 40, 40, 255);}"
+            "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}"
+            "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
+
+        styled_item_delegate = StyledItemDelegate()
+        action_list.setItemDelegate(styled_item_delegate)
+        list_model = QStandardItemModel()
+        list_model.setItem(0, 0, ActionListViewItem("鼠标操作"))
+        list_model.setItem(1, 0, ActionListViewItem("鼠标操作1"))
+        list_model.setItem(2, 0, ActionListViewItem("鼠标操作2"))
+        list_model.setItem(3, 0, ActionListViewItem("鼠标操作3"))
+        list_model.setItem(4, 0, ActionListViewItem("鼠标操作4"))
+        action_list.setModel(list_model)
         self.ui.horizontalLayout.addWidget(action_list)
         # 设置间距
         self.ui.horizontalLayout.setStretch(0, 1)
