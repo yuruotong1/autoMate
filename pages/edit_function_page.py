@@ -25,12 +25,6 @@ class FunctionListView(QListView):
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         list_model = QStandardItemModel()
         list_model.appendRow(FunctionListItem(OpenApplicationFunc()))
-        # list_model.appendRow(FunctionListItem("执行代码"))
-        # list_model.appendRow(FunctionListItem("浏览器操作"))
-        # list_model.appendRow(FunctionListItem("浏览器点击"))
-        # list_model.appendRow(FunctionListItem("浏览器输入"))
-        # list_model.appendRow(FunctionListItem("键盘按键"))
-        # list_model.appendRow(FunctionListItem("鼠标"))
         self.setModel(list_model)
 
     # 记录拖拽初始位置

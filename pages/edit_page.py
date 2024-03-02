@@ -175,7 +175,7 @@ class EditPage(BasePage):
     def setup_up(self):
         self.ui = QtUtil.load_ui("edit_page.ui")
         function_list_view = FunctionListView()
-        self.ui.verticalLayout.addWidget(function_list_view)
+        self.ui.function_list_layout.addWidget(function_list_view)
         action_list = ActionListView()
         action_list.setStyleSheet(
             "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
@@ -192,9 +192,9 @@ class EditPage(BasePage):
         list_model.setItem(3, 0, ActionListViewItem("鼠标操作3"))
         list_model.setItem(4, 0, ActionListViewItem("鼠标操作4"))
         action_list.setModel(list_model)
-        self.ui.horizontalLayout.addWidget(action_list)
+        self.ui.ListViewLayout.addWidget(action_list)
         # 设置间距
-        self.ui.horizontalLayout.setStretch(0, 1)
-        self.ui.horizontalLayout.setStretch(1, 2)
-        self.ui.horizontalLayout.setStretch(2, 10)
+        self.ui.ListViewLayout.setStretch(0, 1)
+        self.ui.ListViewLayout.setStretch(1, 2)
+        self.ui.ListViewLayout.setStretch(2, 10)
         self.ui.show()

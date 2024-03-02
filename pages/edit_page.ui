@@ -6,41 +6,62 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>799</width>
-    <height>600</height>
+    <width>853</width>
+    <height>689</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="horizontalLayoutWidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>801</width>
-      <height>461</height>
+      <width>851</width>
+      <height>651</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>1</number>
-     </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,25">
      <item>
-      <widget class="QScrollBar" name="verticalScrollBar">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
+      <widget class="QWidget" name="widget" native="true">
+       <widget class="QPushButton" name="run_button">
+        <property name="geometry">
+         <rect>
+          <x>740</x>
+          <y>0</y>
+          <width>51</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>运行</string>
+        </property>
+       </widget>
       </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QHBoxLayout" name="ListViewLayout">
        <property name="spacing">
-        <number>0</number>
+        <number>1</number>
        </property>
        <item>
-        <widget class="QLineEdit" name="functionSearch"/>
+        <widget class="QScrollBar" name="verticalScrollBar">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="function_list_layout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="functionSearch"/>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -52,7 +73,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>799</width>
+     <width>853</width>
      <height>22</height>
     </rect>
    </property>
