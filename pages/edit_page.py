@@ -167,10 +167,6 @@ class ActionListView(QListWidget):
 
 
 class EditPage(BasePage):
-    def __init__(self):
-        super().__init__()
-        self.setup_up()
-
     def setup_up(self):
         self.ui = QtUtil.load_ui("edit_page.ui")
         function_list_view = FunctionListView()

@@ -1,8 +1,9 @@
 from functions.open_application_func import OpenApplicationFunc
+from functions.open_browser_url_func import OpenBrowserUrlFunc
 
 
 class FunctionList:
-    funcs = [OpenApplicationFunc()]
+    funcs = [OpenApplicationFunc(), OpenBrowserUrlFunc()]
 
     @classmethod
     def get_funcs(cls):
