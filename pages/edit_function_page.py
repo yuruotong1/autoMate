@@ -1,9 +1,10 @@
 from PyQt6.QtCore import Qt, QMimeData, QByteArray
-from PyQt6.QtGui import  QDrag
+from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
 from functions.function_base import FunctionBase
 from functions.function_list import FunctionList
+from pages.bse_page import BasePage
 
 
 class FunctionListItem(QListWidgetItem):
@@ -25,6 +26,13 @@ class FunctionListView(QListWidget):
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         for funcs in FunctionList.get_funcs():
             self.addItem(FunctionListItem(funcs))
+
+    def mouseDoubleClickEvent(self, e):
+        item = self.itemAt(e.pos())
+        if not isinstance(item, FunctionListItem):
+            return
+        # 打开配置页面
+        item.func.config_page_show()
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
