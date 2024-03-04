@@ -1,30 +1,30 @@
+import pickle
+
 from PyQt6.QtCore import QStringListModel, QPoint, Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag, QStandardItem, QStandardItemModel
-from PyQt6.QtWidgets import QListView, QStyle, QApplication
+from PyQt6.QtWidgets import QListView, QStyle, QApplication, QListWidget, QListWidgetItem
 
+from functions.function_base import FunctionBase
+from functions.function_list import FunctionList
 from pages.bse_page import BasePage
 from pages.edit_function_page import FunctionListView
 from pages.styled_item_delegate import StyledItemDelegate
 from utils.qt_util import QtUtil
 
 
-class ActionListViewItem(QStandardItem):
-    def __init__(self, text, *args, **kwargs):
+class ActionListViewItem(QListWidgetItem):
+    def __init__(self, func: FunctionBase, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setText(text)
+        self.func = func
+        self.setText(func.name)
 
 
-class ActionListView(QListView):
+class ActionListView(QListWidget):
     my_mime_type = "ActionListView/data_drag"
 
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
-        # self.setMouseTracking(True)
-        # self.setDragEnabled(True)
-        # self.setDropIndicatorShown(False)
-        # self.setDefaultDropAction(Qt.DropAction.MoveAction)
-
         # 拖动到当前位置对应的元素序号
         self.the_highlighted_row = -2
         self.old_highlighted_row = -2
@@ -36,13 +36,10 @@ class ActionListView(QListView):
         self.the_insert_row = 1
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
-        func_list = QStringListModel()
-        func_list.setStringList(["鼠标操作", "键盘操作", "文件操作"])
-        self.setModel(func_list)
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
-        # # 如果在历史事件中左键点击过
+        # 如果在历史事件中左键点击过
         if e.buttons() & Qt.MouseButton.LeftButton:
             self.start_pos = e.pos()
 
@@ -65,11 +62,14 @@ class ActionListView(QListView):
             self.the_selected_row = self.currentIndex().row()
             # 拖拽即选中
             self.setCurrentIndex(the_drag_index)
-            the_drag_item = self.model().itemData(the_drag_index)
+            the_drag_item = self.item(the_drag_index.row())
+            # 拖拽空白处
+            if not isinstance(the_drag_item, ActionListViewItem):
+                return
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
             byte_array = QByteArray()
-            byte_array.append(the_drag_item[0].encode())
+            byte_array.append(the_drag_item.func.uni_tag.encode())
             mime_data.setData(self.my_mime_type, byte_array)
             # 设置拖拽缩略图
             drag = QDrag(self)
@@ -153,13 +153,12 @@ class ActionListView(QListView):
         self.the_highlighted_row = -2
         self.update(self.model().index(self.old_highlighted_row, 0))
         self.update(self.model().index(self.old_highlighted_row + 1, 0))
-        if (self.the_insert_row == self.the_drag_row) or (self.the_insert_row == self.the_drag_row + 1):
+        if ((self.the_insert_row == self.the_drag_row) or
+                (self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1)):
             return
         # 向指定行插入数据
         item_data = e.mimeData().data(self.my_mime_type)
-        self.model().insertRow(self.the_insert_row)
-        self.model().setItem(self.the_insert_row, 0,
-                             ActionListViewItem(item_data.data().decode()))
+        self.insertItem(self.the_insert_row, ActionListViewItem(FunctionList.get_fuc_by_uni_tag(item_data)))
         # 插入行保持选中状态
         if self.the_drag_row == self.the_selected_row:
             self.setCurrentIndex(self.model().index(self.the_insert_row, 0))
@@ -185,13 +184,6 @@ class EditPage(BasePage):
 
         styled_item_delegate = StyledItemDelegate()
         action_list.setItemDelegate(styled_item_delegate)
-        list_model = QStandardItemModel()
-        list_model.setItem(0, 0, ActionListViewItem("鼠标操作"))
-        list_model.setItem(1, 0, ActionListViewItem("鼠标操作1"))
-        list_model.setItem(2, 0, ActionListViewItem("鼠标操作2"))
-        list_model.setItem(3, 0, ActionListViewItem("鼠标操作3"))
-        list_model.setItem(4, 0, ActionListViewItem("鼠标操作4"))
-        action_list.setModel(list_model)
         self.ui.ListViewLayout.addWidget(action_list)
         # 设置间距
         self.ui.ListViewLayout.setStretch(0, 1)
