@@ -18,7 +18,6 @@ class SearchEngineTool(ToolBase):
     description = "利用搜索引擎搜索关键词，得到结果列表"
     args_schema: Type[BaseModel] = SearchInput
 
-
     def _run(self, key: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> list[SearchData]:
         """Use the tool."""
         selenium = SeleniumUtil()
