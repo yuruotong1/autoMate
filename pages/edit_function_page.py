@@ -52,7 +52,8 @@ class FunctionListView(QListWidget):
             mime_data = QMimeData()
             byte_array = QByteArray()
             byte_array.append(the_drag_item.func.name.encode())
-            from pages.edit_page import ActionListView
+
+            from pages.action_list_view import ActionListView
             mime_data.setData(ActionListView.my_mime_type, byte_array)
             drag = QDrag(self)
             drag.setMimeData(mime_data)

@@ -15,8 +15,5 @@ class OpenApplicationFunc(FunctionBase):
     description = "打开指定目录的应用"
     args_schema: Type[BaseModel] = OpenApplicationInput
 
-    def __init__(self):
-        super().__init__()
-
     def run(self, path):
         subprocess.Popen(path)

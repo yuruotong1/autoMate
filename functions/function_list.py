@@ -1,9 +1,11 @@
+from functions.llm_func import LLMFunc
 from functions.open_application_func import OpenApplicationFunc
 from functions.open_browser_url_func import OpenBrowserUrlFunc
+from functions.search_engine_func import SearchEngineFunc
 
 
 class FunctionList:
-    funcs = [OpenApplicationFunc(), OpenBrowserUrlFunc()]
+    funcs = [OpenApplicationFunc(), OpenBrowserUrlFunc(), SearchEngineFunc(), LLMFunc()]
 
     @classmethod
     def get_funcs(cls):

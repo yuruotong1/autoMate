@@ -8,33 +8,13 @@ from langchain.agents import create_openai_functions_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder, PromptTemplate, \
     HumanMessagePromptTemplate
 
+from pages.action_list_view import GlobalUtil
 from pages.edit_page import EditPage
 from pages.login_page import LoginPage
-from tools.search_engine_tool import SearchEngineTool
 from utils.config import Config
-from utils.llm_util import LLMUtil
 
 # 设置日志
 logging.basicConfig(level=logging.INFO)
-
-
-def run():
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            SystemMessagePromptTemplate(
-                prompt=PromptTemplate(input_variables=[], template='你是一个工作助手')),
-            MessagesPlaceholder(variable_name='chat_history', optional=True),
-            HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=['input'], template='{input}')),
-            MessagesPlaceholder(variable_name='agent_scratchpad')
-        ]
-    )
-    model = LLMUtil().llm()
-    tools = [SearchEngineTool()]
-    agent = create_openai_functions_agent(model, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
-    r = input("请输入你的问题：\n")
-    agent_executor.invoke({"input": r})
-
 
 class AutoMate:
     def __init__(self):
@@ -62,8 +42,7 @@ class AutoMate:
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # page = AutoMate()
-    # page.run_ui()
+    GlobalUtil.init()
     page = EditPage()
     page.show()
     sys.exit(app.exec())

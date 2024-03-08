@@ -14,7 +14,7 @@ class StyledItemDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         drag_widget = option.styleObject
-        from pages.edit_page import ActionListView
+        from pages.action_list_view import ActionListView
         if not isinstance(drag_widget, ActionListView):
             raise TypeError("option.styleObject must be an instance of ActionListView")
         is_drag = drag_widget.is_drag

@@ -163,10 +163,14 @@ class ActionListView(QListWidget):
 
 
 class GlobalUtil:
-    action_list_global: ActionListView = ActionListView()
-    action_list_global.setStyleSheet(
-        "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
-        "QListView::Item{height:40px; border:0px; padding-left:14px; color:rgba(200, 40, 40, 255);}"
-        "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}"
-        "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
-    action_list_global.setItemDelegate(StyledItemDelegate())
+    action_list_global: ActionListView
+
+    @classmethod
+    def init(cls):
+        cls.action_list_global = ActionListView()
+        cls.action_list_global.setStyleSheet(
+            "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
+            "QListView::Item{height:40px; border:0px; padding-left:14px; color:rgba(200, 40, 40, 255);}"
+            "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}"
+            "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
+        cls.action_list_global.setItemDelegate(StyledItemDelegate())

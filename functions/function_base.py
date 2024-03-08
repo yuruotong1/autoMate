@@ -22,6 +22,9 @@ class FunctionBase:
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")
 
+    def run_with_out_arg(self):
+        return self.run(**self.tool_arg)
+
     def convert_langchain_tool(self):
         return StructuredTool.from_function(
             func=self.run,
@@ -58,8 +61,12 @@ class FunctionBase:
     def __save_button_clicked(self):
         for arg_name in self.__ui_name_and_link_edit:
             self.tool_arg[arg_name] = self.__ui_name_and_link_edit[arg_name].text()
+        # 如果双击应用列表打开的配置页面，保存后向应用列表最后插入
+        if self.action_pos is None:
+            self.action_pos = GlobalUtil.action_list_global.count()
 
         GlobalUtil.action_list_global.insertItem(self.action_pos, ActionListViewItem(self))
+        self.__config_ui.hide()
 
     def config_page_show(self):
         self.config_page_ui()
