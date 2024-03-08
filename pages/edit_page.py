@@ -69,7 +69,7 @@ class ActionListView(QListWidget):
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
             byte_array = QByteArray()
-            byte_array.append(the_drag_item.func.uni_tag.encode())
+            byte_array.append(the_drag_item.func.name.encode())
             mime_data.setData(self.my_mime_type, byte_array)
             # 设置拖拽缩略图
             drag = QDrag(self)
@@ -158,7 +158,7 @@ class ActionListView(QListWidget):
             return
         # 向指定行插入数据
         item_data = e.mimeData().data(self.my_mime_type)
-        self.insertItem(self.the_insert_row, ActionListViewItem(FunctionList.get_fuc_by_uni_tag(item_data)))
+        self.insertItem(self.the_insert_row, ActionListViewItem(FunctionList.get_fuc_by_name(item_data)))
         # 插入行保持选中状态
         if self.the_drag_row == self.the_selected_row:
             self.setCurrentIndex(self.model().index(self.the_insert_row, 0))

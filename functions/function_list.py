@@ -10,8 +10,8 @@ class FunctionList:
         return cls.funcs
 
     @classmethod
-    def get_fuc_by_uni_tag(cls, uni_tag):
+    def get_fuc_by_name(cls, name):
         for i in cls.funcs:
-            if i.uni_tag == uni_tag:
+            if i.name == name:
                 return i
         return None

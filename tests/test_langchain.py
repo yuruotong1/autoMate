@@ -2,6 +2,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from functions.open_application_tool import OpenApplicationInput, OpenApplicationTool
 from tools.search_engine_tool import SearchEngineTool
 from utils.llm_util import LLMUtil
 
@@ -14,8 +15,17 @@ class TestLangChain:
         model = LLMUtil().llm()
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | model | StrOutputParser() | SearchEngineTool()
+
         search_datas = chain.invoke({"input": "谁是李一舟"})
-        info = "\n".join(f"{i+1}. {data.title}" for i, data in enumerate(search_datas))
+        info = "\n".join(f"{i + 1}. {data.title}" for i, data in enumerate(search_datas))
         choice = input(f"下面是百度搜索结果，请选择你觉得有用的信息以逗号分割，如1,3,4，直接回车代表all in：\n{info}")
         choice = list(map(int, choice.split(",")))
 
+    def test_chain(self):
+        a = OpenApplicationTool()
+        print(123)
+        # a.invoke(r"C:\Users\yuruo\Desktop\HBuilder X.lnk")
+        b = OpenApplicationInput.model_fields
+        for c in b.keys():
+            print(c)
+            print(b[c].title)
