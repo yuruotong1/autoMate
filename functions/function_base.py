@@ -1,9 +1,11 @@
 from typing import Type
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget, QPushButton
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
-from pages.action_list_view import GlobalUtil, ActionListViewItem
+
+from pages.edit_action_list_view import GlobalUtil, ActionListViewItem
 from utils.qt_util import QtUtil
 
 

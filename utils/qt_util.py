@@ -1,7 +1,6 @@
 import os
 
 from PyQt6 import uic
-from PyQt6.QtWidgets import QWidget
 
 
 class QtUtil:
@@ -11,3 +10,9 @@ class QtUtil:
         project_root_path = os.path.abspath(os.path.dirname(__file__))
         path = os.path.join(project_root_path, "..", "pages", *path)
         return uic.loadUi(path)
+
+    @staticmethod
+    def get_icon(*path):
+        project_root_path = os.path.abspath(os.path.dirname(__file__))
+        path = os.path.join(project_root_path, "..", "source", *path)
+        return path

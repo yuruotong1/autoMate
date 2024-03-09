@@ -4,12 +4,10 @@ import sys
 
 import leancloud
 from PyQt6.QtWidgets import QApplication
-from langchain.agents import create_openai_functions_agent, AgentExecutor
-from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder, PromptTemplate, \
-    HumanMessagePromptTemplate
 
-from pages.action_list_view import GlobalUtil
+from pages.edit_action_list_view import GlobalUtil
 from pages.edit_page import EditPage
+from pages.func_list_page import FuncListPage
 from pages.login_page import LoginPage
 from utils.config import Config
 
@@ -43,6 +41,6 @@ class AutoMate:
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     GlobalUtil.init()
-    page = EditPage()
+    page = FuncListPage()
     page.show()
     sys.exit(app.exec())

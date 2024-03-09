@@ -1,6 +1,7 @@
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
+
 from pages.styled_item_delegate import StyledItemDelegate
 
 
