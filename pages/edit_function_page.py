@@ -4,7 +4,6 @@ from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
 from functions.function_base import FunctionBase
 from functions.function_list import FunctionList
-from pages.bse_page import BasePage
 
 
 class FunctionListItem(QListWidgetItem):
@@ -53,7 +52,7 @@ class FunctionListView(QListWidget):
             byte_array = QByteArray()
             byte_array.append(the_drag_item.func.name.encode())
 
-            from pages.action_list_view import ActionListView
+            from pages.edit_action_list_view import ActionListView
             mime_data.setData(ActionListView.my_mime_type, byte_array)
             drag = QDrag(self)
             drag.setMimeData(mime_data)

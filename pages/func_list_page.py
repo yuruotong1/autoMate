@@ -18,6 +18,8 @@ class AddFuncButton(QPushButton):
         self.setIcon(QIcon(QtUtil.get_icon("添加.png")))
         self.setIconSize(QSize(50, 50))
         self.setFlat(True)  # 删除按钮边框
+        # 防止被垃圾回收，所以注册为实例变量
+        self.edit_page = None
         # 按钮消息
         self.opacity_effect = QGraphicsOpacityEffect(self)
         self.setGraphicsEffect(self.opacity_effect)
@@ -25,7 +27,8 @@ class AddFuncButton(QPushButton):
 
     def click(self):
         self.func_list_page.hide()
-        EditPage().show()
+        self.edit_page = EditPage()
+        self.edit_page.show()
 
     def enterEvent(self, event):
         self.opacity_effect.setOpacity(1)
