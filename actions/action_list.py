@@ -1,11 +1,11 @@
-from actions.llm_func import LLMAction
-from actions.open_application_func import OpenApplicationFunc
-from actions.open_browser_url_func import OpenBrowserUrlAction
-from actions.search_engine_func import SearchEngineFunc
+from actions.llm_action import LLMAction
+from actions.open_application_action import OpenApplicationAction
+from actions.open_browser_url_action import OpenBrowserUrlAction
+from actions.search_engine_action import SearchEngineAction
 
 
 class ActionList:
-    funcs = [OpenApplicationFunc(), OpenBrowserUrlAction(), SearchEngineFunc(), LLMAction()]
+    funcs = [OpenApplicationAction(), OpenBrowserUrlAction(), SearchEngineAction(), LLMAction()]
 
     @classmethod
     def get_funcs(cls):

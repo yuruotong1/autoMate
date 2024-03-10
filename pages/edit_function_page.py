@@ -2,12 +2,12 @@ from PyQt6.QtCore import Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
-from functions.function_base import FunctionBase
-from functions.function_list import FunctionList
+from actions.action_base import ActionBase
+from actions.action_list import ActionList
 
 
 class FunctionListItem(QListWidgetItem):
-    def __init__(self, func: FunctionBase, *args, **kwargs):
+    def __init__(self, func: ActionBase, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.func = func
         self.setText(func.name)
@@ -23,7 +23,7 @@ class FunctionListView(QListWidget):
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        for funcs in FunctionList.get_funcs():
+        for funcs in ActionList.get_funcs():
             self.addItem(FunctionListItem(funcs))
 
     def mouseDoubleClickEvent(self, e):

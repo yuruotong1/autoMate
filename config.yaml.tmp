@@ -6,4 +6,13 @@ openai:
   # key
   api_key:
   #  xxxxx/v1/
-  api_url: 
+  api_url:
+
+
+# local or remote
+data_position: local
+
+# 如果是 remote 需要配置 leancloud远程环境
+# leancloud:
+  # key: xxx
+  # id: xxxx

@@ -1,4 +1,6 @@
+import os.path
 import pickle
+from dataclasses import dataclass
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
@@ -8,19 +10,49 @@ from pages.styled_item_delegate import StyledItemDelegate
 
 
 class ActionListViewItem(QListWidgetItem):
-    def __init__(self, func, *args, **kwargs):
+    @dataclass
+    class ActionItem:
+        action_name: str
+        action_arg: dict
+        action_pos: int
+
+    def __init__(self, action, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.func = func
-        self.setText(func.name)
+        self.func = action
+        self.setText(action.name)
+
+    @classmethod
+    def load(cls, action_item: ActionItem):
+        from actions.action_list import ActionList
+        from actions.action_base import ActionBase
+        action: ActionBase = ActionList.get_fuc_by_name(action_item.action_name)()
+        action.action_pos = action_item.action_pos
+        action.action_arg = action_item.action_arg
+        action_list_view_item = ActionListViewItem(action)
+        return action_list_view_item
+
+    def dump(self):
+        return self.ActionItem(action_name=self.func.name,
+                               action_arg=self.func.action_arg,
+                               action_pos=self.func.action_pos)
 
 
 class ActionListView(QListWidget):
     my_mime_type = "ActionListView/data_drag"
 
+    @dataclass
+    class ActionListViewJson:
+        func_list_pos_row: int
+        func_list_pos_column: int
+        func_name: str
+        func_description: str
+        action_items: list[ActionListViewItem.ActionItem]
+
     def __init__(self):
         super().__init__()
         # 在func上的信息
-        self.func_list_pos = [-1, -1]
+        self.func_list_pos_row = -1
+        self.func_list_pos_column = -1
         self.func_name = ""
         self.func_description = ""
         self.setAcceptDrops(True)
@@ -36,6 +68,29 @@ class ActionListView(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
+
+    @classmethod
+    def load(cls, action_list_view_json: ActionListViewJson):
+        action_list_view = ActionListView()
+        action_list_view.func_list_pos_row = action_list_view_json.func_list_pos_row
+        action_list_view.func_list_pos_column = action_list_view_json.func_list_pos_column
+        action_list_view.func_name = action_list_view_json.func_name
+        action_list_view.func_description = action_list_view_json.func_description
+        for item in action_list_view_json.action_items:
+            action_list_view.insertItem(item.action_pos, ActionListViewItem.load(item))
+        return action_list_view
+
+    def dump(self):
+        action_items = []
+        for item in [self.item(i) for i in range(self.count())]:
+            if not isinstance(item, ActionListViewItem):
+                continue
+            action_items.append(item.dump())
+        return self.ActionListViewJson(func_list_pos_row=self.func_list_pos_row,
+                                       func_list_pos_column=self.func_list_pos_column,
+                                       func_name=self.func_name,
+                                       func_description=self.func_description,
+                                       action_items=action_items)
 
     def init(self):
         self.setStyleSheet(
@@ -183,9 +238,18 @@ class GlobalUtil:
 
     @classmethod
     def read_from_local(cls):
+        # 判断文件是否存在
+        if not os.path.exists("./cache"):
+            return []
+
         with open("./cache", "rb") as file:
-            cls.action_list_global = pickle.load(file)["action_list_global"]
-            return cls.action_list_global
+            data = pickle.load(file)["action_list_global"]
+            return data
+
+    @classmethod
+    def save_to_local(cls):
+        with open("./cache", "wb") as file:
+            pickle.dump({"action_list_global": cls.action_list_global}, file)
 
     @classmethod
     def init(cls):
@@ -199,20 +263,6 @@ class GlobalUtil:
             action_list_json = []
         else:
             action_list_json = []
-        # 生成ActionListView
-        for action_json in action_list_json:
-            action_list_view = ActionListView()
-            action_list_view.func_list_pos = action_json["func_list_pos"]
-            action_list_view.func_name = action_json["func_name"]
-            action_list_view.func_description = action_json["func_description"]
-            for item in action_json["action_items"]:
-                action_name = item["action_name"]
-                action_arg = item["action_arg"]
-                action_pos = item["action_pos"]
-                from actions.action_list import ActionList
-                from actions.action_base import ActionBase
-                action: ActionBase = ActionList.get_fuc_by_name(action_name)()
-                action.action_pos = action_pos
-                action.action_arg = action_arg
-                action_list_view.insertItem(item["row"], ActionListViewItem(action))
-            cls.action_list_global.append(action_list_view)
+        for action in action_list_json:
+            action_json = ActionListView.ActionListViewJson(**action)
+            cls.action_list_global.append(ActionListView.load(action_json))
