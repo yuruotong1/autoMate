@@ -2,7 +2,7 @@
 
 autoMate是一款基于 langchain，让大模型为你打工的工具。
 
-![](./source/main.png)
+![](./source/main.gif)
 
 它支持人工编排，对多种工具进行组合使用，完成但不限于以下工作
 
