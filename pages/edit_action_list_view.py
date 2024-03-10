@@ -45,16 +45,19 @@ class ActionListView(QListWidget):
         func_list_pos_row: int
         func_list_pos_column: int
         func_name: str
+        func_status: str
         func_description: str
         action_items: list[ActionListViewItem.ActionItem]
 
-    def __init__(self, func_list_pos_row, func_list_pos_column, *args, **kwargs):
+    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, *args, **kwargs):
         super().__init__()
         # 在func页面上的位置
         self.func_list_pos_row = func_list_pos_row
         self.func_list_pos_column = func_list_pos_column
         # 在func上的名称
-        self.func_name = ""
+        self.func_name = "默认名称"
+        # 属于通用还是专属
+        self.func_status = func_status
         self.func_description = ""
         self.setAcceptDrops(True)
         # 拖动到当前位置对应的元素序号
@@ -72,8 +75,10 @@ class ActionListView(QListWidget):
 
     @classmethod
     def load(cls, action_list_view_json: ActionListViewJson):
-        action_list_view = ActionListView(action_list_view_json.func_list_pos_row,
-                                          action_list_view_json.func_list_pos_column)
+        action_list_view = ActionListView(
+            action_list_view_json.func_status,
+            action_list_view_json.func_list_pos_row,
+            action_list_view_json.func_list_pos_column)
         action_list_view.func_name = action_list_view_json.func_name
         action_list_view.func_description = action_list_view_json.func_description
         for item in action_list_view_json.action_items:
@@ -90,7 +95,9 @@ class ActionListView(QListWidget):
                                        func_list_pos_column=self.func_list_pos_column,
                                        func_name=self.func_name,
                                        func_description=self.func_description,
-                                       action_items=action_items)
+                                       func_status=self.func_status,
+                                       action_items=action_items
+                                       )
 
     def init(self):
         self.setStyleSheet(
@@ -238,9 +245,10 @@ class GlobalUtil:
     current_action: ActionListView = None
 
     @classmethod
-    def get_list_view_by_position(cls, row, column):
+    def get_list_view_by_position(cls, func_status, row, column):
         for i in cls.action_list_global:
-            if i.func_list_pos_row == row and i.func_list_pos_column == column:
+            if i.func_list_pos_row == row and i.func_list_pos_column == column \
+                    and i.func_status == func_status:
                 return i
         return None
 

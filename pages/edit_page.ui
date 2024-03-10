@@ -67,7 +67,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="func_name_edit">
     <property name="geometry">
      <rect>
       <x>860</x>
@@ -90,7 +90,7 @@
      <string>标题</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="func_description_edit">
     <property name="geometry">
      <rect>
       <x>860</x>

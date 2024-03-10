@@ -18,9 +18,9 @@
                 <property name="geometry">
                     <rect>
                         <x>0</x>
-                        <y>0</y>
+                        <y>20</y>
                         <width>351</width>
-                        <height>241</height>
+                        <height>261</height>
                     </rect>
                 </property>
                 <layout class="QGridLayout" name="general_layout"/>
@@ -29,12 +29,38 @@
                 <property name="geometry">
                     <rect>
                         <x>0</x>
-                        <y>270</y>
+                        <y>300</y>
                         <width>351</width>
-                        <height>321</height>
+                        <height>291</height>
                     </rect>
                 </property>
                 <layout class="QGridLayout" name="special_layout"/>
+            </widget>
+            <widget class="QLabel" name="label">
+                <property name="geometry">
+                    <rect>
+                        <x>0</x>
+                        <y>0</y>
+                        <width>54</width>
+                        <height>16</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>通用功能</string>
+                </property>
+            </widget>
+            <widget class="QLabel" name="label_2">
+                <property name="geometry">
+                    <rect>
+                        <x>0</x>
+                        <y>280</y>
+                        <width>54</width>
+                        <height>16</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>条件功能</string>
+                </property>
             </widget>
         </widget>
         <widget class="QMenuBar" name="menubar">

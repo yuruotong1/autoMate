@@ -7,6 +7,8 @@ from utils.qt_util import QtUtil
 class EditPage(BasePage):
     def setup_up(self):
         self.ui = QtUtil.load_ui("edit_page.ui")
+        self.ui.func_name_edit.setText(GlobalUtil.current_action.func_name)
+        self.ui.func_description_edit.setText(GlobalUtil.current_action.func_description)
         function_list_view = FunctionListView()
         self.ui.function_list_layout.addWidget(function_list_view)
         self.ui.ListViewLayout.addWidget(GlobalUtil.current_action)
@@ -19,6 +21,8 @@ class EditPage(BasePage):
         self.ui.ListViewLayout.setStretch(2, 10)
 
     def __save_button_click(self):
+        GlobalUtil.current_action.func_name = self.ui.func_name_edit.text()
+        GlobalUtil.current_action.func_description = self.ui.func_description_edit.text()
         GlobalUtil.save_to_local()
         self.ui.hide()
         from pages.func_list_page import FuncListPage
@@ -28,7 +32,8 @@ class EditPage(BasePage):
     def __cancel_button_click(self):
         GlobalUtil.delete_action_view(GlobalUtil.current_action)
         self.ui.hide()
-        self.func = FunctionListView()
+        from pages.func_list_page import FuncListPage
+        self.func = FuncListPage()
         self.func.show()
 
     @staticmethod
