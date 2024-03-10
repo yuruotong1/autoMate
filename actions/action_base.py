@@ -9,7 +9,7 @@ from pages.edit_action_list_view import GlobalUtil, ActionListViewItem
 from utils.qt_util import QtUtil
 
 
-class FunctionBase:
+class ActionBase:
     name = ""
     description = ""
     args_schema: Type[BaseModel]
@@ -18,14 +18,14 @@ class FunctionBase:
         self.__config_ui = None
         self.tool = None
         self.__ui_name_and_link_edit = {}
-        self.tool_arg = {}
+        self.action_arg = {}
         self.action_pos = None
 
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")
 
     def run_with_out_arg(self):
-        return self.run(**self.tool_arg)
+        return self.run(**self.action_arg)
 
     def convert_langchain_tool(self):
         return StructuredTool.from_function(
@@ -62,7 +62,7 @@ class FunctionBase:
 
     def __save_button_clicked(self):
         for arg_name in self.__ui_name_and_link_edit:
-            self.tool_arg[arg_name] = self.__ui_name_and_link_edit[arg_name].text()
+            self.action_arg[arg_name] = self.__ui_name_and_link_edit[arg_name].text()
         # 如果双击应用列表打开的配置页面，保存后向应用列表最后插入
         if self.action_pos is None:
             self.action_pos = GlobalUtil.action_list_global.count()

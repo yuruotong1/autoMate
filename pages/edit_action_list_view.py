@@ -1,3 +1,5 @@
+import pickle
+
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
@@ -17,6 +19,10 @@ class ActionListView(QListWidget):
 
     def __init__(self):
         super().__init__()
+        # 在func上的信息
+        self.func_list_pos = [-1, -1]
+        self.func_name = ""
+        self.func_description = ""
         self.setAcceptDrops(True)
         # 拖动到当前位置对应的元素序号
         self.the_highlighted_row = -2
@@ -29,6 +35,15 @@ class ActionListView(QListWidget):
         self.the_insert_row = 1
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
+        self.init()
+
+    def init(self):
+        self.setStyleSheet(
+            "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
+            "QListView::Item{height:40px; border:0px; padding-left:14px; color:rgba(200, 40, 40, 255);}"
+            "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}"
+            "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
+        self.setItemDelegate(StyledItemDelegate())
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
@@ -151,8 +166,8 @@ class ActionListView(QListWidget):
             return
         # 向指定行插入数据
         item_data = e.mimeData().data(self.my_mime_type)
-        from functions.function_list import FunctionList
-        function = FunctionList.get_fuc_by_name(item_data)
+        from actions.action_list import ActionList
+        function = ActionList.get_fuc_by_name(item_data)
         function.action_pos = self.the_insert_row
         function.config_page_show()
         # self.insertItem(self.the_insert_row, ActionListViewItem(function))
@@ -164,14 +179,40 @@ class ActionListView(QListWidget):
 
 
 class GlobalUtil:
-    action_list_global: ActionListView
+    action_list_global: [ActionListView]
+
+    @classmethod
+    def read_from_local(cls):
+        with open("./cache", "rb") as file:
+            cls.action_list_global = pickle.load(file)["action_list_global"]
+            return cls.action_list_global
 
     @classmethod
     def init(cls):
-        cls.action_list_global = ActionListView()
-        cls.action_list_global.setStyleSheet(
-            "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; padding-left:14px; color:rgba(200, 40, 40, 255);}"
-            "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}"
-            "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
-        cls.action_list_global.setItemDelegate(StyledItemDelegate())
+        # 根据配置文件的配置，从本地文件中或者网上读取
+        from utils.config import Config
+        config = Config()
+        cls.action_list_global = []
+        if config.DATA_POSITION == "local":
+            action_list_json = cls.read_from_local()
+        elif config.DATA_POSITION == "remote":
+            action_list_json = []
+        else:
+            action_list_json = []
+        # 生成ActionListView
+        for action_json in action_list_json:
+            action_list_view = ActionListView()
+            action_list_view.func_list_pos = action_json["func_list_pos"]
+            action_list_view.func_name = action_json["func_name"]
+            action_list_view.func_description = action_json["func_description"]
+            for item in action_json["action_items"]:
+                action_name = item["action_name"]
+                action_arg = item["action_arg"]
+                action_pos = item["action_pos"]
+                from actions.action_list import ActionList
+                from actions.action_base import ActionBase
+                action: ActionBase = ActionList.get_fuc_by_name(action_name)()
+                action.action_pos = action_pos
+                action.action_arg = action_arg
+                action_list_view.insertItem(item["row"], ActionListViewItem(action))
+            cls.action_list_global.append(action_list_view)

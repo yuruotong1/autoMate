@@ -11,10 +11,23 @@ class EditPage(BasePage):
         self.ui.function_list_layout.addWidget(function_list_view)
         self.ui.ListViewLayout.addWidget(GlobalUtil.action_list_global)
         self.ui.run_button.clicked.connect(self.__run_button_click)
+        self.ui.save_button.clicked.connect()
+        self.ui.cancel_button.clicked.connect()
         # 设置间距
         self.ui.ListViewLayout.setStretch(0, 1)
         self.ui.ListViewLayout.setStretch(1, 2)
         self.ui.ListViewLayout.setStretch(2, 10)
+
+    def __save_button_click(self):
+        GlobalUtil.action_list_global
+        self.ui.hide()
+        self.func = FunctionListView()
+        self.func.show()
+
+    def __cancel_button_click(self):
+        self.ui.hide()
+        self.func = FunctionListView()
+        self.func.show()
 
     def __run_button_click(self):
         GlobalUtil.action_list_global.model()

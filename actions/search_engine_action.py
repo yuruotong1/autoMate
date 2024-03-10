@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 from selenium.webdriver.common.by import By
 
+from actions.action_base import ActionBase
 from data_class.search_data import SearchData
-from functions.function_base import FunctionBase
 from utils.selenium_util import SeleniumUtil
 
 
@@ -11,7 +11,7 @@ class SearchInput(BaseModel):
 
 
 # 利用搜索引擎搜索关键词
-class SearchEngineFunc(FunctionBase):
+class SearchEngineAction(ActionBase):
     name = "百度搜索内容"
     description = "利用搜索引擎搜索关键词，得到结果列表"
     args_schema = SearchInput
