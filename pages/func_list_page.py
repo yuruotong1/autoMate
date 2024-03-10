@@ -3,15 +3,16 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QPushButton, QGraphicsOpacityEffect
 
 from pages.bse_page import BasePage
+from pages.edit_action_list_view import GlobalUtil, ActionListView
 from pages.edit_page import EditPage
 from utils.qt_util import QtUtil
 
 
 class AddFuncButton(QPushButton):
-    def __init__(self, pos_x, pos_y, func_list_page):
+    def __init__(self, func_list_pos_row, func_list_pos_column, func_list_page):
         super().__init__()
-        self.pos_x = pos_x
-        self.pos_y = pos_y
+        self.func_list_pos_row = func_list_pos_row
+        self.func_list_pos_column = func_list_pos_column
         self.func_list_page = func_list_page
         self.setMouseTracking(True)
         self.clicked.connect(self.click)
@@ -27,6 +28,11 @@ class AddFuncButton(QPushButton):
 
     def click(self):
         self.func_list_page.hide()
+        list_view = GlobalUtil.get_list_view_by_position(self.func_list_pos_row, self.func_list_pos_column)
+        if not list_view:
+            list_view = ActionListView(self.func_list_pos_row, self.func_list_pos_column)
+        GlobalUtil.action_list_global.append(list_view)
+        GlobalUtil.current_action = list_view
         self.edit_page = EditPage()
         self.edit_page.show()
 

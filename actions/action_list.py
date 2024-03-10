@@ -5,15 +5,15 @@ from actions.search_engine_action import SearchEngineAction
 
 
 class ActionList:
-    funcs = [OpenApplicationAction(), OpenBrowserUrlAction(), SearchEngineAction(), LLMAction()]
+    actions = [OpenApplicationAction(), OpenBrowserUrlAction(), SearchEngineAction(), LLMAction()]
 
     @classmethod
     def get_funcs(cls):
-        return cls.funcs
+        return cls.actions
 
     @classmethod
-    def get_fuc_by_name(cls, name):
-        for i in cls.funcs:
+    def get_action_by_name(cls, name):
+        for i in cls.actions:
             if i.name == name:
                 return i
         return None

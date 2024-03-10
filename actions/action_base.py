@@ -65,9 +65,9 @@ class ActionBase:
             self.action_arg[arg_name] = self.__ui_name_and_link_edit[arg_name].text()
         # 如果双击应用列表打开的配置页面，保存后向应用列表最后插入
         if self.action_pos is None:
-            self.action_pos = GlobalUtil.action_list_global.count()
+            self.action_pos = GlobalUtil.current_action.count()
 
-        GlobalUtil.action_list_global.insertItem(self.action_pos, ActionListViewItem(self))
+        GlobalUtil.current_action.insertItem(self.action_pos, ActionListViewItem(self))
         self.__config_ui.hide()
 
     def config_page_show(self):

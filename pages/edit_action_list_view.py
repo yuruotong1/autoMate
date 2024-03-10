@@ -25,7 +25,7 @@ class ActionListViewItem(QListWidgetItem):
     def load(cls, action_item: ActionItem):
         from actions.action_list import ActionList
         from actions.action_base import ActionBase
-        action: ActionBase = ActionList.get_fuc_by_name(action_item.action_name)()
+        action: ActionBase = ActionList.get_action_by_name(action_item.action_name)
         action.action_pos = action_item.action_pos
         action.action_arg = action_item.action_arg
         action_list_view_item = ActionListViewItem(action)
@@ -48,11 +48,12 @@ class ActionListView(QListWidget):
         func_description: str
         action_items: list[ActionListViewItem.ActionItem]
 
-    def __init__(self):
+    def __init__(self, func_list_pos_row, func_list_pos_column, *args, **kwargs):
         super().__init__()
-        # 在func上的信息
-        self.func_list_pos_row = -1
-        self.func_list_pos_column = -1
+        # 在func页面上的位置
+        self.func_list_pos_row = func_list_pos_row
+        self.func_list_pos_column = func_list_pos_column
+        # 在func上的名称
         self.func_name = ""
         self.func_description = ""
         self.setAcceptDrops(True)
@@ -71,9 +72,8 @@ class ActionListView(QListWidget):
 
     @classmethod
     def load(cls, action_list_view_json: ActionListViewJson):
-        action_list_view = ActionListView()
-        action_list_view.func_list_pos_row = action_list_view_json.func_list_pos_row
-        action_list_view.func_list_pos_column = action_list_view_json.func_list_pos_column
+        action_list_view = ActionListView(action_list_view_json.func_list_pos_row,
+                                          action_list_view_json.func_list_pos_column)
         action_list_view.func_name = action_list_view_json.func_name
         action_list_view.func_description = action_list_view_json.func_description
         for item in action_list_view_json.action_items:
@@ -222,7 +222,7 @@ class ActionListView(QListWidget):
         # 向指定行插入数据
         item_data = e.mimeData().data(self.my_mime_type)
         from actions.action_list import ActionList
-        function = ActionList.get_fuc_by_name(item_data)
+        function = ActionList.get_action_by_name(item_data)
         function.action_pos = self.the_insert_row
         function.config_page_show()
         # self.insertItem(self.the_insert_row, ActionListViewItem(function))
@@ -234,7 +234,19 @@ class ActionListView(QListWidget):
 
 
 class GlobalUtil:
-    action_list_global: [ActionListView]
+    action_list_global: list[ActionListView] = []
+    current_action: ActionListView = None
+
+    @classmethod
+    def get_list_view_by_position(cls, row, column):
+        for i in cls.action_list_global:
+            if i.func_list_pos_row == row and i.func_list_pos_column == column:
+                return i
+        return None
+
+    @classmethod
+    def delete_action_view(cls, action_view):
+        cls.action_list_global.remove(action_view)
 
     @classmethod
     def read_from_local(cls):
@@ -243,13 +255,16 @@ class GlobalUtil:
             return []
 
         with open("./cache", "rb") as file:
-            data = pickle.load(file)["action_list_global"]
+            data = pickle.load(file).get("action_list_global")
+            if not data:
+                data = []
             return data
 
     @classmethod
     def save_to_local(cls):
         with open("./cache", "wb") as file:
-            pickle.dump({"action_list_global": cls.action_list_global}, file)
+            action_list_json = [i.dump() for i in cls.action_list_global]
+            pickle.dump({"action_list_global": action_list_json}, file)
 
     @classmethod
     def init(cls):
@@ -264,5 +279,4 @@ class GlobalUtil:
         else:
             action_list_json = []
         for action in action_list_json:
-            action_json = ActionListView.ActionListViewJson(**action)
-            cls.action_list_global.append(ActionListView.load(action_json))
+            cls.action_list_global.append(ActionListView.load(action))
