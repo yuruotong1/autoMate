@@ -1,24 +1,33 @@
 # autoMate
+<div align="center">
 
-autoMate是一款让AI为你打工的工具。
+<a ><img src="./source/github/logo.svg" width="120" height="120" alt="autoMate logo"></a>
+
+# FastGPT
+
+autoMate是一个基于 LLM 大语言模型的自动化工作系统，提供开箱即用的鼠标控制、键盘控制、浏览器器控制、数据处理、模型编排、模型调用等能力。同时可以通过可视化进行工作流编排，从而实现复杂的自动化功能！
+</div>
+
+![](source/github/main.gif)
+
+如果你对 autoMate 感兴趣，欢迎加群一起讨论：
+
+![](source/github/group_code.jpg)
+
+
 
 相比coze、fastgpt、dify等比较成熟的LLM应用开发平台，autoMate有什么不同？
 
 autoMate 采用了传统的C/S架构，有两种好处：
-
 1. 这意味着它比B/S架构更接近操作系统，与操作系统距离的缩短意味着我们的Tools拥有更高的操作权限，可以实现与桌面端的程序进行无缝交互；
 2. 这意味着它摆脱了浏览器限制，让应用与LLM完全融合一体，就。
 
 
-![](./source/main.gif)
-
-它支持人工编排，对多种工具进行组合使用，完成但不限于以下工作
+它支持人工编排，对多种工具进行组合使用，完成但不限于以下工作：
 
 1. 能够根据你输入的任务，在网上找资料并参考优秀案例来执行任务，并最终给出一个结果。你只需要像一个老板一样反馈结果好还是坏，autoMate会自动优化方案。
 
-如果你对 autoMate 感兴趣，欢迎加群一起讨论：
 
-![](./source/group_code.jpg)
 
 # 工具列表
 autoMate 已经集成以下工具，工具列表会不断更新： 
