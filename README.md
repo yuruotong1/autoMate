@@ -35,7 +35,7 @@ autoMate 已经集成以下工具，工具列表会不断更新：
 1. 百度搜索引擎：使用selenium工具操作浏览器进行百度搜索，获取列表：
 2. 大模型工具：利用ChatGPT进行问答；
 3. 应用工具：打开指定应用；
-4. 浏览器工具：打开指定网页。
+4. 浏览器工具：利用selenium打开指定网页。
 
 # 安装和运行
 
@@ -48,11 +48,14 @@ browser:
 openai:
   api_key: "key"
   api_url: "xxxx/v1/"
+
+data_position: local
 ```
 
-- browser.browser_type：浏览器名称，支持edge、chrome
-- openai.api_key：openai 的 key
-- openai.api_url：openai 的 base url
+- browser.browser_type: 浏览器名称，支持edge、chrome；
+- openai.api_key：openai 的 key；
+- openai.api_url：openai 的 base url；
+- data_position: 数据存储位置，如果local表示在本地存储。
 
 ## 安装依赖
 1. 安装python的3.9+版本。
