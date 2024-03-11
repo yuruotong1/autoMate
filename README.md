@@ -1,6 +1,14 @@
 # autoMate
 
-autoMate是一款基于 langchain，让大模型为你打工的工具。
+autoMate是一款让AI为你打工的工具。
+
+相比coze、fastgpt、dify等比较成熟的LLM应用开发平台，autoMate有什么不同？
+
+autoMate 采用了传统的C/S架构，有两种好处：
+
+1. 这意味着它比B/S架构更接近操作系统，与操作系统距离的缩短意味着我们的Tools拥有更高的操作权限，可以实现与桌面端的程序进行无缝交互；
+2. 这意味着它摆脱了浏览器限制，让应用与LLM完全融合一体，就。
+
 
 ![](./source/main.gif)
 
