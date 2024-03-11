@@ -10,9 +10,9 @@ autoMate是一个基于 LLM 大语言模型的自动化工作系统，提供开�
 
 ![](source/github/main.gif)
 
-如果你对 autoMate 感兴趣，欢迎加群一起讨论：
+如果你对 autoMate 感兴趣，欢迎加好友一起讨论，我拉你进群：
 
-![](source/github/group_code.jpg)
+![](source/github/wx_code.png)
 
 
 
