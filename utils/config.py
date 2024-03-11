@@ -11,8 +11,10 @@ class Config:
         self.config = self._load_config(os.path.join(project_root_path, "..", "config.yaml"))
         self.OPEN_AI = self.config["openai"]
         self.BROWSER = self.config["browser"]
-        self.LEAN_CLOUD = self.config["leancloud"]
         self.DATA_POSITION = self.config["data_position"]
+        self.LEAN_CLOUD = None
+        if self.DATA_POSITION == "local":
+            self.LEAN_CLOUD = self.config["leancloud"]
 
     @staticmethod
     # Load content from a yaml file and return as variables
