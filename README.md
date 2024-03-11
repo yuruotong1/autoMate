@@ -3,7 +3,7 @@
 
 <a ><img src="./source/github/logo.svg" width="120" height="120" alt="autoMate logo"></a>
 
-# FastGPT
+# autoMate
 
 autoMate是一个基于 LLM 大语言模型的自动化工作系统，提供开箱即用的鼠标控制、键盘控制、浏览器器控制、数据处理、模型编排、模型调用等能力。同时可以通过可视化进行工作流编排，从而实现复杂的自动化功能！
 </div>
