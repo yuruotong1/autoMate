@@ -6,6 +6,7 @@ from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
 
 from pages.edit_action_list_view import GlobalUtil, ActionListViewItem
+from pages.include_action_ui import IncludeActionUi
 from utils.qt_util import QtUtil
 
 
@@ -66,8 +67,11 @@ class ActionBase:
         # 如果双击应用列表打开的配置页面，保存后向应用列表最后插入
         if self.action_pos is None:
             self.action_pos = GlobalUtil.current_action.count()
-
-        GlobalUtil.current_action.insertItem(self.action_pos, ActionListViewItem(self))
+        action_item = ActionListViewItem(self)
+        GlobalUtil.current_action.insertItem(self.action_pos, action_item)
+        if action_item.func.name == "循环执行":
+            GlobalUtil.current_action.setItemWidget(action_item, IncludeActionUi().widget())
+            action_item.setSizeHint(IncludeActionUi().widget().sizeHint())
         self.__config_ui.hide()
 
     def config_page_show(self):

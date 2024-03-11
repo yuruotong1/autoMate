@@ -16,6 +16,7 @@ langchain-openai = "0.0.6"
 pytest = "^8.0.1"
 pyqt6 = "^6.6.1"
 leancloud = "^2.9.12"
+pyautogui = "^0.9.54"
 
 
 [build-system]

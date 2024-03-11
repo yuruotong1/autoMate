@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
-
 from pages.styled_item_delegate import StyledItemDelegate
 
 
@@ -160,12 +159,7 @@ class ActionListView(QListWidget):
     def dragEnterEvent(self, e):
         source = e.source()
         # 从动作列表中进行拖拽
-        if source and (source == self):
-            self.is_drag = True
-            e.setDropAction(Qt.DropAction.MoveAction)
-            e.accept()
-        # 从功能列表中拖拽过来
-        elif source and source != self:
+        if source:
             self.is_drag = True
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()
