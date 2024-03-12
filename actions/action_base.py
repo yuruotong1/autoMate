@@ -71,7 +71,7 @@ class ActionBase:
         #  向新位置增加元素
         GlobalUtil.current_action.insertItem(self.action_pos, action_item)
 
-        if action_item.func.name == "循环执行":
+        if action_item.action.name == "循环执行":
             # 设置带包含的样式
             widget = IncludeActionUi().widget()
             action_item.setSizeHint(widget.size())

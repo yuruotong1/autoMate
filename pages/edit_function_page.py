@@ -26,7 +26,7 @@ class FunctionListView(QListWidget):
         if not isinstance(item, ActionListViewItem):
             return
         # 打开配置页面
-        item.func.config_page_show()
+        item.action.config_page_show()
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
@@ -45,7 +45,7 @@ class FunctionListView(QListWidget):
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
             # 对原数据进行深拷贝
-            item = ActionListViewItem(ActionList.get_action_by_name(the_drag_item.func.name)())
+            item = ActionListViewItem(ActionList.get_action_by_name(the_drag_item.action.name)())
             byte_array = QByteArray((pickle.dumps({"source": "functionList", "data": item.dump()})))
 
             from pages.edit_action_list_view import ActionListView

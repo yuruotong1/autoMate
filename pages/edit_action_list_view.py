@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
+
 from pages.styled_item_delegate import StyledItemDelegate
 
 
@@ -17,23 +18,23 @@ class ActionListViewItem(QListWidgetItem):
 
     def __init__(self, action, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.func = action
+        self.action = action
         self.setText(action.name)
 
     @classmethod
     def load(cls, action_item: ActionItem):
         from actions.action_list import ActionList
         from actions.action_base import ActionBase
-        action: ActionBase = ActionList.get_action_by_name(action_item.action_name)
+        action: ActionBase = ActionList.get_action_by_name(action_item.action_name)()
         action.action_pos = action_item.action_pos
         action.action_arg = action_item.action_arg
         action_list_view_item = ActionListViewItem(action)
         return action_list_view_item
 
     def dump(self):
-        return self.ActionItem(action_name=self.func.name,
-                               action_arg=self.func.action_arg,
-                               action_pos=self.func.action_pos)
+        return self.ActionItem(action_name=self.action.name,
+                               action_arg=self.action.action_arg,
+                               action_pos=self.action.action_pos)
 
 
 class ActionListView(QListWidget):
@@ -50,6 +51,8 @@ class ActionListView(QListWidget):
 
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, *args, **kwargs):
         super().__init__()
+        # 拖动结束时，生成新的的 action
+        self.drop_down_action_item = None
         # 在func页面上的位置
         self.func_list_pos_row = func_list_pos_row
         self.func_list_pos_column = func_list_pos_column
@@ -220,21 +223,18 @@ class ActionListView(QListWidget):
                 (self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1)):
             return
         # 向指定行插入数据
-        source_data = pickle.loads(e.mimeData().data({self.my_mime_type}))
-        func = source_data.data()
-        func.action_pos = self.the_insert_row
+        source_data = pickle.loads(e.mimeData().data(self.my_mime_type))
+        self.drop_down_action_item = ActionListViewItem.load(source_data["data"])
+        self.drop_down_action_item.action_pos = self.the_insert_row
         # 非内部拖动，打开配置窗口，新建动作
         if source_data.get("source") == "functionList":
-            from actions.action_list import ActionList
-            # 初始化函数
-            func.config_page_show()
-
-        # self.insertItem(self.the_insert_row, ActionListViewItem(function))
-        # # 插入行保持选中状态
-        # if self.the_drag_row == self.the_selected_row:
-        #     self.setCurrentIndex(self.model().index(self.the_insert_row, 0))
-        # e.setDropAction(Qt.DropAction.MoveAction)
-        # e.accept()
+            # 打开配置页面
+            self.drop_down_action_item.action.config_page_show()
+        # action内部拖动，直接进行替换
+        elif source_data.get("source") == "actionList":
+            self.insertItem(self.the_insert_row, self.drop_down_action_item)
+            e.setDropAction(Qt.DropAction.MoveAction)
+            e.accept()
 
 
 class GlobalUtil:
