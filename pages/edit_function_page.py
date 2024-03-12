@@ -1,3 +1,5 @@
+import pickle
+
 from PyQt6.QtCore import Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
@@ -50,7 +52,7 @@ class FunctionListView(QListWidget):
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
             byte_array = QByteArray()
-            byte_array.append(the_drag_item.func.name.encode())
+            byte_array.append(pickle.dumps({"source": "functionList", "data": the_drag_item.dump()}))
 
             from pages.edit_action_list_view import ActionListView
             mime_data.setData(ActionListView.my_mime_type, byte_array)

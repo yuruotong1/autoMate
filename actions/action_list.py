@@ -6,11 +6,11 @@ from actions.search_engine_action import SearchEngineAction
 
 
 class ActionList:
-    actions = [OpenApplicationAction(),
-               OpenBrowserUrlAction(),
-               SearchEngineAction(),
-               LLMAction(),
-               LoopAction()]
+    actions = [OpenApplicationAction,
+               OpenBrowserUrlAction,
+               SearchEngineAction,
+               LLMAction,
+               LoopAction]
 
     @classmethod
     def get_funcs(cls):

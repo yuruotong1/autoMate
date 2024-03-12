@@ -18,14 +18,12 @@ class IncludeActionUi(BasePage):
 
     def widget(self):
         widget = QtWidgets.QWidget()
-        widget.setStyleSheet("background-color: red;")
-        # widget.setGeometry(QtCore.QRect(90, 40, 211, 121))
-        widget.setObjectName("widget")
+        widget.setStyleSheet("background-color: white;")
+        # widget.setGeometry(QtCore.QRect(0, 0, 211, 121))
+        widget.setFixedHeight(211)
         label = QtWidgets.QLabel(parent=widget)
         label.setGeometry(QtCore.QRect(30, 10, 54, 12))
-        label.setObjectName("label")
+        label.setText("名称")
         self.listWidget = QtWidgets.QListWidget(parent=widget)
         self.listWidget.setGeometry(QtCore.QRect(20, 30, 191, 81))
-        self.listWidget.setObjectName("listWidget")
-
         return widget

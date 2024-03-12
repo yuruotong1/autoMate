@@ -136,9 +136,8 @@ class ActionListView(QListWidget):
             if not isinstance(the_drag_item, ActionListViewItem):
                 return
             # 把拖拽数据放在QMimeData容器中
+            byte_array = QByteArray(pickle.dumps({"source": "actionList", "data": the_drag_item.dump()}))
             mime_data = QMimeData()
-            byte_array = QByteArray()
-            byte_array.append(the_drag_item.func.name.encode())
             mime_data.setData(self.my_mime_type, byte_array)
             # 设置拖拽缩略图
             drag = QDrag(self)
@@ -221,11 +220,15 @@ class ActionListView(QListWidget):
                 (self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1)):
             return
         # 向指定行插入数据
-        item_data = e.mimeData().data(self.my_mime_type)
-        from actions.action_list import ActionList
-        function = ActionList.get_action_by_name(item_data)
-        function.action_pos = self.the_insert_row
-        function.config_page_show()
+        source_data = pickle.loads(e.mimeData().data({self.my_mime_type}))
+        func = source_data.data()
+        func.action_pos = self.the_insert_row
+        # 非内部拖动，打开配置窗口，新建动作
+        if source_data.get("source") == "functionList":
+            from actions.action_list import ActionList
+            # 初始化函数
+            func.config_page_show()
+
         # self.insertItem(self.the_insert_row, ActionListViewItem(function))
         # # 插入行保持选中状态
         # if self.the_drag_row == self.the_selected_row:

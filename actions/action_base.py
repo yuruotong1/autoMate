@@ -68,10 +68,15 @@ class ActionBase:
         if self.action_pos is None:
             self.action_pos = GlobalUtil.current_action.count()
         action_item = ActionListViewItem(self)
+        #  向新位置增加元素
         GlobalUtil.current_action.insertItem(self.action_pos, action_item)
+
         if action_item.func.name == "循环执行":
-            GlobalUtil.current_action.setItemWidget(action_item, IncludeActionUi().widget())
-            action_item.setSizeHint(IncludeActionUi().widget().sizeHint())
+            # 设置带包含的样式
+            widget = IncludeActionUi().widget()
+            action_item.setSizeHint(widget.size())
+            GlobalUtil.current_action.setItemWidget(action_item, widget)
+
         self.__config_ui.hide()
 
     def config_page_show(self):
