@@ -1,4 +1,3 @@
-import os.path
 import pickle
 from dataclasses import dataclass
 
@@ -9,58 +8,43 @@ from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 from pages.styled_item_delegate import StyledItemDelegate
 
 
-class ActionListViewItem(QListWidgetItem):
+class ActionListItem(QListWidgetItem):
     @dataclass
-    class ActionItem:
+    class ActionListItemData:
         action_name: str
         action_arg: dict
         action_pos: int
 
-    def __init__(self, action, *args, **kwargs):
+    def __init__(self, action_name, action_arg, action_pos, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.action = action
-        self.setText(action.name)
+        self.action_name = action_name
+        self.action_arg = action_arg
+        self.action_pos = action_pos
 
     @classmethod
-    def load(cls, action_item: ActionItem):
-        from actions.action_list import ActionList
-        from actions.action_base import ActionBase
-        action: ActionBase = ActionList.get_action_by_name(action_item.action_name)()
-        action.action_pos = action_item.action_pos
-        action.action_arg = action_item.action_arg
-        action_list_view_item = ActionListViewItem(action)
+    def load(cls, action_list_item_data):
+        action_list_view_item = ActionListItem(action_list_item_data.action_name,
+                                               action_list_item_data.action_arg,
+                                               action_list_item_data.action_pos)
         return action_list_view_item
 
     def dump(self):
-        return self.ActionItem(action_name=self.action.name,
-                               action_arg=self.action.action_arg,
-                               action_pos=self.action.action_pos)
+        return self.ActionListItemData(action_name=self.action_name,
+                                       action_arg=self.action_arg,
+                                       action_pos=self.action_pos)
 
 
-class ActionListView(QListWidget):
+class ActionList(QListWidget):
     my_mime_type = "ActionListView/data_drag"
 
     @dataclass
-    class ActionListViewJson:
-        func_list_pos_row: int
-        func_list_pos_column: int
-        func_name: str
-        func_status: str
-        func_description: str
-        action_items: list[ActionListViewItem.ActionItem]
+    class ActionListData:
+        action_items: list[ActionListItem.ActionListItemData]
 
-    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, *args, **kwargs):
+    def __init__(self, action_items: list[ActionListItem] = None):
         super().__init__()
         # 拖动结束时，生成新的的 action
         self.drop_down_action_item = None
-        # 在func页面上的位置
-        self.func_list_pos_row = func_list_pos_row
-        self.func_list_pos_column = func_list_pos_column
-        # 在func上的名称
-        self.func_name = "默认名称"
-        # 属于通用还是专属
-        self.func_status = func_status
-        self.func_description = ""
         self.setAcceptDrops(True)
         # 拖动到当前位置对应的元素序号
         self.the_highlighted_row = -2
@@ -75,31 +59,20 @@ class ActionListView(QListWidget):
         self.offset = 19
         self.init()
 
+        if not action_items:
+            action_items = []
+        for action_item in action_items:
+            self.insertItem(action_item.action_pos, action_item)
+        self.action_items = action_items
+
     @classmethod
-    def load(cls, action_list_view_json: ActionListViewJson):
-        action_list_view = ActionListView(
-            action_list_view_json.func_status,
-            action_list_view_json.func_list_pos_row,
-            action_list_view_json.func_list_pos_column)
-        action_list_view.func_name = action_list_view_json.func_name
-        action_list_view.func_description = action_list_view_json.func_description
-        for item in action_list_view_json.action_items:
-            action_list_view.insertItem(item.action_pos, ActionListViewItem.load(item))
+    def load(cls, action_list_data: ActionListData):
+        action_list_items = [ActionListItem.load(i) for i in action_list_data.action_items]
+        action_list_view = ActionList(action_list_items)
         return action_list_view
 
     def dump(self):
-        action_items = []
-        for item in [self.item(i) for i in range(self.count())]:
-            if not isinstance(item, ActionListViewItem):
-                continue
-            action_items.append(item.dump())
-        return self.ActionListViewJson(func_list_pos_row=self.func_list_pos_row,
-                                       func_list_pos_column=self.func_list_pos_column,
-                                       func_name=self.func_name,
-                                       func_description=self.func_description,
-                                       func_status=self.func_status,
-                                       action_items=action_items
-                                       )
+        return self.ActionListData([i.dump() for i in self.action_items])
 
     def init(self):
         self.setStyleSheet(
@@ -136,7 +109,7 @@ class ActionListView(QListWidget):
             self.setCurrentIndex(the_drag_index)
             the_drag_item = self.item(the_drag_index.row())
             # 拖拽空白处
-            if not isinstance(the_drag_item, ActionListViewItem):
+            if not isinstance(the_drag_item, ActionListItem):
                 return
             # 把拖拽数据放在QMimeData容器中
             byte_array = QByteArray(pickle.dumps({"source": "actionList", "data": the_drag_item.dump()}))
@@ -224,7 +197,7 @@ class ActionListView(QListWidget):
             return
         # 向指定行插入数据
         source_data = pickle.loads(e.mimeData().data(self.my_mime_type))
-        self.drop_down_action_item = ActionListViewItem.load(source_data["data"])
+        self.drop_down_action_item = ActionListItem.load(source_data["data"])
         self.drop_down_action_item.action_pos = self.the_insert_row
         # 非内部拖动，打开配置窗口，新建动作
         if source_data.get("source") == "functionList":
@@ -235,53 +208,3 @@ class ActionListView(QListWidget):
             self.insertItem(self.the_insert_row, self.drop_down_action_item)
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()
-
-
-class GlobalUtil:
-    action_list_global: list[ActionListView] = []
-    current_action: ActionListView = None
-
-    @classmethod
-    def get_list_view_by_position(cls, func_status, row, column):
-        for i in cls.action_list_global:
-            if i.func_list_pos_row == row and i.func_list_pos_column == column \
-                    and i.func_status == func_status:
-                return i
-        return None
-
-    @classmethod
-    def delete_action_view(cls, action_view):
-        cls.action_list_global.remove(action_view)
-
-    @classmethod
-    def read_from_local(cls):
-        # 判断文件是否存在
-        if not os.path.exists("./cache"):
-            return []
-
-        with open("./cache", "rb") as file:
-            data = pickle.load(file).get("action_list_global")
-            if not data:
-                data = []
-            return data
-
-    @classmethod
-    def save_to_local(cls):
-        with open("./cache", "wb") as file:
-            action_list_json = [i.dump() for i in cls.action_list_global]
-            pickle.dump({"action_list_global": action_list_json}, file)
-
-    @classmethod
-    def init(cls):
-        # 根据配置文件的配置，从本地文件中或者网上读取
-        from utils.config import Config
-        config = Config()
-        cls.action_list_global = []
-        if config.DATA_POSITION == "local":
-            action_list_json = cls.read_from_local()
-        elif config.DATA_POSITION == "remote":
-            action_list_json = []
-        else:
-            action_list_json = []
-        for action in action_list_json:
-            cls.action_list_global.append(ActionListView.load(action))

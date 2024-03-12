@@ -3,7 +3,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton
 
 from pages.bse_page import BasePage
-from pages.edit_action_list_view import GlobalUtil, ActionListView
+from pages.edit_action_list_view import GlobalUtil, ActionList
 from pages.edit_page import EditPage
 from utils.qt_util import QtUtil
 
@@ -39,8 +39,8 @@ class AddFuncButton(QToolButton):
     def click(self):
         self.func_list_page.hide()
         if not self.list_view:
-            self.list_view = ActionListView(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
-        GlobalUtil.action_list_global.append(self.list_view)
+            self.list_view = ActionList(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
+        GlobalUtil.edit_page_global.append(self.list_view)
         GlobalUtil.current_action = self.list_view
         self.edit_page = EditPage()
         self.edit_page.show()

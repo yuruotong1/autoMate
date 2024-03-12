@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget, QPushButton
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
 
-from pages.edit_action_list_view import GlobalUtil, ActionListViewItem
+from pages.edit_action_list_view import GlobalUtil, ActionListItem
 from pages.include_action_ui import IncludeActionUi
 from utils.qt_util import QtUtil
 
@@ -67,7 +67,7 @@ class ActionBase:
         # 如果双击应用列表打开的配置页面，保存后向应用列表最后插入
         if self.action_pos is None:
             self.action_pos = GlobalUtil.current_action.count()
-        action_item = ActionListViewItem(self)
+        action_item = ActionListItem(self)
         #  向新位置增加元素
         GlobalUtil.current_action.insertItem(self.action_pos, action_item)
 
