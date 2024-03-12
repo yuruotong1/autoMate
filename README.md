@@ -37,7 +37,7 @@ autoMate 已经集成以下工具，工具列表会不断更新：
 3. 应用工具：打开指定应用；
 4. 浏览器工具：利用selenium打开指定网页。
 
-# 安装和运行
+# QuickStart
 
 ## 修改 config
 运行前需要配置一下config.yaml文件，将目录中的config.yaml.tmp更名为config.yaml，以下是最简配置：
@@ -79,3 +79,14 @@ poetry install
 ```commandline
 poetry run python main.py
 ```
+
+# 开发进度
+
+| 功能                      | 日期    | 进度  |
+|-------------------------|-------|-----|
+| 支持for循环、if分支            | 3月24日 | 待完成 |
+| 支持鼠标操作、键盘的基本操作          | 3月24日 | 待完成 |
+| 支持Selenium操作web浏览器的全套操作 | 3月30  | 待完成 |
+| 支持基于opencv的找图定位         | 4月15日 | 待完成 |
+
+
