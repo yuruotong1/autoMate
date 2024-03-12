@@ -2,17 +2,10 @@ import pickle
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
+from PyQt6.QtWidgets import QAbstractItemView, QListWidget
 
-from actions.action_base import ActionBase
 from actions.action_list import ActionList
-
-
-class FunctionListItem(QListWidgetItem):
-    def __init__(self, func: ActionBase, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.func = func
-        self.setText(func.name)
+from pages.edit_action_list_view import ActionListViewItem
 
 
 class FunctionListView(QListWidget):
@@ -26,11 +19,11 @@ class FunctionListView(QListWidget):
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         for funcs in ActionList.get_funcs():
-            self.addItem(FunctionListItem(funcs))
+            self.addItem(ActionListViewItem(funcs()))
 
     def mouseDoubleClickEvent(self, e):
         item = self.itemAt(e.pos())
-        if not isinstance(item, FunctionListItem):
+        if not isinstance(item, ActionListViewItem):
             return
         # 打开配置页面
         item.func.config_page_show()
@@ -47,12 +40,13 @@ class FunctionListView(QListWidget):
             the_drag_index = self.indexAt(self.start_pos)
             the_drag_item = self.item(the_drag_index.row())
             # 拖拽空白处
-            if not isinstance(the_drag_item, FunctionListItem):
+            if not isinstance(the_drag_item, ActionListViewItem):
                 return
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
-            byte_array = QByteArray()
-            byte_array.append(pickle.dumps({"source": "functionList", "data": the_drag_item.dump()}))
+            # 对原数据进行深拷贝
+            item = ActionListViewItem(ActionList.get_action_by_name(the_drag_item.func.name)())
+            byte_array = QByteArray((pickle.dumps({"source": "functionList", "data": item.dump()})))
 
             from pages.edit_action_list_view import ActionListView
             mime_data.setData(ActionListView.my_mime_type, byte_array)
