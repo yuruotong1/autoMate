@@ -77,7 +77,7 @@ class EditPage(BasePage):
         self.func.show()
 
     def __cancel_button_click(self):
-        GlobalUtil.delete_edit_page(GlobalUtil.current_action)
+        GlobalUtil.delete_edit_page(GlobalUtil.current_page)
         self.ui.hide()
         from pages.func_list_page import FuncListPage
         self.func = FuncListPage()
@@ -91,10 +91,10 @@ class EditPage(BasePage):
 
 class GlobalUtil:
     edit_page_global: list[EditPage] = []
-    current_action: EditPage = None
+    current_page: EditPage = None
 
     @classmethod
-    def get_list_view_by_position(cls, func_status, row, column):
+    def get_edit_page_by_position(cls, func_status, row, column):
         for i in cls.edit_page_global:
             if i.func_list_pos_row == row and i.func_list_pos_column == column \
                     and i.func_status == func_status:

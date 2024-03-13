@@ -1,10 +1,8 @@
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton
-
 from pages.bse_page import BasePage
-from pages.edit_action_list_view import GlobalUtil, ActionList
-from pages.edit_page import EditPage
+from pages.edit_page import EditPage, GlobalUtil
 from utils.qt_util import QtUtil
 
 
@@ -18,11 +16,11 @@ class AddFuncButton(QToolButton):
         self.func_list_page = func_list_page
         self.setMouseTracking(True)
         self.clicked.connect(self.click)
-        self.list_view = GlobalUtil.get_list_view_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
-        if self.list_view:
+        self.edit_page = GlobalUtil.get_edit_page_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
+        if self.edit_page:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             self.setIcon(QIcon(QtUtil.get_icon("功能.png")))
-            self.setText(self.list_view.func_name)
+            self.setText(self.edit_page.func_name)
             self.setIconSize(QSize(50, 50))
         else:
             self.setIcon(QIcon(QtUtil.get_icon("添加.png")))
@@ -38,19 +36,18 @@ class AddFuncButton(QToolButton):
 
     def click(self):
         self.func_list_page.hide()
-        if not self.list_view:
-            self.list_view = ActionList(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
-        GlobalUtil.edit_page_global.append(self.list_view)
-        GlobalUtil.current_action = self.list_view
-        self.edit_page = EditPage()
+        if not self.edit_page:
+            self.edit_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
+        GlobalUtil.edit_page_global.append(self.edit_page)
+        GlobalUtil.current_page = self.edit_page
         self.edit_page.show()
 
     def enterEvent(self, event):
-        if not self.list_view:
+        if not self.edit_page:
             self.opacity_effect.setOpacity(1)
 
     def leaveEvent(self, event):
-        if not self.list_view:
+        if not self.edit_page:
             self.opacity_effect.setOpacity(0)
 
 

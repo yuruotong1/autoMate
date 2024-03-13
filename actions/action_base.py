@@ -4,8 +4,6 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget, QPushButton
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
-
-from pages.edit_action_list_view import GlobalUtil, ActionListItem
 from pages.include_action_ui import IncludeActionUi
 from utils.qt_util import QtUtil
 
@@ -18,7 +16,8 @@ class ActionBase:
     def __init__(self):
         self.__config_ui = None
         self.tool = None
-        self.__ui_name_and_link_edit = {}
+        # 参数名称和其对应的输入框的映射关系
+        self.__ui_name_and_line_edit = {}
         self.action_arg = {}
         self.action_pos = None
 
@@ -48,7 +47,8 @@ class ActionBase:
             line_edit = QLineEdit(self.__config_ui)
             h_box_layout.addWidget(label)
             h_box_layout.addWidget(line_edit)
-            self.__ui_name_and_link_edit[field] = line_edit
+            # 将输入内容填入参数列表
+            self.__ui_name_and_line_edit[field] = line_edit
         save_button: QPushButton = self.__config_ui.saveButton
         save_button.clicked.connect(self.__save_button_clicked)
 
@@ -62,22 +62,25 @@ class ActionBase:
         self.__config_ui.hide()
 
     def __save_button_clicked(self):
-        for arg_name in self.__ui_name_and_link_edit:
-            self.action_arg[arg_name] = self.__ui_name_and_link_edit[arg_name].text()
+        from pages.edit_page import GlobalUtil
+        for arg_name in self.__ui_name_and_line_edit:
+            self.action_arg[arg_name] = self.__ui_name_and_line_edit[arg_name].text()
         # 如果双击应用列表打开的配置页面，保存后向应用列表最后插入
         if self.action_pos is None:
-            self.action_pos = GlobalUtil.current_action.count()
-        action_item = ActionListItem(self)
+            self.action_pos = GlobalUtil.current_page.action_list.count()
+        from pages.edit_action_list_view import ActionListItem
+        action_item = ActionListItem(self.name, self.action_arg, self.action_pos)
         #  向新位置增加元素
-        GlobalUtil.current_action.insertItem(self.action_pos, action_item)
+        GlobalUtil.current_page.action_list.insertItem(self.action_pos, action_item)
 
-        if action_item.action.name == "循环执行":
+        if action_item.action_name == "循环执行":
             # 设置带包含的样式
             widget = IncludeActionUi().widget()
             action_item.setSizeHint(widget.size())
-            GlobalUtil.current_action.setItemWidget(action_item, widget)
+            GlobalUtil.current_page.action_list.setItemWidget(action_item, widget)
 
         self.__config_ui.hide()
+
 
     def config_page_show(self):
         self.config_page_ui()

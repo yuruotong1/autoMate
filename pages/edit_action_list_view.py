@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 
+from actions.action_list import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
 
 
@@ -20,6 +21,13 @@ class ActionListItem(QListWidgetItem):
         self.action_name = action_name
         self.action_arg = action_arg
         self.action_pos = action_pos
+        self.setText(self.action_name)
+
+    def get_action(self):
+        action = ActionUtil.get_action_by_name(self.action_name)()
+        action.action_pos = self.action_pos
+        action.action_arg = self.action_arg
+        return action
 
     @classmethod
     def load(cls, action_list_item_data):
@@ -41,10 +49,10 @@ class ActionList(QListWidget):
     class ActionListData:
         action_items: list[ActionListItem.ActionListItemData]
 
-    def __init__(self, action_items: list[ActionListItem] = None):
+    def __init__(self, action_items: list[ActionListItem] = None, parent=None):
         super().__init__()
         # 拖动结束时，生成新的的 action
-        self.drop_down_action_item = None
+        self.drop_down_action = None
         self.setAcceptDrops(True)
         # 拖动到当前位置对应的元素序号
         self.the_highlighted_row = -2
@@ -58,6 +66,8 @@ class ActionList(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
+        if parent:
+            self.setParent(parent)
 
         if not action_items:
             action_items = []
@@ -197,14 +207,15 @@ class ActionList(QListWidget):
             return
         # 向指定行插入数据
         source_data = pickle.loads(e.mimeData().data(self.my_mime_type))
-        self.drop_down_action_item = ActionListItem.load(source_data["data"])
-        self.drop_down_action_item.action_pos = self.the_insert_row
+        drop_down_action_item = ActionListItem.load(source_data["data"])
+        drop_down_action_item.action_pos = self.the_insert_row
         # 非内部拖动，打开配置窗口，新建动作
         if source_data.get("source") == "functionList":
             # 打开配置页面
-            self.drop_down_action_item.action.config_page_show()
+            self.drop_down_action = drop_down_action_item.get_action()
+            self.drop_down_action.config_page_show()
         # action内部拖动，直接进行替换
         elif source_data.get("source") == "actionList":
-            self.insertItem(self.the_insert_row, self.drop_down_action_item)
+            self.insertItem(self.the_insert_row, drop_down_action_item)
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()

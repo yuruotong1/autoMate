@@ -5,7 +5,7 @@ from actions.open_browser_url_action import OpenBrowserUrlAction
 from actions.search_engine_action import SearchEngineAction
 
 
-class ActionList:
+class ActionUtil:
     actions = [OpenApplicationAction,
                OpenBrowserUrlAction,
                SearchEngineAction,

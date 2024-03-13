@@ -5,8 +5,7 @@ import sys
 import leancloud
 from PyQt6.QtWidgets import QApplication
 
-from pages.edit_action_list_view import GlobalUtil
-from pages.edit_page import EditPage
+from pages.edit_page import EditPage, GlobalUtil
 from pages.func_list_page import FuncListPage
 from pages.login_page import LoginPage
 from utils.config import Config

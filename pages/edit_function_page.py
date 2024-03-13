@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget
 
-from actions.action_list import ActionList
+from actions.action_list import ActionUtil
 from pages.edit_action_list_view import ActionListItem
 
 
@@ -18,15 +18,15 @@ class FunctionListView(QListWidget):
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        for funcs in ActionList.get_funcs():
-            self.addItem(ActionListItem(funcs()))
+        for func in ActionUtil.get_funcs():
+            self.addItem(ActionListItem(func.name, {}, -1))
 
     def mouseDoubleClickEvent(self, e):
         item = self.itemAt(e.pos())
         if not isinstance(item, ActionListItem):
             return
         # 打开配置页面
-        item.action.config_page_show()
+        item.get_action().config_page_show()
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
@@ -45,9 +45,7 @@ class FunctionListView(QListWidget):
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
             # 对原数据进行深拷贝
-            item = ActionListItem(ActionList.get_action_by_name(the_drag_item.action.name)())
-            byte_array = QByteArray((pickle.dumps({"source": "functionList", "data": item.dump()})))
-
+            byte_array = QByteArray((pickle.dumps({"source": "functionList", "data": the_drag_item.dump()})))
             from pages.edit_action_list_view import ActionList
             mime_data.setData(ActionList.my_mime_type, byte_array)
             drag = QDrag(self)

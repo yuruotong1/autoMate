@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtWidgets
 
 from pages.bse_page import BasePage
-from pages.edit_action_list_view import ActionList
+
 
 
 class IncludeActionUi(BasePage):
@@ -25,6 +25,7 @@ class IncludeActionUi(BasePage):
         label = QtWidgets.QLabel(parent=widget)
         label.setGeometry(QtCore.QRect(30, 10, 54, 12))
         label.setText("名称")
+        from pages.edit_action_list_view import ActionList
         self.listWidget = ActionList(parent=widget)
         self.listWidget.setGeometry(QtCore.QRect(20, 30, 191, 81))
         return widget
