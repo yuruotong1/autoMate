@@ -30,9 +30,6 @@ class AddFuncButton(QToolButton):
             self.opacity_effect.setOpacity(0)
             self.setIconSize(QSize(50, 50))
         self.setFixedSize(QSize(80, 80))
-        # self.(True)  # 删除按钮边框
-        # 防止被垃圾回收，所以注册为实例变量
-        self.edit_page = None
 
     def click(self):
         self.func_list_page.hide()

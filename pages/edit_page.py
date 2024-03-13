@@ -1,7 +1,7 @@
 import json
 import os
 import pickle
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 from pages.bse_page import BasePage
 from pages.edit_action_list_view import ActionList
@@ -120,7 +120,7 @@ class GlobalUtil:
     @classmethod
     def save_to_local(cls):
         with open("./cache", "wb") as file:
-            edit_page_dump = [json.dumps(i.dump()) for i in cls.edit_page_global]
+            edit_page_dump = [asdict(i.dump()) for i in cls.edit_page_global]
             pickle.dump({"action_list_global": edit_page_dump}, file)
 
     @classmethod
