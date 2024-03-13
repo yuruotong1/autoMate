@@ -216,6 +216,16 @@ class ActionList(QListWidget):
             self.drop_down_action.config_page_show()
         # action内部拖动，直接进行替换
         elif source_data.get("source") == "actionList":
-            self.insertItem(self.the_insert_row, drop_down_action_item)
+            self.insert_item(self, self.the_insert_row, drop_down_action_item)
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()
+
+    @staticmethod
+    def insert_item(action_list, row, action_item):
+        action_list.insertItem(row, action_item)
+        if action_item.action_name == "循环执行":
+            # 设置带包含的样式
+            from pages.include_action_ui import IncludeActionUi
+            widget = IncludeActionUi().widget()
+            action_item.setSizeHint(widget.size())
+            action_list.setItemWidget(action_item, widget)

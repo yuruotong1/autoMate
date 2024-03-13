@@ -71,16 +71,9 @@ class ActionBase:
         from pages.edit_action_list_view import ActionListItem
         action_item = ActionListItem(self.name, self.action_arg, self.action_pos)
         #  向新位置增加元素
-        GlobalUtil.current_page.action_list.insertItem(self.action_pos, action_item)
-
-        if action_item.action_name == "循环执行":
-            # 设置带包含的样式
-            widget = IncludeActionUi().widget()
-            action_item.setSizeHint(widget.size())
-            GlobalUtil.current_page.action_list.setItemWidget(action_item, widget)
-
+        from pages.edit_action_list_view import ActionList
+        ActionList.insert_item(GlobalUtil.current_page.action_list, self.action_pos, action_item)
         self.__config_ui.hide()
-
 
     def config_page_show(self):
         self.config_page_ui()
