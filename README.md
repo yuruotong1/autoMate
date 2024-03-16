@@ -10,7 +10,8 @@ autoMate是一个基于 LLM 大语言模型的自动化工作系统，提供开�
 
 ![](source/github/main.gif)
 
-如果你对 autoMate 感兴趣，欢迎加好友一起讨论，我拉你进群：
+如果你对 autoMate
+感兴趣，欢迎加好友一起讨论，我拉你进群。如果您有疑问，欢迎点击[链接](https://www.wolai.com/f/wVW256zr4sRbxFP2bY7FUr)给出宝贵建议：
 
 ![](source/github/wx_code.png)
 
@@ -84,7 +85,7 @@ poetry run python main.py
 
 | 功能                      | 日期    | 进度  |
 |-------------------------|-------|-----|
-| 支持for循环、if分支            | 3月24日 | 待完成 |
+| 支持for循环、if分支            | 3月24日 | 开发中 |
 | 支持鼠标操作、键盘的基本操作          | 3月24日 | 待完成 |
 | 支持Selenium操作web浏览器的全套操作 | 3月30日 | 待完成 |
 | 支持登陆场景下的所有操作            | 4月15日 | 待完成 |
