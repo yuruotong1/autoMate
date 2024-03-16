@@ -1,4 +1,3 @@
-import json
 import os
 import pickle
 from dataclasses import dataclass, asdict
@@ -58,14 +57,14 @@ class EditPage(BasePage):
         self.ui.func_description_edit.setText(self.func_description)
         function_list_view = FunctionListView()
         self.ui.function_list_layout.addWidget(function_list_view)
-        self.ui.ListViewLayout.addWidget(self.action_list)
+        self.ui.action_list_view_layout.addWidget(self.action_list)
         self.ui.run_button.clicked.connect(self.__run_button_click)
         self.ui.save_button.clicked.connect(self.__save_button_click)
         self.ui.cancel_button.clicked.connect(self.__cancel_button_click)
         # 设置间距
-        self.ui.ListViewLayout.setStretch(0, 1)
-        self.ui.ListViewLayout.setStretch(1, 2)
-        self.ui.ListViewLayout.setStretch(2, 10)
+        self.ui.action_list_view_layout.setStretch(0, 1)
+        self.ui.action_list_view_layout.setStretch(1, 2)
+        self.ui.action_list_view_layout.setStretch(2, 10)
 
     def __save_button_click(self):
         self.func_name = self.ui.func_name_edit.text()

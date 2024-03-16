@@ -42,7 +42,7 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="ListViewLayout">
+      <layout class="QHBoxLayout" name="action_list_view_layout">
        <property name="spacing">
         <number>1</number>
        </property>

@@ -2,7 +2,7 @@ import pickle
 from dataclasses import dataclass
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
-from PyQt6.QtGui import QDrag
+from PyQt6.QtGui import QDrag, QBrush, QColor
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 
 from actions.action_list import ActionUtil
@@ -22,6 +22,7 @@ class ActionListItem(QListWidgetItem):
         self.action_arg = action_arg
         self.action_pos = action_pos
         self.setText(self.action_name)
+        self.setBackground(QBrush(QColor("white")))
 
     def get_action(self):
         action = ActionUtil.get_action_by_name(self.action_name)()
@@ -66,6 +67,7 @@ class ActionList(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
+
         if parent:
             self.setParent(parent)
 
@@ -86,9 +88,9 @@ class ActionList(QListWidget):
 
     def init(self):
         self.setStyleSheet(
-            "QListView{background:rgb(245, 245, 247); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; padding-left:14px; color:rgba(200, 40, 40, 255);}"
-            "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}"
+            "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
+            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255)}"
+            # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}")
             "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
         self.setItemDelegate(StyledItemDelegate())
 
@@ -216,6 +218,7 @@ class ActionList(QListWidget):
             self.drop_down_action.config_page_show()
         # action内部拖动，直接进行替换
         elif source_data.get("source") == "actionList":
+            print("actionList")
             self.insert_item(self, self.the_insert_row, drop_down_action_item)
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()
