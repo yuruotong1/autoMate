@@ -37,7 +37,7 @@ class StyledItemDelegate(QStyledItemDelegate):
             # 绘制DropIndicator
             # 组装上部分
             if index.row() == up_row:
-                print(456)
+                painter.setBrush(QColor(66, 133, 244))
                 # 绘制三角
                 triangle_polygon_bottom_left = QPolygon([
                     QPoint(rect.bottomLeft().x(), rect.bottomLeft().y() - (self.POLYGON + self.HEIGHT) + 1),
@@ -53,14 +53,13 @@ class StyledItemDelegate(QStyledItemDelegate):
                            rect.bottomRight().y() - self.HEIGHT + 1)
                 ])
                 # 绘制矩形
-                painter.setBrush(QColor(66, 133, 244))
-                painter.drawRect(rect.bottomLeft().x(), rect.bottomLeft().y() - self.HEIGHT + 1, rect.width(),
+                painter.drawRect(rect.bottomLeft().x(), rect.bottomLeft().y(), rect.width(),
                                  self.HEIGHT)
                 painter.drawPolygon(triangle_polygon_bottom_left)
                 painter.drawPolygon(triangle_polygon_bottom_right)
             # 组装下部分
             elif index.row() == down_row:
-                print(1234)
+                painter.setBrush(QColor(66, 133, 244))
                 # 绘制三角
                 triangle_polygon_top_left = QPolygon([
                     QPoint(rect.topLeft().x(), rect.topLeft().y() + self.POLYGON + self.HEIGHT),
@@ -74,7 +73,6 @@ class StyledItemDelegate(QStyledItemDelegate):
                     QPoint(rect.topRight().x() - self.POLYGON + 1, rect.topRight().y() + self.HEIGHT)
                 ])
                 # 绘制矩形
-                painter.setBrush(QColor(66, 133, 244))
-                painter.drawRect(rect.topLeft().x(), rect.topLeft().y(), rect.width(), self.HEIGHT)
+                painter.drawRect(rect.topLeft().x(), rect.topLeft().y() - 2, rect.width(), self.HEIGHT)
                 painter.drawPolygon(triangle_polygon_top_left)
                 painter.drawPolygon(triangle_polygon_top_right)
