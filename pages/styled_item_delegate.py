@@ -26,8 +26,8 @@ class StyledItemDelegate(QStyledItemDelegate):
         # 选中时的样式
         if option.state & QStyle.StateFlag.State_Selected:
             # 选中时，最左边会出现小块块
-            painter.setBrush(QColor(180, 0, 0))
-            painter.drawRect(rect.topLeft().x(), rect.topLeft().y(), 4, rect.height())
+            painter.setBrush(QColor(0, 0, 255))
+            painter.drawRect(rect.topLeft().x() - 3, rect.topLeft().y(), 8, rect.height())
         # 开始拖拽
         if is_drag:
             up_row = drag_widget.the_highlighted_row

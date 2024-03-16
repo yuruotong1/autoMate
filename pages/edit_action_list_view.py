@@ -2,7 +2,7 @@ import pickle
 from dataclasses import dataclass
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
-from PyQt6.QtGui import QDrag, QBrush, QColor
+from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 
 from actions.action_list import ActionUtil
@@ -22,7 +22,6 @@ class ActionListItem(QListWidgetItem):
         self.action_arg = action_arg
         self.action_pos = action_pos
         self.setText(self.action_name)
-        self.setBackground(QBrush(QColor("white")))
 
     def get_action(self):
         action = ActionUtil.get_action_by_name(self.action_name)()
@@ -87,12 +86,16 @@ class ActionList(QListWidget):
         return self.ActionListData([i.dump() for i in self.action_items])
 
     def init(self):
+        # 设置列表项之间的间距为 1 像素
+        self.setSpacing(1)
         self.setStyleSheet(
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255)}"
+            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}")
-            "QListView::Item:selected{color:rgba(40, 40, 200, 255); padding-left:15px;}")
+            "QListView::Item:selected{color:rgb(0, 0, 0);}")
         self.setItemDelegate(StyledItemDelegate())
+        # 选中时不出现虚线框
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
