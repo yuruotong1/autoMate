@@ -23,6 +23,7 @@ class ActionListItem(QListWidgetItem):
         self.action_pos = action_pos
         self.setText(self.action_name)
 
+
     def get_action(self):
         action = ActionUtil.get_action_by_name(self.action_name)()
         action.action_pos = self.action_pos
@@ -51,6 +52,8 @@ class ActionList(QListWidget):
 
     def __init__(self, action_items: list[ActionListItem] = None, parent=None):
         super().__init__()
+        # 设置列表项之间的间距为 3 像素
+        self.ITEM_MARGIN_LEFT = 3
         # 拖动结束时，生成新的的 action
         self.drop_down_action = None
         self.setAcceptDrops(True)
@@ -90,7 +93,8 @@ class ActionList(QListWidget):
         self.setSpacing(1)
         self.setStyleSheet(
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
+            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: "
+            + str(self.ITEM_MARGIN_LEFT) + "px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}")
             "QListView::Item:selected{color:rgb(0, 0, 0);}")
         self.setItemDelegate(StyledItemDelegate())
@@ -116,6 +120,9 @@ class ActionList(QListWidget):
         if e.buttons() & Qt.MouseButton.LeftButton:
             # 拖动距离如果太少，直接返回
             if (e.pos() - self.start_pos).manhattanLength() < QApplication.startDragDistance():
+                return
+            # 禁止拖动到左边界
+            if e.position().x() < self.ITEM_MARGIN_LEFT:
                 return
             the_drag_index = self.indexAt(self.start_pos)
             self.the_drag_row = the_drag_index.row()
@@ -170,6 +177,7 @@ class ActionList(QListWidget):
         pos.setX(int(e.position().x()))
         pos.setY(int(e.position().y()) - self.offset)
         self.the_highlighted_row = self.indexAt(pos).row()
+
         # 拖动元素的当前位置不超上边界
         if e.position().y() >= self.offset:
 
@@ -197,7 +205,7 @@ class ActionList(QListWidget):
             self.update(self.model().index(0, 0))
             self.update(self.model().index(1, 0))
             self.the_insert_row = 0
-
+        # 设置拖动动作
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
@@ -207,9 +215,6 @@ class ActionList(QListWidget):
         self.the_highlighted_row = -2
         self.update(self.model().index(self.old_highlighted_row, 0))
         self.update(self.model().index(self.old_highlighted_row + 1, 0))
-        if ((self.the_insert_row == self.the_drag_row) or
-                (self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1)):
-            return
         # 向指定行插入数据
         source_data = pickle.loads(e.mimeData().data(self.my_mime_type))
         drop_down_action_item = ActionListItem.load(source_data["data"])
@@ -221,10 +226,18 @@ class ActionList(QListWidget):
             self.drop_down_action.config_page_show()
         # action内部拖动，直接进行替换
         elif source_data.get("source") == "actionList":
-            print("actionList")
+            # 如果拖动前位置和拖动后位置相同
+            if self.the_insert_row == self.the_drag_row:
+                return
+            # 如果拖动前位置和拖动后位置相邻
+            if self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1:
+                return
             self.insert_item(self, self.the_insert_row, drop_down_action_item)
-            e.setDropAction(Qt.DropAction.MoveAction)
-            e.accept()
+        # 只要拖动过，就取消选中
+        self.setCurrentIndex(QListWidget().currentIndex())
+        # 已经处理完拖动，设置为None
+        e.setDropAction(Qt.DropAction.MoveAction)
+        e.accept()
 
     @staticmethod
     def insert_item(action_list, row, action_item):

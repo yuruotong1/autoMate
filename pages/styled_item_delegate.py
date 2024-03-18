@@ -13,7 +13,7 @@ class StyledItemDelegate(QStyledItemDelegate):
         super().__init__(*args, **kwargs)
 
     def paint(self, painter, option, index):
-        # 先绘制原来的图形
+        # 画原始的 item
         QStyledItemDelegate.paint(self, painter, option, index)
         drag_widget = option.styleObject
         from pages.edit_action_list_view import ActionList
