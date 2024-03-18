@@ -70,6 +70,11 @@ class ActionList(QListWidget):
         self.offset = 19
         self.init()
 
+        # # Add placeholder text if the list is empty
+        # if not self.count():
+        #     placeholder_item = QListWidgetItem("这里没有任何内容")
+        #     placeholder_item.setFlags(Qt.ItemFlag.NoItemFlags)  # Make the item unselectable
+        #     self.addItem(placeholder_item)
         if parent:
             self.setParent(parent)
 
@@ -121,9 +126,6 @@ class ActionList(QListWidget):
             # 拖动距离如果太少，直接返回
             if (e.pos() - self.start_pos).manhattanLength() < QApplication.startDragDistance():
                 return
-            # 禁止拖动到左边界
-            if e.position().x() < self.ITEM_MARGIN_LEFT:
-                return
             the_drag_index = self.indexAt(self.start_pos)
             self.the_drag_row = the_drag_index.row()
             self.the_selected_row = self.currentIndex().row()
@@ -168,7 +170,6 @@ class ActionList(QListWidget):
         self.update(self.model().index(self.old_highlighted_row + 1, 0))
         self.is_drag = False
         self.the_insert_row = -1
-        e.accept()
 
     def dragMoveEvent(self, e):
         self.old_highlighted_row = self.the_highlighted_row
@@ -177,14 +178,13 @@ class ActionList(QListWidget):
         pos.setX(int(e.position().x()))
         pos.setY(int(e.position().y()) - self.offset)
         self.the_highlighted_row = self.indexAt(pos).row()
-
+        last_item = self.item(self.count() - 1)
+        last_item_rect = self.visualItemRect(last_item)
+        # 把元素拖到底部且目标位置不存在任何元素，选中最后一个元素
+        if self.the_highlighted_row == -1 and e.position().y() > last_item_rect.bottomLeft().y():
+            self.the_highlighted_row = self.model().rowCount() - 1
         # 拖动元素的当前位置不超上边界
         if e.position().y() >= self.offset:
-
-            # 把元素拖到底部，且目标位置不存在任何元素，选中最后一个元素
-            if self.the_highlighted_row == -1:
-                self.the_highlighted_row = self.model().rowCount() - 1
-
             # 如果拖动前位置和拖动后位置不相同
             if self.old_highlighted_row != self.the_highlighted_row:
                 # 刷新旧区域使dropIndicator消失
@@ -205,9 +205,7 @@ class ActionList(QListWidget):
             self.update(self.model().index(0, 0))
             self.update(self.model().index(1, 0))
             self.the_insert_row = 0
-        # 设置拖动动作
         e.setDropAction(Qt.DropAction.MoveAction)
-        e.accept()
 
     def dropEvent(self, e):
         self.is_drag = False
@@ -248,3 +246,6 @@ class ActionList(QListWidget):
             widget = IncludeActionUi().widget()
             action_item.setSizeHint(widget.size())
             action_list.setItemWidget(action_item, widget)
+
+    def remove(self):
+        pass
