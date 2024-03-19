@@ -52,9 +52,10 @@ class StyledItemDelegate(QStyledItemDelegate):
                     QPoint(rect.bottomRight().x() - self.POLYGON + 1,
                            rect.bottomRight().y() - self.HEIGHT + 1)
                 ])
+                print("up", rect.bottomLeft().x(), rect.bottomLeft().y(), rect.width(), self.HEIGHT)
                 # 绘制矩形
                 painter.drawRect(rect.bottomLeft().x(), rect.bottomLeft().y(), rect.width(),
-                                 self.HEIGHT)
+                                 self.HEIGHT + 1)
                 painter.drawPolygon(triangle_polygon_bottom_left)
                 painter.drawPolygon(triangle_polygon_bottom_right)
             # 组装下部分
@@ -72,7 +73,8 @@ class StyledItemDelegate(QStyledItemDelegate):
                     QPoint(rect.topRight().x() + 1, rect.topRight().y() + self.HEIGHT),
                     QPoint(rect.topRight().x() - self.POLYGON + 1, rect.topRight().y() + self.HEIGHT)
                 ])
+                print("down", rect.topLeft().x(), rect.topLeft().y() - 2, rect.width(), self.HEIGHT)
                 # 绘制矩形
-                painter.drawRect(rect.topLeft().x(), rect.topLeft().y() - 2, rect.width(), self.HEIGHT)
+                painter.drawRect(rect.topLeft().x(), rect.topLeft().y(), rect.width(), self.HEIGHT)
                 painter.drawPolygon(triangle_polygon_top_left)
                 painter.drawPolygon(triangle_polygon_top_right)

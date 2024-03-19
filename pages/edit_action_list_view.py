@@ -176,12 +176,22 @@ class ActionList(QListWidget):
         pos = QPoint()
         pos.setX(int(e.position().x()))
         pos.setY(int(e.position().y()) - self.offset)
-        self.the_highlighted_row = self.indexAt(pos).row()
-        last_item = self.item(self.count() - 1)
-        last_item_rect = self.visualItemRect(last_item)
-        # 把元素拖到底部且目标位置不存在任何元素，选中最后一个元素
-        if self.the_highlighted_row == -1 and e.position().y() > last_item_rect.bottomLeft().y():
-            self.the_highlighted_row = self.model().rowCount() - 1
+        current_index_row = self.indexAt(pos).row()
+        # 如果拖动到了没有元素的地方
+        if current_index_row == -1:
+            last_item = self.item(self.count() - 1)
+            last_item_rect = self.visualItemRect(last_item)
+            # 如果拖动到了最后一行
+            if e.position().y() > last_item_rect.bottomLeft().y():
+                self.the_highlighted_row = self.model().rowCount() - 1
+            # 如果拖动到了元素与元素之前的间隙上
+            else:
+                # 跳过间隙
+                pos.setY(pos.y() - 2)
+                self.the_highlighted_row = self.indexAt(pos).row()
+        else:
+            self.the_highlighted_row = self.indexAt(pos).row()
+        print(self.the_highlighted_row)
         # 拖动元素的当前位置不超上边界
         if e.position().y() >= self.offset:
             # 如果拖动前位置和拖动后位置不相同
