@@ -55,7 +55,7 @@ class StyledItemDelegate(QStyledItemDelegate):
                 print("up", rect.bottomLeft().x(), rect.bottomLeft().y(), rect.width(), self.HEIGHT)
                 # 绘制矩形
                 painter.drawRect(rect.bottomLeft().x(), rect.bottomLeft().y(), rect.width(),
-                                 self.HEIGHT + 1)
+                                 self.HEIGHT + 10)
                 painter.drawPolygon(triangle_polygon_bottom_left)
                 painter.drawPolygon(triangle_polygon_bottom_right)
             # 组装下部分

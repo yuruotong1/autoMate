@@ -162,51 +162,37 @@ class ActionList(QListWidget):
             e.setDropAction(Qt.DropAction.MoveAction)
             e.accept()
 
-    def dragLeaveEvent(self, e):
-        self.old_highlighted_row = self.the_highlighted_row
-        self.the_highlighted_row = -2
-        self.update(self.model().index(self.old_highlighted_row, 0))
-        self.update(self.model().index(self.old_highlighted_row + 1, 0))
-        self.is_drag = False
-        self.the_insert_row = -1
-
     def dragMoveEvent(self, e):
         self.old_highlighted_row = self.the_highlighted_row
-        # 当鼠标移动到两个元素之间时，选中上一个元素
-        pos = QPoint()
-        pos.setX(int(e.position().x()))
-        pos.setY(int(e.position().y()) - self.offset)
-        current_index_row = self.indexAt(pos).row()
-        # 如果拖动到了没有元素的地方
-        if current_index_row == -1:
-            last_item = self.item(self.count() - 1)
-            last_item_rect = self.visualItemRect(last_item)
-            # 如果拖动到了最后一行
-            if e.position().y() > last_item_rect.bottomLeft().y():
-                self.the_highlighted_row = self.model().rowCount() - 1
-            # 如果拖动到了元素与元素之前的间隙上
-            else:
-                # 跳过间隙
-                pos.setY(pos.y() - 2)
-                self.the_highlighted_row = self.indexAt(pos).row()
-        else:
-            self.the_highlighted_row = self.indexAt(pos).row()
-        print(self.the_highlighted_row)
         # 拖动元素的当前位置不超上边界
         if e.position().y() >= self.offset:
-            # 如果拖动前位置和拖动后位置不相同
-            if self.old_highlighted_row != self.the_highlighted_row:
-                # 刷新旧区域使dropIndicator消失
-                self.update(self.model().index(self.old_highlighted_row, 0))
-                self.update(self.model().index(self.old_highlighted_row + 1, 0))
-
-                # 刷新新区域使dropIndicator显示
-                self.update(self.model().index(self.the_highlighted_row, 0))
-                self.update(self.model().index(self.the_highlighted_row + 1, 0))
-            # 如果拖动前位置和拖动后位置相同
+            # 当鼠标移动到两个元素之间时，选中上一个元素
+            pos = QPoint()
+            pos.setX(int(e.position().x()))
+            pos.setY(int(e.position().y()) - self.offset)
+            current_index_row = self.indexAt(pos).row()
+            # 如果拖动到了没有元素的地方
+            if current_index_row == -1:
+                last_item = self.item(self.count() - 1)
+                last_item_rect = self.visualItemRect(last_item)
+                # 如果拖动到了最后一行
+                if e.position().y() > last_item_rect.bottomLeft().y():
+                    self.the_highlighted_row = self.model().rowCount() - 1
+                # 如果拖动到了元素与元素之前的间隙上
+                else:
+                    return
             else:
-                self.update(self.model().index(self.the_highlighted_row, 0))
-                self.update(self.model().index(self.the_highlighted_row + 1, 0))
+                self.the_highlighted_row = self.indexAt(pos).row()
+
+            print(self.old_highlighted_row, self.the_highlighted_row)
+
+            # 刷新旧区域使dropIndicator消失
+            self.update(self.model().index(self.old_highlighted_row, 0))
+            self.update(self.model().index(self.old_highlighted_row + 1, 0))
+
+            # 刷新新区域使dropIndicator显示
+            self.update(self.model().index(self.the_highlighted_row, 0))
+            self.update(self.model().index(self.the_highlighted_row + 1, 0))
             self.the_insert_row = self.the_highlighted_row + 1
         # 插到第一行
         else:
