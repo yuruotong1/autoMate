@@ -23,7 +23,6 @@ class ActionListItem(QListWidgetItem):
         self.action_pos = action_pos
         self.setText(self.action_name)
 
-
     def get_action(self):
         action = ActionUtil.get_action_by_name(self.action_name)()
         action.action_pos = self.action_pos
@@ -101,7 +100,7 @@ class ActionList(QListWidget):
             "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: "
             + str(self.ITEM_MARGIN_LEFT) + "px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}")
-            "QListView::Item:selected{color:rgb(0, 0, 0);}")
+                                           "QListView::Item:selected{color:rgb(0, 0, 0);}")
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -206,6 +205,7 @@ class ActionList(QListWidget):
             self.update(self.model().index(1, 0))
             self.the_insert_row = 0
         e.setDropAction(Qt.DropAction.MoveAction)
+        e.accept()
 
     def dropEvent(self, e):
         self.is_drag = False
