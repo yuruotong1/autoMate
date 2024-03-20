@@ -30,41 +30,40 @@ class StyledItemDelegate(QStyledItemDelegate):
             # 选中时，最左边会出现小块块
             painter.setBrush(QColor(0, 0, 255))
             painter.drawRect(rect.topLeft().x() - 3, rect.topLeft().y(), 8, rect.height())
+        print(drag_widget.the_highlighted_row, index.row())
         # 开始拖拽
         if is_drag and index.row() == drag_widget.the_highlighted_row:
-            # 组装上部分
             painter.setBrush(QColor(66, 133, 244))
-            # 绘制三角
-            triangle_polygon_bottom_left = QPolygon([
-                QPoint(rect.bottomLeft().x(), rect.bottomLeft().y() - (self.POLYGON + self.HEIGHT) + 1),
-                QPoint(rect.bottomLeft().x(), rect.bottomLeft().y() - self.HEIGHT),
-                QPoint(rect.bottomLeft().x() + self.POLYGON, rect.bottomLeft().y() - self.HEIGHT + 1)
-            ])
-
-            triangle_polygon_bottom_right = QPolygon([
-                QPoint(rect.bottomRight().x() + 1,
-                       rect.bottomRight().y() - (self.POLYGON + self.HEIGHT) + 1),
-                QPoint(rect.bottomRight().x() + 1, rect.bottomRight().y() - self.HEIGHT + 1),
-                QPoint(rect.bottomRight().x() - self.POLYGON + 1,
-                       rect.bottomRight().y() - self.HEIGHT + 1)
-            ])
-            painter.drawPolygon(triangle_polygon_bottom_left)
-            painter.drawPolygon(triangle_polygon_bottom_right)
+            # 绘制矩形
             q_rec = QRect(rect.bottomLeft().x(), rect.bottomLeft().y(),
                           rect.width(), self.HEIGHT + 3)
-            # 绘制矩形
             painter.drawRect(q_rec)
-            # 组装下部分三角形
-            triangle_polygon_top_left = QPolygon([
-                QPoint(q_rec.bottomLeft().x(), q_rec.bottomLeft().y()),
-                QPoint(q_rec.bottomLeft().x(), q_rec.bottomLeft().y() + self.HEIGHT),
-                QPoint(q_rec.bottomLeft().x() + self.POLYGON, q_rec.bottomLeft().y())
+            # 绘制左上三角
+            triangle_top_left = QPolygon([
+                QPoint(q_rec.topLeft().x(), q_rec.topLeft().y()),
+                QPoint(q_rec.topLeft().x(), q_rec.topLeft().y() - self.HEIGHT - self.POLYGON),
+                QPoint(q_rec.topLeft().x() + self.POLYGON, q_rec.topLeft().y())
+            ])
+            # 绘制右上三角
+            triangle_top_right = QPolygon([
+                QPoint(q_rec.topRight().x(), q_rec.topRight().y()),
+                QPoint(q_rec.topRight().x(), q_rec.topRight().y() - self.HEIGHT - self.POLYGON),
+                QPoint(q_rec.topRight().x() + self.POLYGON, q_rec.topRight().y())
             ])
 
-            triangle_polygon_top_right = QPolygon([
+            painter.drawPolygon(triangle_top_left)
+            painter.drawPolygon(triangle_top_right)
+            # 组装左下部分三角形
+            triangle_bottom_left = QPolygon([
+                QPoint(q_rec.bottomLeft().x(), q_rec.bottomLeft().y()),
+                QPoint(q_rec.bottomLeft().x(), q_rec.bottomLeft().y() + self.POLYGON + self.HEIGHT),
+                QPoint(q_rec.bottomLeft().x() + self.POLYGON, q_rec.bottomLeft().y())
+            ])
+            # 组装右下部分三角形
+            triangle_bottom_right = QPolygon([
                 QPoint(q_rec.bottomRight().x(), q_rec.bottomRight().y()),
-                QPoint(q_rec.bottomRight().x() - self.POLYGON, q_rec.topRight().y()),
+                QPoint(q_rec.bottomRight().x() - self.POLYGON - self.HEIGHT, q_rec.topRight().y()),
                 QPoint(q_rec.topRight().x(), q_rec.topRight().y() + self.HEIGHT)
             ])
-            painter.drawPolygon(triangle_polygon_top_left)
-            painter.drawPolygon(triangle_polygon_top_right)
+            painter.drawPolygon(triangle_bottom_left)
+            painter.drawPolygon(triangle_bottom_right)
