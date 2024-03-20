@@ -163,7 +163,6 @@ class ActionList(QListWidget):
             e.accept()
 
     def dragMoveEvent(self, e):
-        self.old_highlighted_row = self.the_highlighted_row
         # 拖动元素的当前位置不超上边界
         if e.position().y() >= self.offset:
             # 当鼠标移动到两个元素之间时，选中上一个元素
@@ -184,31 +183,26 @@ class ActionList(QListWidget):
             else:
                 self.the_highlighted_row = self.indexAt(pos).row()
 
-            print(self.old_highlighted_row, self.the_highlighted_row)
-
-            # 刷新旧区域使dropIndicator消失
-            self.update(self.model().index(self.old_highlighted_row, 0))
-            self.update(self.model().index(self.old_highlighted_row + 1, 0))
-
             # 刷新新区域使dropIndicator显示
             self.update(self.model().index(self.the_highlighted_row, 0))
-            self.update(self.model().index(self.the_highlighted_row + 1, 0))
             self.the_insert_row = self.the_highlighted_row + 1
         # 插到第一行
         else:
             self.the_highlighted_row = -1
             self.update(self.model().index(0, 0))
-            self.update(self.model().index(1, 0))
             self.the_insert_row = 0
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
-    def dropEvent(self, e):
-        self.is_drag = False
-        self.old_highlighted_row = self.the_highlighted_row
+    def dragLeaveEvent(self, e):
         self.the_highlighted_row = -2
         self.update(self.model().index(self.old_highlighted_row, 0))
-        self.update(self.model().index(self.old_highlighted_row + 1, 0))
+        self.is_drag = False
+        self.the_insert_row = -1
+
+    def dropEvent(self, e):
+        self.is_drag = False
+        self.the_highlighted_row = -2
         # 向指定行插入数据
         source_data = pickle.loads(e.mimeData().data(self.my_mime_type))
         drop_down_action_item = ActionListItem.load(source_data["data"])
