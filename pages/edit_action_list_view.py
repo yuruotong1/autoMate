@@ -177,13 +177,13 @@ class ActionList(QListWidget):
                 # 如果拖动到了最后一行
                 if e.position().y() > last_item_rect.bottomLeft().y():
                     self.the_highlighted_row = self.model().rowCount() - 1
-                # 如果拖动到了元素与元素之前的间隙上
+                # 如果拖动到了某item的中间，不显示高亮线
                 else:
-                    return
+                    self.the_highlighted_row = -2
             else:
                 self.the_highlighted_row = self.indexAt(pos).row()
 
-            # 刷新新区域使dropIndicator显示
+            # 刷新区域
             self.update(self.model().index(self.the_highlighted_row, 0))
             self.the_insert_row = self.the_highlighted_row + 1
         # 插到第一行

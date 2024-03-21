@@ -1,9 +1,8 @@
+from functions.open_application_tool import OpenApplicationInput, OpenApplicationTool
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
-
-from functions.open_application_tool import OpenApplicationInput, OpenApplicationTool
 from tools.search_engine_tool import SearchEngineTool
+
 from utils.llm_util import LLMUtil
 
 
@@ -23,7 +22,6 @@ class TestLangChain:
 
     def test_chain(self):
         a = OpenApplicationTool()
-        print(123)
         # a.invoke(r"C:\Users\yuruo\Desktop\HBuilder X.lnk")
         b = OpenApplicationInput.model_fields
         for c in b.keys():
