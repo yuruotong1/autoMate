@@ -85,7 +85,7 @@ class EditPage(BasePage):
     def __run_button_click(self):
         for index in range(self.action_list.count()):
             func = self.action_list.item(index)
-            func.__getattribute__("func").run_with_out_arg()
+            func.__getattribute__("get_action")().run_with_out_arg()
 
 
 class GlobalUtil:
