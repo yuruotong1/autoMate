@@ -5,7 +5,7 @@ import sys
 import leancloud
 from PyQt6.QtWidgets import QApplication
 
-from pages.edit_page import EditPage, GlobalUtil
+from pages.edit_page import GlobalUtil
 from pages.func_list_page import FuncListPage
 from pages.login_page import LoginPage
 from utils.config import Config
@@ -31,7 +31,7 @@ class AutoMate:
                     self.page = LoginPage()
                     self.page.show()
                 else:
-                    self.page = EditPage()
+                    self.page = FuncListPage()
         else:
             self.page = LoginPage()
             self.page.show()

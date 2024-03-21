@@ -7,14 +7,12 @@ class StyledItemDelegate(QStyledItemDelegate):
     # 等腰三角形直角边长
     POLYGON = 6
     # 分割符粗细的一半
-    HEIGHT = 2
+    HEIGHT = 5
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def paint(self, painter, option, index):
-        # 画原始的 item
-        QStyledItemDelegate.paint(self, painter, option, index)
         drag_widget = option.styleObject
         from pages.edit_action_list_view import ActionList
         if not isinstance(drag_widget, ActionList):
@@ -35,7 +33,7 @@ class StyledItemDelegate(QStyledItemDelegate):
             painter.setBrush(QColor(66, 133, 244))
             # 绘制矩形
             q_rec = QRect(rect.bottomLeft().x(), rect.bottomLeft().y(),
-                          rect.width(), self.HEIGHT + 3)
+                          rect.width(), self.HEIGHT)
             painter.drawRect(q_rec)
             # 绘制左上三角
             triangle_top_left = QPolygon([
@@ -66,3 +64,7 @@ class StyledItemDelegate(QStyledItemDelegate):
             ])
             painter.drawPolygon(triangle_bottom_left)
             painter.drawPolygon(triangle_bottom_right)
+            # 画原始的 item
+            QStyledItemDelegate.paint(self, painter, option, index)
+        else:
+            QStyledItemDelegate.paint(self, painter, option, index)

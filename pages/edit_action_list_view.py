@@ -195,10 +195,12 @@ class ActionList(QListWidget):
         e.accept()
 
     def dragLeaveEvent(self, e):
+        the_highlighted_row = self.the_highlighted_row
         self.the_highlighted_row = -2
-        self.update(self.model().index(self.old_highlighted_row, 0))
+        self.update(self.model().index(the_highlighted_row, 0))
         self.is_drag = False
         self.the_insert_row = -1
+        e.accept()
 
     def dropEvent(self, e):
         self.is_drag = False
