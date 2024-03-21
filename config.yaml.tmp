@@ -1,13 +1,11 @@
 browser:
     browser_type: edge
-    browser_url: https://www.baidu.com
 
 openai:
   # key
-  api_key:
+  api_key: xxx
   #  xxxxx/v1/
-  api_url:
-
+  api_url: xx
 
 # local or remote
 data_position: local

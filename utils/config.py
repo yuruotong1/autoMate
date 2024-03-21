@@ -13,7 +13,7 @@ class Config:
         self.BROWSER = self.config["browser"]
         self.DATA_POSITION = self.config["data_position"]
         self.LEAN_CLOUD = None
-        if self.DATA_POSITION == "local":
+        if self.DATA_POSITION == "remote":
             self.LEAN_CLOUD = self.config["leancloud"]
 
     @staticmethod
