@@ -82,14 +82,16 @@ class ActionList(QListWidget):
         return {"action_items": res}
 
     def init(self):
+        # 设置列表项和列表之间的间距为 1 像素
+
         # 设置列表项之间的间距为 1 像素
         self.setSpacing(1)
         self.setStyleSheet(
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: "
-            + str(self.ITEM_MARGIN_LEFT) + "px;}"
+            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: " + str(
+                self.ITEM_MARGIN_LEFT) + "px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}")
-                                           "QListView::Item:selected{color:rgb(0, 0, 0);}")
+                                         "QListView::Item:selected{color:rgb(0, 0, 0);}")
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -133,7 +135,7 @@ class ActionList(QListWidget):
             drag.setMimeData(mime_data)
             pixmap = icon.pixmap(10, 10)
             drag.setPixmap(pixmap)
-            # 删除的行需要根据theInsertRow和theDragRow的大小关系来判断
+            # 拖拽结束
             if drag.exec(Qt.DropAction.MoveAction) == Qt.DropAction.MoveAction:
                 # 元素向上拖动，会在上面新增一个，因此要删除的位置需要+1
                 if self.the_insert_row < self.the_drag_row:
@@ -171,7 +173,7 @@ class ActionList(QListWidget):
                     self.the_highlighted_row = -2
             else:
                 self.the_highlighted_row = self.indexAt(pos).row()
-
+            self.update()
             # 刷新区域
             self.update(self.model().index(self.the_highlighted_row, 0))
             self.update(self.model().index(self.the_highlighted_row + 1, 0))
@@ -179,6 +181,7 @@ class ActionList(QListWidget):
         # 插到第一行
         else:
             self.the_highlighted_row = -1
+            self.update()
             self.update(self.model().index(0, 0))
             self.update(self.model().index(1, 0))
             self.the_insert_row = 0
@@ -188,6 +191,7 @@ class ActionList(QListWidget):
     def dragLeaveEvent(self, e):
         the_highlighted_row = self.the_highlighted_row
         self.the_highlighted_row = -2
+        self.update()
         self.update(self.model().index(the_highlighted_row, 0))
         self.update(self.model().index(the_highlighted_row + 1, 0))
         self.is_drag = False
