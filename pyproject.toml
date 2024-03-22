@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["yuruotong"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -24,11 +25,16 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [[tool.poetry.source]]
+name = "default"
+url = 'https://pypi.org/'
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "tsinghua"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true
+priority = "supplemental"
 
 [[tool.poetry.source]]
 name = "aliyun"
 url = "https://mirrors.aliyun.com/pypi/simple"
-secondary = true
+priority = "supplemental"
