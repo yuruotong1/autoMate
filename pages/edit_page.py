@@ -1,6 +1,5 @@
 import os
 import pickle
-from dataclasses import dataclass, asdict
 
 from pages.bse_page import BasePage
 from pages.edit_action_list_view import ActionList
@@ -9,15 +8,6 @@ from utils.qt_util import QtUtil
 
 
 class EditPage(BasePage):
-    @dataclass
-    class EditPageData:
-        func_list_pos_column: int
-        func_list_pos_row: int
-        func_name: str
-        func_status: str
-        func_description: str
-        action_list: ActionList.ActionListData
-
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, action_list: ActionList = None):
         self.func_list_pos_column = func_list_pos_column
         self.func_list_pos_row = func_list_pos_row
@@ -32,23 +22,23 @@ class EditPage(BasePage):
         super().__init__()
 
     def dump(self):
-        return self.EditPageData(func_list_pos_column=self.func_list_pos_column,
-                                 func_list_pos_row=self.func_list_pos_row,
-                                 func_name=self.func_name,
-                                 func_status=self.func_status,
-                                 func_description=self.func_description,
-                                 action_list=self.action_list.dump()
-                                 )
+        return {"func_list_pos_column": self.func_list_pos_column,
+                "func_list_pos_row": self.func_list_pos_row,
+                "func_name": self.func_name,
+                "func_status": self.func_status,
+                "func_description": self.func_description,
+                "action_list": self.action_list.dump()
+                }
 
     @classmethod
-    def load(cls, edit_page_data):
+    def load(cls, edit_page_dict):
         edit_page = EditPage(
-            func_status=edit_page_data.func_status,
-            func_list_pos_row=edit_page_data.func_list_pos_row,
-            func_list_pos_column=edit_page_data.func_list_pos_column,
-            action_list=ActionList.load(edit_page_data.action_list))
-        edit_page.func_name = edit_page_data.func_name
-        edit_page.func_description = edit_page_data.func_description
+            func_status=edit_page_dict["func_status"],
+            func_list_pos_row=edit_page_dict["func_list_pos_row"],
+            func_list_pos_column=edit_page_dict["func_list_pos_column"],
+            action_list=ActionList.load(edit_page_dict["action_list"]))
+        edit_page.func_name = edit_page_dict["func_name"]
+        edit_page.func_description = edit_page_dict["func_description"]
         return edit_page
 
     def setup_up(self):
@@ -120,7 +110,7 @@ class GlobalUtil:
     @classmethod
     def save_to_local(cls):
         with open("./cache", "wb") as file:
-            edit_page_dump = [asdict(i.dump()) for i in cls.edit_page_global]
+            edit_page_dump = [i.dump() for i in cls.edit_page_global]
             pickle.dump({"action_list_global": edit_page_dump}, file)
 
     @classmethod
@@ -136,5 +126,4 @@ class GlobalUtil:
         else:
             edit_pages_json = []
         for edit_page_json in edit_pages_json:
-            edit_pages_data = EditPage.EditPageData(**edit_page_json)
-            cls.edit_page_global.append(EditPage.load(edit_pages_data))
+            cls.edit_page_global.append(EditPage.load(edit_page_json))

@@ -1,5 +1,4 @@
 import pickle
-from dataclasses import dataclass
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
@@ -10,12 +9,6 @@ from pages.styled_item_delegate import StyledItemDelegate
 
 
 class ActionListItem(QListWidgetItem):
-    @dataclass
-    class ActionListItemData:
-        action_name: str
-        action_arg: dict
-        action_pos: int
-
     def __init__(self, action_name, action_arg, action_pos, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.action_name = action_name
@@ -31,23 +24,19 @@ class ActionListItem(QListWidgetItem):
 
     @classmethod
     def load(cls, action_list_item_data):
-        action_list_view_item = ActionListItem(action_list_item_data.action_name,
-                                               action_list_item_data.action_arg,
-                                               action_list_item_data.action_pos)
+        action_list_view_item = ActionListItem(action_list_item_data["action_name"],
+                                               action_list_item_data["action_arg"],
+                                               action_list_item_data["action_pos"])
         return action_list_view_item
 
     def dump(self):
-        return self.ActionListItemData(action_name=self.action_name,
-                                       action_arg=self.action_arg,
-                                       action_pos=self.action_pos)
+        return {"action_name": self.action_name,
+                "action_arg": self.action_arg,
+                "action_pos": self.action_pos}
 
 
 class ActionList(QListWidget):
     my_mime_type = "ActionListView/data_drag"
-
-    @dataclass
-    class ActionListData:
-        action_items: list[ActionListItem.ActionListItemData]
 
     def __init__(self, action_items: list[ActionListItem] = None, parent=None):
         super().__init__()
@@ -68,12 +57,6 @@ class ActionList(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
-
-        # # Add placeholder text if the list is empty
-        # if not self.count():
-        #     placeholder_item = QListWidgetItem("这里没有任何内容")
-        #     placeholder_item.setFlags(Qt.ItemFlag.NoItemFlags)  # Make the item unselectable
-        #     self.addItem(placeholder_item)
         if parent:
             self.setParent(parent)
 
@@ -81,16 +64,22 @@ class ActionList(QListWidget):
             action_items = []
         for action_item in action_items:
             self.insertItem(action_item.action_pos, action_item)
-        self.action_items = action_items
 
     @classmethod
-    def load(cls, action_list_data: ActionListData):
-        action_list_items = [ActionListItem.load(i) for i in action_list_data.action_items]
+    def load(cls, action_list_data):
+        action_list_items = [ActionListItem.load(i) for i in action_list_data["action_items"]]
         action_list_view = ActionList(action_list_items)
         return action_list_view
 
     def dump(self):
-        return self.ActionListData([i.dump() for i in self.action_items])
+        res = []
+        # 获取所有 items
+        for i in range(self.count()):
+            item = self.item(i)
+            if not isinstance(item, ActionListItem):
+                raise TypeError("item must be an instance of ActionListItem")
+            res.append(item.dump())
+        return {"action_items": res}
 
     def init(self):
         # 设置列表项之间的间距为 1 像素
@@ -185,11 +174,13 @@ class ActionList(QListWidget):
 
             # 刷新区域
             self.update(self.model().index(self.the_highlighted_row, 0))
+            self.update(self.model().index(self.the_highlighted_row + 1, 0))
             self.the_insert_row = self.the_highlighted_row + 1
         # 插到第一行
         else:
             self.the_highlighted_row = -1
             self.update(self.model().index(0, 0))
+            self.update(self.model().index(1, 0))
             self.the_insert_row = 0
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
@@ -198,6 +189,7 @@ class ActionList(QListWidget):
         the_highlighted_row = self.the_highlighted_row
         self.the_highlighted_row = -2
         self.update(self.model().index(the_highlighted_row, 0))
+        self.update(self.model().index(the_highlighted_row + 1, 0))
         self.is_drag = False
         self.the_insert_row = -1
         e.accept()

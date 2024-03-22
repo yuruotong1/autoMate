@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import traceback
 
 import leancloud
 from PyQt6.QtWidgets import QApplication
@@ -12,6 +13,7 @@ from utils.config import Config
 
 # 设置日志
 logging.basicConfig(level=logging.INFO)
+
 
 class AutoMate:
     def __init__(self):
@@ -37,7 +39,13 @@ class AutoMate:
             self.page.show()
 
 
+def excepthook(exc_type, exc_value, exc_tb):
+    tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+    print("catch exception:", tb)
+
+
 if __name__ == "__main__":
+    sys.excepthook = excepthook
     app = QApplication(sys.argv)
     GlobalUtil.init()
     page = FuncListPage()
