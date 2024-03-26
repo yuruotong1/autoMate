@@ -19,8 +19,8 @@ class IncludeActionUi(BasePage):
 
     def widget(self):
         widget = QtWidgets.QWidget()
+        widget.setObjectName("include_widget")
         widget.setStyleSheet("background-color: white;")
-        # widget.setGeometry(QtCore.QRect(0, 0, 211, 121))
         label = QtWidgets.QLabel(parent=widget)
         label.setGeometry(QtCore.QRect(30, 10, 54, 12))
         label.setText("名称")

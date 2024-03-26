@@ -218,6 +218,7 @@ class ActionList(QListWidget):
             # 如果拖动前位置和拖动后位置相邻
             if self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1:
                 return
+            # todo待修改
             self.insert_item(self, self.the_insert_row, drop_down_action_item)
         # 只要拖动过，就取消选中
         self.setCurrentIndex(QListWidget().currentIndex())
@@ -228,12 +229,20 @@ class ActionList(QListWidget):
     @staticmethod
     def insert_item(action_list, row, action_item):
         action_list.insertItem(row, action_item)
+        # 向带包含关系的组件插入子组件
+        if action_list.parent().objectName() == "include_widget":
+            total_height = 0
+            for i in range(action_list.count()):
+                item = action_list.item(i)
+                total_height += action_list.visualItemRect(item).height()
+            action_list.setFixedHeight(total_height)
+
+            widget = action_list.parent()
+            widget.setFixedHeight(action_list.height() + 5)
+            # widget.setFixedHeight(action_list.height() + 80)
+        # 插入带包含的组件
         if action_item.action_name == "循环执行":
-            # 设置带包含的样式
             from pages.include_action_ui import IncludeActionUi
             widget = IncludeActionUi().widget()
             action_item.setSizeHint(widget.size())
             action_list.setItemWidget(action_item, widget)
-
-    def remove(self):
-        pass
