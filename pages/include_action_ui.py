@@ -15,7 +15,7 @@ from pages.bse_page import BasePage
 class IncludeActionUi(BasePage):
     def __init__(self):
         super().__init__()
-        self.listWidget = None
+        self.action_list = None
 
     def widget(self):
         widget = QtWidgets.QWidget()
@@ -23,9 +23,10 @@ class IncludeActionUi(BasePage):
         widget.setStyleSheet("background-color: white;")
         label = QtWidgets.QLabel(parent=widget)
         label.setGeometry(QtCore.QRect(30, 10, 54, 12))
-        label.setText("名称")
+        label.setText("循环")
         from pages.edit_action_list_view import ActionList
-        self.listWidget = ActionList(parent=widget)
-        self.listWidget.setGeometry(QtCore.QRect(20, 30, widget.width() - 10, 20))
-        widget.setFixedHeight(self.listWidget.height() + 40)
+        self.action_list = ActionList(parent=widget)
+        widget.setProperty("action_list", self.action_list)
+        self.action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 10, 20))
+        widget.setFixedHeight(self.action_list.height() + 40)
         return widget

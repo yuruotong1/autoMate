@@ -2,7 +2,7 @@ import pickle
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle, QListView
+from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 
 from actions.action_list import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
@@ -108,7 +108,7 @@ class ActionList(QListWidget):
             return
         # 鼠标release时才选中
         index = self.indexAt(e.pos())
-        self.setCurrentIndex(index)
+        self.select_index(index)
 
     def mouseMoveEvent(self, e):
         # 如果在历史事件中左键点击过
@@ -120,7 +120,7 @@ class ActionList(QListWidget):
             self.the_drag_row = the_drag_index.row()
             self.the_selected_row = self.currentIndex().row()
             # 拖拽即选中
-            self.setCurrentIndex(the_drag_index)
+            self.select_index(the_drag_index)
             the_drag_item = self.item(the_drag_index.row())
             # 拖拽空白处
             if not isinstance(the_drag_item, ActionListItem):
@@ -224,11 +224,28 @@ class ActionList(QListWidget):
             if self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1:
                 return
             self.insert_item(self, self.the_insert_row, drop_down_action_item)
-        # 只要拖动过，就取消选中
-        self.setCurrentIndex(QListWidget().currentIndex())
-        # 已经处理完拖动，设置为None
+        self.select_index(QListWidget().currentIndex())
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
+
+    # 取消选中
+    def select_index(self, index):
+        def clear_selection(action_list):
+            # 取消选中所有当前组件
+            action_list.setCurrentRow(-1)
+            # 取消选中所有子组件
+            for i in range(action_list.count()):
+                item = action_list.item(i)
+                if not item:
+                    continue
+                if item.action_name == "循环执行":
+                    widget = action_list.itemWidget(item)
+                    action_list = widget.property("action_list")
+                    clear_selection(action_list)
+
+        clear_selection(self)
+        # 选中当前行
+        self.setCurrentIndex(index)
 
     @staticmethod
     def insert_item(action_list, row, action_item):
@@ -241,14 +258,14 @@ class ActionList(QListWidget):
                 total_height += action_list.visualItemRect(item).height()
             action_list.setFixedHeight(total_height)
             widget = action_list.parent()
-            widget.setFixedHeight(action_list.height() + 5)
-            item = widget.parent()
+            widget.setFixedHeight(action_list.height() + 40)
+            item = widget.property("action_item")
             item.setSizeHint(widget.size())
             # widget.setFixedHeight(action_list.height() + 80)
         # 插入带包含的组件
         if action_item.action_name == "循环执行":
             from pages.include_action_ui import IncludeActionUi
             widget = IncludeActionUi().widget()
-            widget.set(action_item)
+            widget.setProperty("action_item", action_item)
             action_item.setSizeHint(widget.size())
             action_list.setItemWidget(action_item, widget)
