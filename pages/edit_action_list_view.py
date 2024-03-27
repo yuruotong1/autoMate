@@ -230,7 +230,7 @@ class ActionList(QListWidget):
 
     # 取消选中
     def select_index(self, index):
-        def clear_selection(action_list):
+        def clear_son_selection(action_list):
             # 取消选中所有当前组件
             action_list.setCurrentRow(-1)
             # 取消选中所有子组件
@@ -241,9 +241,18 @@ class ActionList(QListWidget):
                 if item.action_name == "循环执行":
                     widget = action_list.itemWidget(item)
                     action_list = widget.property("action_list")
-                    clear_selection(action_list)
+                    clear_son_selection(action_list)
 
-        clear_selection(self)
+        def clear_father_selection(action_list):
+            # 取消选中所有当前组件
+            action_list.setCurrentRow(-1)
+            # 取消选中父组件
+            parent_action_list = action_list.parent().property("parent_action_list")
+            if parent_action_list:
+                clear_father_selection(parent_action_list)
+
+        clear_father_selection(self)
+        clear_son_selection(self)
         # 选中当前行
         self.setCurrentIndex(index)
 
@@ -266,6 +275,7 @@ class ActionList(QListWidget):
         if action_item.action_name == "循环执行":
             from pages.include_action_ui import IncludeActionUi
             widget = IncludeActionUi().widget()
+            widget.setProperty("parent_action_list", action_list)
             widget.setProperty("action_item", action_item)
             action_item.setSizeHint(widget.size())
             action_list.setItemWidget(action_item, widget)
