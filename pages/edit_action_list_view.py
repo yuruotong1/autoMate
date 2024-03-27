@@ -2,7 +2,7 @@ import pickle
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
+from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle, QListView
 
 from actions.action_list import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
@@ -137,12 +137,17 @@ class ActionList(QListWidget):
             drag.setPixmap(pixmap)
             # 拖拽结束
             if drag.exec(Qt.DropAction.MoveAction) == Qt.DropAction.MoveAction:
-                # 元素向上拖动，会在上面新增一个，因此要删除的位置需要+1
-                if self.the_insert_row < self.the_drag_row:
-                    the_remove_row = self.the_drag_row + 1
-                # 元素向下拖动，会在下面新增一个，因此直接删除即可
-                else:
+                # 将组件向包含组件中拖动
+                if self.the_insert_row < 0:
                     the_remove_row = self.the_drag_row
+                # 组件内部拖动
+                else:
+                    # 元素向上拖动，会在上面新增一个，因此要删除的位置需要+1
+                    if self.the_insert_row < self.the_drag_row:
+                        the_remove_row = self.the_drag_row + 1
+                    # 元素向下拖动，会在下面新增一个，因此直接删除即可
+                    else:
+                        the_remove_row = self.the_drag_row
                 self.model().removeRow(the_remove_row)
 
     def dragEnterEvent(self, e):
@@ -218,7 +223,6 @@ class ActionList(QListWidget):
             # 如果拖动前位置和拖动后位置相邻
             if self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1:
                 return
-            # todo待修改
             self.insert_item(self, self.the_insert_row, drop_down_action_item)
         # 只要拖动过，就取消选中
         self.setCurrentIndex(QListWidget().currentIndex())
@@ -236,13 +240,15 @@ class ActionList(QListWidget):
                 item = action_list.item(i)
                 total_height += action_list.visualItemRect(item).height()
             action_list.setFixedHeight(total_height)
-
             widget = action_list.parent()
             widget.setFixedHeight(action_list.height() + 5)
+            item = widget.parent()
+            item.setSizeHint(widget.size())
             # widget.setFixedHeight(action_list.height() + 80)
         # 插入带包含的组件
         if action_item.action_name == "循环执行":
             from pages.include_action_ui import IncludeActionUi
             widget = IncludeActionUi().widget()
+            widget.set(action_item)
             action_item.setSizeHint(widget.size())
             action_list.setItemWidget(action_item, widget)
