@@ -13,7 +13,7 @@ class OpenApplicationInput(BaseModel):
 class OpenApplicationAction(ActionBase):
     name = "打开应用"
     description = "打开指定目录的应用"
-    args_schema: Type[BaseModel] = OpenApplicationInput
+    args: OpenApplicationInput
 
     def run(self, path):
         subprocess.Popen(path)

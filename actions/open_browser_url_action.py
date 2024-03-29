@@ -11,7 +11,7 @@ class OpenBrowserUrlInput(BaseModel):
 class OpenBrowserUrlAction(ActionBase):
     name = "打开网页"
     description = "打开指定网址的页面"
-    args_schema = OpenBrowserUrlInput
+    args: OpenBrowserUrlInput
 
     # 打开指定目录的应用
     def run(self, url):

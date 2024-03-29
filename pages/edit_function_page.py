@@ -2,9 +2,9 @@ import pickle
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray
 from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QAbstractItemView, QListWidget
+from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
-from actions.action_list import ActionUtil
+from actions.action_util import ActionUtil
 from pages.edit_action_list_view import ActionListItem
 
 
@@ -12,21 +12,22 @@ class FunctionListView(QListWidget):
     def __init__(self):
         # 支持元素拖拽
         super().__init__()
-        # self.setDragEnabled(True)
         self.setAcceptDrops(True)
         self.start_pos = None
         self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         for func in ActionUtil.get_funcs():
-            self.addItem(ActionListItem(func.name, {}, -1))
+            item = QListWidgetItem()
+            item.setText(func.name)
+            self.addItem(item)
 
     def mouseDoubleClickEvent(self, e):
         item = self.itemAt(e.pos())
         if not isinstance(item, ActionListItem):
             return
         # 打开配置页面
-        item.get_action().config_page_show()
+        item.action.config_page_show()
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
@@ -40,14 +41,14 @@ class FunctionListView(QListWidget):
             the_drag_index = self.indexAt(self.start_pos)
             the_drag_item = self.item(the_drag_index.row())
             # 拖拽空白处
-            if not isinstance(the_drag_item, ActionListItem):
+            if not isinstance(the_drag_item, QListWidgetItem):
                 return
             # 把拖拽数据放在QMimeData容器中
             mime_data = QMimeData()
             # 对原数据进行深拷贝
-            byte_array = QByteArray((pickle.dumps({"source": "functionList", "data": the_drag_item.dump()})))
+            byte_array = QByteArray((pickle.dumps(the_drag_item.text())))
             from pages.edit_action_list_view import ActionList
-            mime_data.setData(ActionList.my_mime_type, byte_array)
+            mime_data.setData(ActionList.MY_MIME_TYPE, byte_array)
             drag = QDrag(self)
             drag.setMimeData(mime_data)
             drag.exec(Qt.DropAction.MoveAction)

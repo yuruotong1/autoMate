@@ -1,44 +1,38 @@
 import pickle
+from typing import List
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 
-from actions.action_list import ActionUtil
+from actions.action_base import ActionBase
+from actions.action_util import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
 
 
 class ActionListItem(QListWidgetItem):
-    def __init__(self, action_name, action_arg, action_pos, *args, **kwargs):
+    def __init__(self, action: ActionBase, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.action_name = action_name
-        self.action_arg = action_arg
-        self.action_pos = action_pos
-        self.setText(self.action_name)
+        self.action = action
+        self.setText(action.name)
 
-    def get_action(self):
-        action = ActionUtil.get_action_by_name(self.action_name)()
-        action.action_pos = self.action_pos
-        action.action_arg = self.action_arg
-        return action
-
-    @classmethod
-    def load(cls, action_list_item_data):
-        action_list_view_item = ActionListItem(action_list_item_data["action_name"],
-                                               action_list_item_data["action_arg"],
-                                               action_list_item_data["action_pos"])
-        return action_list_view_item
+    @staticmethod
+    def load(data: dict):
+        if data.get("name"):
+            action_model = ActionUtil.get_action_by_name(data.get("name"))
+            assert isinstance(action_model, ActionBase)
+            return ActionListItem(action_model.model_validate(data.get("name")))
+        else:
+            raise ValueError("data must have a key named 'name'")
 
     def dump(self):
-        return {"action_name": self.action_name,
-                "action_arg": self.action_arg,
-                "action_pos": self.action_pos}
+        return self.action.dict
 
 
 class ActionList(QListWidget):
-    my_mime_type = "ActionListView/data_drag"
+    MY_MIME_TYPE = "ActionListView/data_drag"
 
-    def __init__(self, action_items: list[ActionListItem] = None, parent=None):
+    def __init__(self, actions: list[ActionBase] = None, parent=None, level=0):
         super().__init__()
         # 设置列表项之间的间距为 3 像素
         self.ITEM_MARGIN_LEFT = 3
@@ -48,6 +42,8 @@ class ActionList(QListWidget):
         # 拖动到当前位置对应的元素序号
         self.the_highlighted_row = -2
         self.old_highlighted_row = -2
+        # 当前处于哪一层
+        self.level = level
         # 判断是否正在拖拽
         self.is_drag = False
         self.start_pos = None
@@ -59,16 +55,15 @@ class ActionList(QListWidget):
         self.init()
         if parent:
             self.setParent(parent)
-
-        if not action_items:
-            action_items = []
-        for action_item in action_items:
-            self.insertItem(action_item.action_pos, action_item)
+        if not actions:
+            actions = []
+        for action in actions:
+            self.insertItem(action.action_pos, ActionListItem(action))
 
     @classmethod
-    def load(cls, action_list_data):
-        action_list_items = [ActionListItem.load(i) for i in action_list_data["action_items"]]
-        action_list_view = ActionList(action_list_items)
+    def load(cls, actions_raw_data: List[ActionBase]):
+        actions = [i.model_validate(i) for i in actions_raw_data]
+        action_list_view = ActionList(actions, level=0)
         return action_list_view
 
     def dump(self):
@@ -76,10 +71,10 @@ class ActionList(QListWidget):
         # 获取所有 items
         for i in range(self.count()):
             item = self.item(i)
-            if not isinstance(item, ActionListItem):
+            if not isinstance(item, ActionBase):
                 raise TypeError("item must be an instance of ActionListItem")
-            res.append(item.dump())
-        return {"action_items": res}
+            res.append(item.dict)
+        return res
 
     def init(self):
         # 设置列表项和列表之间的间距为 1 像素
@@ -122,13 +117,11 @@ class ActionList(QListWidget):
             # 拖拽即选中
             self.select_index(the_drag_index)
             the_drag_item = self.item(the_drag_index.row())
-            # 拖拽空白处
-            if not isinstance(the_drag_item, ActionListItem):
-                return
+            assert  isinstance(the_drag_item, ActionListItem)
             # 把拖拽数据放在QMimeData容器中
-            byte_array = QByteArray(pickle.dumps({"source": "actionList", "data": the_drag_item.dump()}))
+            byte_array = QByteArray(pickle.dumps(the_drag_item.dump()))
             mime_data = QMimeData()
-            mime_data.setData(self.my_mime_type, byte_array)
+            mime_data.setData(self.MY_MIME_TYPE, byte_array)
             # 设置拖拽缩略图
             drag = QDrag(self)
             icon = self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarNormalButton)
@@ -207,23 +200,26 @@ class ActionList(QListWidget):
         self.is_drag = False
         self.the_highlighted_row = -2
         # 向指定行插入数据
-        source_data = pickle.loads(e.mimeData().data(self.my_mime_type))
-        drop_down_action_item = ActionListItem.load(source_data["data"])
-        drop_down_action_item.action_pos = self.the_insert_row
+        source_data = pickle.loads(e.mimeData().data(self.MY_MIME_TYPE))
         # 非内部拖动，打开配置窗口，新建动作
-        if source_data.get("source") == "functionList":
+        if isinstance(source_data, str):
+            from actions.action_util import ActionUtil
+            action = ActionUtil.get_action_by_name(source_data)
             # 打开配置页面
-            self.drop_down_action = drop_down_action_item.get_action()
+            self.drop_down_action = action
             self.drop_down_action.config_page_show()
-        # action内部拖动，直接进行替换
-        elif source_data.get("source") == "actionList":
+        else:
+            drag_action_item = ActionListItem.load(source_data)
+            drag_action_item.action.action_pos = self.the_insert_row
             # 如果拖动前位置和拖动后位置相同
-            if self.the_insert_row == self.the_drag_row:
+            if self.the_insert_row == self.the_drag_row and self.level == drag_action_item.action.action_level:
                 return
             # 如果拖动前位置和拖动后位置相邻
-            if self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1:
+            if (self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1
+                    and self.level == drag_action_item.action.action_level):
                 return
-            self.insert_item(self, self.the_insert_row, drop_down_action_item)
+            self.insert_item(self, self.the_insert_row, drag_action_item)
+        # 选中当前行
         self.select_index(QListWidget().currentIndex())
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
@@ -238,7 +234,7 @@ class ActionList(QListWidget):
                 item = action_list.item(i)
                 if not item:
                     continue
-                if item.action_name == "循环执行":
+                if item.action.action_name == "循环执行":
                     widget = action_list.itemWidget(item)
                     action_list = widget.property("action_list")
                     clear_son_selection(action_list)
@@ -270,11 +266,10 @@ class ActionList(QListWidget):
             widget.setFixedHeight(action_list.height() + 40)
             item = widget.property("action_item")
             item.setSizeHint(widget.size())
-            # widget.setFixedHeight(action_list.height() + 80)
         # 插入带包含的组件
-        if action_item.action_name == "循环执行":
+        if action_item.action.action_name == "循环执行":
             from pages.include_action_ui import IncludeActionUi
-            widget = IncludeActionUi().widget()
+            widget = IncludeActionUi().widget(action_list.level + 1)
             widget.setProperty("parent_action_list", action_list)
             widget.setProperty("action_item", action_item)
             action_item.setSizeHint(widget.size())

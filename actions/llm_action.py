@@ -11,8 +11,12 @@ class LLMInput(BaseModel):
 class LLMAction(ActionBase):
     name = "大模型问答"
     description = "利用大模型进行回答"
-    args_schema = LLMInput
+    args: LLMInput
 
     def run(self, question):
         llm = LLMUtil().llm()
         return llm.invoke(question).content
+
+
+if __name__ == '__main__':
+    print(LLMAction.name)

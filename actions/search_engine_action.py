@@ -12,7 +12,7 @@ class SearchInput(BaseModel):
 class SearchEngineAction(ActionBase):
     name = "百度搜索内容"
     description = "利用搜索引擎搜索关键词，得到结果列表"
-    args_schema = SearchInput
+    args: SearchInput
 
     def run(self, key):
         """Use the tool."""
