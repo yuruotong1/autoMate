@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
 from actions.action_util import ActionUtil
 from pages.edit_action_list_view import ActionListItem
+from pages.global_util import GlobalUtil
 
 
 class FunctionListView(QListWidget):
@@ -27,7 +28,7 @@ class FunctionListView(QListWidget):
         if not isinstance(item, ActionListItem):
             return
         # 打开配置页面
-        item.action.config_page_show()
+        item.action.config_page_show(GlobalUtil.current_page.action_list.count())
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):

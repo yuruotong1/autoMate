@@ -5,7 +5,7 @@ from utils.selenium_util import SeleniumUtil
 
 
 class OpenBrowserUrlInput(BaseModel):
-    url: str = Field(description="要访问的网址", title="网址")
+    url: str = Field(description="要访问的网址", title="网址", default="")
 
 
 class OpenBrowserUrlAction(ActionBase):

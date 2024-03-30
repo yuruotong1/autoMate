@@ -6,7 +6,8 @@ import traceback
 import leancloud
 from PyQt6.QtWidgets import QApplication
 
-from pages.edit_page import GlobalUtil
+from pages.edit_action_list_view import ActionList
+from pages.edit_page import GlobalUtil, EditPage
 from pages.func_list_page import FuncListPage
 from pages.login_page import LoginPage
 from utils.config import Config
@@ -44,10 +45,23 @@ def excepthook(exc_type, exc_value, exc_tb):
     print("catch exception:", tb)
 
 
+def load():
+    edit_pages_json = GlobalUtil.load_data()
+    for edit_page_json in edit_pages_json:
+        edit_page = EditPage(
+            func_status=edit_page_json["func_status"],
+            func_list_pos_row=edit_page_json["func_list_pos_row"],
+            func_list_pos_column=edit_page_json["func_list_pos_column"],
+            action_list=ActionList.load(edit_page_json["action_list"]))
+        edit_page.func_name = edit_page_json["func_name"]
+        edit_page.func_description = edit_page_json["func_description"]
+        GlobalUtil.edit_page_global.append(edit_page)
+
+
 if __name__ == "__main__":
     sys.excepthook = excepthook
     app = QApplication(sys.argv)
-    GlobalUtil.init()
+    load()
     page = FuncListPage()
     page.show()
     sys.exit(app.exec())

@@ -26,7 +26,7 @@ class ActionListItem(QListWidgetItem):
             raise ValueError("data must have a key named 'name'")
 
     def dump(self):
-        return self.action.dict
+        return self.action.dict()
 
 
 class ActionList(QListWidget):
@@ -73,7 +73,7 @@ class ActionList(QListWidget):
             item = self.item(i)
             if not isinstance(item, ActionBase):
                 raise TypeError("item must be an instance of ActionListItem")
-            res.append(item.dict)
+            res.append(item.dict())
         return res
 
     def init(self):
@@ -206,8 +206,8 @@ class ActionList(QListWidget):
             from actions.action_util import ActionUtil
             action = ActionUtil.get_action_by_name(source_data)
             # 打开配置页面
-            self.drop_down_action = action
-            self.drop_down_action.config_page_show()
+            self.drop_down_action = action(args={})
+            self.drop_down_action.config_page_show(self.the_insert_row)
         else:
             drag_action_item = ActionListItem.load(source_data)
             drag_action_item.action.action_pos = self.the_insert_row
