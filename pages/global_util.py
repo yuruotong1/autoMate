@@ -1,6 +1,8 @@
 import os
 import pickle
 
+from utils.config import Config
+
 
 class GlobalUtil:
     edit_page_global = []
@@ -39,7 +41,6 @@ class GlobalUtil:
     @classmethod
     def load_data(cls):
         # 根据配置文件的配置，从本地文件中或者网上读取
-        from utils.config import Config
         config = Config()
         cls.edit_page_global = []
         if config.DATA_POSITION == "local":

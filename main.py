@@ -52,6 +52,7 @@ def load():
             func_status=edit_page_json["func_status"],
             func_list_pos_row=edit_page_json["func_list_pos_row"],
             func_list_pos_column=edit_page_json["func_list_pos_column"],
+            # TODO待优化加载问题
             action_list=ActionList.load(edit_page_json["action_list"]))
         edit_page.func_name = edit_page_json["func_name"]
         edit_page.func_description = edit_page_json["func_description"]

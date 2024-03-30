@@ -14,11 +14,11 @@ class ActionBase(BaseModel):
     args: Type[BaseModel]
     action_pos: int = -1
     action_level: int = -1
-    config_ui: ClassVar = QtUtil.load_ui("config_page.ui")
 
     def __init__(self, **data: Any):
         super().__init__(**data)
         self.__ui_name_and_line_edit = {}
+        self.__config_ui = QtUtil.load_ui("config_page.ui")
 
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")
@@ -41,25 +41,23 @@ class ActionBase(BaseModel):
         for field in model_fields:
             # 水平布局
             h_box_layout = QHBoxLayout()
-            label = QLabel(self.config_ui)
+            label = QLabel(self.__config_ui)
             label.setText(model_fields[field].title)
-            line_edit = QLineEdit(self.config_ui)
+            line_edit = QLineEdit(self.__config_ui)
             h_box_layout.addWidget(label)
             h_box_layout.addWidget(line_edit)
-            # 将输入内容填入参数列表
-            self.__ui_name_and_line_edit[field] = line_edit
             v_box_layout.addLayout(h_box_layout)
-        save_button: QPushButton = self.config_ui.saveButton
-        save_button.clicked.__getattribute__("connect")(self.__save_button_clicked, the_insert_row)
-        cancel_button: QPushButton = self.config_ui.cancelButton
-        cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked
-                                                          )
-        container_widget = QWidget(self.config_ui)
+            self.__ui_name_and_line_edit[field] = line_edit
+        save_button: QPushButton = self.__config_ui.saveButton
+        save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
+        cancel_button: QPushButton = self.__config_ui.cancelButton
+        cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked)
+        container_widget = QWidget(self.__config_ui)
         container_widget.setLayout(v_box_layout)
-        self.config_ui.config_list.addWidget(container_widget)
+        self.__config_ui.config_list.addWidget(container_widget)
 
     def __cancel_button_clicked(self):
-        self.config_ui.hide()
+        self.__config_ui.hide()
 
     def __save_button_clicked(self, the_insert_row):
         args = {}
@@ -70,13 +68,15 @@ class ActionBase(BaseModel):
         self.action_level = 0
         #  向新位置增加元素
         from pages.edit_action_list_view import ActionList
-        ActionList.insert_item(GlobalUtil.current_page.action_list, self.action_pos, self)
-        self.config_ui.hide()
+        from pages.edit_action_list_view import ActionListItem
+        action_item = ActionListItem(self)
+        ActionList.insert_item(GlobalUtil.current_page.action_list, self.action_pos, action_item)
+        self.__config_ui.hide()
 
     def config_page_show(self, the_insert_row):
         self.config_page_ui(the_insert_row)
-        if self.config_ui is None:
+        if self.__config_ui is None:
             raise TypeError("config_ui not config")
         # 居上对齐
-        self.config_ui.config_list.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.config_ui.show()
+        self.__config_ui.config_list.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.__config_ui.show()

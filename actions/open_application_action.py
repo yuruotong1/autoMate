@@ -16,9 +16,3 @@ class OpenApplicationAction(ActionBase):
 
     def run(self, path):
         subprocess.Popen(path)
-
-
-if __name__ == '__main__':
-    action = OpenApplicationAction(args={})
-    action.args.path = "ccc"
-    print(action)

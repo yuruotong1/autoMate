@@ -20,19 +20,19 @@ class ActionListItem(QListWidgetItem):
     def load(data: dict):
         if data.get("name"):
             action_model = ActionUtil.get_action_by_name(data.get("name"))
-            assert isinstance(action_model, ActionBase)
-            return ActionListItem(action_model.model_validate(data.get("name")))
+            assert isinstance(action_model, ActionBase.__class__)
+            return ActionListItem(action_model.model_validate(data.get("data")))
         else:
             raise ValueError("data must have a key named 'name'")
 
     def dump(self):
-        return self.action.dict()
+        return {"name": self.action.name, "data": self.action.dict()}
 
 
 class ActionList(QListWidget):
     MY_MIME_TYPE = "ActionListView/data_drag"
 
-    def __init__(self, actions: list[ActionBase] = None, parent=None, level=0):
+    def __init__(self, action_list_items: list[ActionListItem] = None, parent=None, level=0):
         super().__init__()
         # 设置列表项之间的间距为 3 像素
         self.ITEM_MARGIN_LEFT = 3
@@ -55,14 +55,14 @@ class ActionList(QListWidget):
         self.init()
         if parent:
             self.setParent(parent)
-        if not actions:
-            actions = []
-        for action in actions:
-            self.insertItem(action.action_pos, ActionListItem(action))
+        if not action_list_items:
+            action_list_items = []
+        for action_list_item in action_list_items:
+            self.insertItem(action_list_item.action.action_pos, action_list_item)
 
     @classmethod
-    def load(cls, actions_raw_data: List[ActionBase]):
-        actions = [i.model_validate(i) for i in actions_raw_data]
+    def load(cls, actions_raw_data: List[dict]):
+        actions = [ActionListItem.load(i) for i in actions_raw_data]
         action_list_view = ActionList(actions, level=0)
         return action_list_view
 
@@ -71,9 +71,9 @@ class ActionList(QListWidget):
         # 获取所有 items
         for i in range(self.count()):
             item = self.item(i)
-            if not isinstance(item, ActionBase):
+            if not isinstance(item, ActionListItem):
                 raise TypeError("item must be an instance of ActionListItem")
-            res.append(item.dict())
+            res.append(item.dump())
         return res
 
     def init(self):
@@ -267,7 +267,7 @@ class ActionList(QListWidget):
             item = widget.property("action_item")
             item.setSizeHint(widget.size())
         # 插入带包含的组件
-        if action_item.action.action_name == "循环执行":
+        if action_item.action.name == "循环执行":
             from pages.include_action_ui import IncludeActionUi
             widget = IncludeActionUi().widget(action_list.level + 1)
             widget.setProperty("parent_action_list", action_list)

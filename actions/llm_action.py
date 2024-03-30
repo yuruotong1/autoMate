@@ -5,7 +5,7 @@ from utils.llm_util import LLMUtil
 
 
 class LLMInput(BaseModel):
-    question: str = Field(description="需要问的问题", title="问题内容")
+    question: str = Field(description="需要问的问题", title="问题内容", default="")
 
 
 class LLMAction(ActionBase):
