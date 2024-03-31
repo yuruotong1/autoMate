@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>autoMate</class>
+    <widget class="QMainWindow" name="autoMate">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>691</width>
+                <height>678</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>MainWindow</string>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">QTextEdit {border-radius: 20px;}</string>
+        </property>
+        <widget class="QWidget" name="centralwidget">
+            <widget class="QListWidget" name="chat_list">
+                <property name="geometry">
+                    <rect>
+                        <x>60</x>
+                        <y>0</y>
+                        <width>561</width>
+                        <height>561</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QTextEdit" name="textEdit">
+                <property name="geometry">
+                    <rect>
+                        <x>40</x>
+                        <y>570</y>
+                        <width>601</width>
+                        <height>51</height>
+                    </rect>
+                </property>
+                <property name="styleSheet">
+                    <string notr="true">QTextEdit {border-radius: 10px;}</string>
+                </property>
+            </widget>
+        </widget>
+        <widget class="QMenuBar" name="menubar">
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>691</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <widget class="QMenu" name="menu">
+                <property name="title">
+                    <string>主页</string>
+                </property>
+            </widget>
+            <widget class="QMenu" name="menu_2">
+                <property name="title">
+                    <string>个人空间</string>
+                </property>
+            </widget>
+            <widget class="QMenu" name="menu_3">
+                <property name="title">
+                    <string>商店</string>
+                </property>
+            </widget>
+            <addaction name="menu"/>
+            <addaction name="menu_2"/>
+            <addaction name="menu_3"/>
+        </widget>
+        <widget class="QStatusBar" name="statusbar"/>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>
