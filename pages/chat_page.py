@@ -1,6 +1,7 @@
 from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem
+from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView
 
 from pages.bse_page import BasePage
 from utils.qt_util import QtUtil
@@ -11,6 +12,15 @@ class ChatChat(BasePage):
         self.ui = QtUtil.load_ui("chat_page.ui")
         self.new_conversation(
             "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！")
+        # 设置 QListWidget 的背景为透明
+        self.ui.chat_list.setStyleSheet("""
+                   background: transparent;
+                   border: none;
+               """)
+        # 设置 QListWidget 的选择模式为 NoSelection
+        self.ui.chat_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        # 设置 QListWidget 的焦点策略为 NoFocus
+        self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def new_conversation(self, text):
         widget = QtWidgets.QWidget()
@@ -29,23 +39,35 @@ class ChatChat(BasePage):
         label.setText("智子")
         # 将 QLabel 对象添加到布局中
         h_box.addWidget(label)
-        # 设置 QLabel 对象的对齐方式为左对齐
-        h_box.setAlignment(label, QtCore.Qt.AlignmentFlag.AlignLeft)
+        # 占位符
+        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        h_box.addItem(spacer)
+        # 设置每个子元素所占的比例
+        h_box.setStretch(0, 1)
+        h_box.setStretch(1, 1)
+        h_box.setStretch(2, 10)
         # 创建 QTextEdit 对象并设置其文本
         text_edit = QTextEdit(parent=widget)
         text_edit.setReadOnly(True)
         v_box.addLayout(h_box)
+        # 设置 QTextEdit 的背景为白色，边角为椭圆
+        text_edit.setStyleSheet("""
+                   background-color: white;
+                   border-radius: 10px;
+               """)
         text_edit.setHtml(text)
-        # 连接文档大小改变的信号
-        text_edit.document().documentLayout().documentSizeChanged.connect(lambda: self.update_height(text_edit))
         v_box.addWidget(text_edit)
-        widget.setFixedHeight(v_box.sizeHint().height())
         item = QListWidgetItem()
+        # 连接文档大小改变的信号
+        text_edit.document().documentLayout().documentSizeChanged.connect(lambda: self.update_size(widget, item, text_edit))
         # 将 item 添加到 QListWidget
         self.ui.chat_list.insertItem(self.ui.chat_list.count(), item)
-        # 设置 item 的大小
-        item.setSizeHint(widget.size())
         self.ui.chat_list.setItemWidget(item, widget)
 
-    def update_height(self, text_edit):
-        text_edit.setFixedHeight(int(text_edit.document().size().height() + 10))
+    @staticmethod
+    def update_size(widget, item, text_edit):
+        # 获取 QTextEdit 的文档的大小
+        doc_size = text_edit.document().size().toSize()
+        # 设置 widget、v_box 和 item 的大小
+        widget.setFixedHeight(doc_size.height() + 60)
+        item.setSizeHint(widget.size())
