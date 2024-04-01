@@ -40,7 +40,7 @@
      <string notr="true">border-radius: 30px</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="select_action">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -50,10 +50,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>选插件</string>
+     <string>选行为</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="upload_document">
     <property name="geometry">
      <rect>
       <x>120</x>

@@ -14,14 +14,15 @@ class ChatChat(BasePage):
         self.new_conversation(
             "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！")
         # 设置 QListWidget 的背景为透明
-        self.ui.chat_list.setStyleSheet("""
-                   background: transparent;
-                   border: none;
-               """)
+        self.ui.chat_list.setStyleSheet("""background: transparent;border: none;""")
         # 设置 QListWidget 的选择模式为 NoSelection
         self.ui.chat_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         # 设置 QListWidget 的焦点策略为 NoFocus
         self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.ui.select_action.clicked.connect(self.select_action_clicked)
+
+    def select_action_clicked(self):
+        self.ui.action_widget.show()
 
     def new_conversation(self, text):
         widget = QtWidgets.QWidget()
