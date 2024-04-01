@@ -10,6 +10,7 @@ from utils.qt_util import QtUtil
 class ChatChat(BasePage):
     def setup_up(self):
         self.ui = QtUtil.load_ui("chat_page.ui")
+        self.ui.action_widget.hide()
         self.new_conversation(
             "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！")
         # 设置 QListWidget 的背景为透明
