@@ -1,15 +1,37 @@
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRect, QPoint
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView
 
+from agent.woker_agent import WorkerAgent
 from pages.bse_page import BasePage
 from utils.qt_util import QtUtil
 
 
-class ChatChat(BasePage):
+class ChatInput(QTextEdit):
+    def __init__(self, parent=None, chat_page=None):
+        self.chat_page = chat_page
+        super().__init__(parent)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return:
+            print("Enter was pressed", self.toPlainText())
+            self.chat_page.new_conversation(f"{self.toPlainText()}")
+            res = WorkerAgent().run(self.toPlainText())
+            self.chat_page.new_conversation(f"{res}")
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+
+class ChatPage(BasePage):
     def setup_up(self):
         self.ui = QtUtil.load_ui("chat_page.ui")
+        self.ui.text_edit = ChatInput()
+        chat_input = ChatInput(parent=self.ui.centralwidget, chat_page=self)
+        chat_input.setGeometry(QtCore.QRect(40, 580, 601, 51))
+        chat_input.setStyleSheet("border-radius: 30px")
+        chat_input.setObjectName("chat_input")
         self.ui.action_widget.hide()
         self.new_conversation(
             "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！")
@@ -20,6 +42,12 @@ class ChatChat(BasePage):
         # 设置 QListWidget 的焦点策略为 NoFocus
         self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.ui.select_action.clicked.connect(self.select_action_clicked)
+
+    def hide_action(self, event):
+        print("hello")
+        action_widget = self.ui.action_widget
+        if not QRect(action_widget.mapToGlobal(QPoint(0, 0)), action_widget.size()).contains(event.globalPos()):
+            action_widget.hide()
 
     def select_action_clicked(self):
         self.ui.action_widget.show()
@@ -61,7 +89,8 @@ class ChatChat(BasePage):
         v_box.addWidget(text_edit)
         item = QListWidgetItem()
         # 连接文档大小改变的信号
-        text_edit.document().documentLayout().documentSizeChanged.connect(lambda: self.update_size(widget, item, text_edit))
+        text_edit.document().documentLayout().documentSizeChanged.connect(
+            lambda: self.update_size(widget, item, text_edit))
         # 将 item 添加到 QListWidget
         self.ui.chat_list.insertItem(self.ui.chat_list.count(), item)
         self.ui.chat_list.setItemWidget(item, widget)

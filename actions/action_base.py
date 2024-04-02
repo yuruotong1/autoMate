@@ -34,6 +34,9 @@ class ActionBase(BaseModel):
             args_schema=self.args
         )
 
+    def _run(self, *args, **kwargs):
+        self.run(*args, **kwargs)
+
     # 设置配置界面的布局
     def config_page_ui(self, the_insert_row):
         v_box_layout = QVBoxLayout()

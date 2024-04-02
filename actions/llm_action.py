@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 from actions.action_base import ActionBase
-from utils.llm_util import LLMUtil
+from utils.llm_util import LLM_Util
 
 
 class LLMInput(BaseModel):
@@ -14,7 +14,7 @@ class LLMAction(ActionBase):
     args: LLMInput
 
     def run(self, question):
-        llm = LLMUtil().llm()
+        llm = LLM_Util().llm()
         return llm.invoke(question).content
 
 

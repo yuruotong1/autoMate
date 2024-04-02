@@ -1,7 +1,7 @@
 from utils.config import Config
 
 
-class LLMUtil:
+class LLM_Util:
     def __init__(self):
         super().__init__()
         self.config = Config()

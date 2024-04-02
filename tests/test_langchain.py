@@ -3,7 +3,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from tools.search_engine_tool import SearchEngineTool
 
-from utils.llm_util import LLMUtil
+from utils.llm_util import LLM_Util
 
 
 class TestLangChain:
@@ -11,7 +11,7 @@ class TestLangChain:
         template = """根据用户输入，提取出搜索引擎的关键字，返回该关键字:
 
         {input}"""
-        model = LLMUtil().llm()
+        model = LLM_Util().llm()
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | model | StrOutputParser() | SearchEngineTool()
 

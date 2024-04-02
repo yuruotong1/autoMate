@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>autoMate</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QTextEdit {border-radius: 10px;}</string>
@@ -27,7 +27,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="chat_input">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -51,19 +51,6 @@
     </property>
     <property name="text">
      <string>选行为</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="upload_document">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>550</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>上传</string>
     </property>
    </widget>
    <widget class="QWidget" name="action_widget" native="true">

@@ -6,7 +6,7 @@ import traceback
 import leancloud
 from PyQt6.QtWidgets import QApplication
 
-from pages.chat_page import ChatChat
+from pages.chat_page import ChatPage
 from pages.edit_action_list_view import ActionList
 from pages.edit_page import GlobalUtil, EditPage
 from pages.func_list_page import FuncListPage
@@ -65,6 +65,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     # load()
     # page = FuncListPage()
-    page = ChatChat()
+    page = ChatPage()
     page.show()
     sys.exit(app.exec())

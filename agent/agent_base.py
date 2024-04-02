@@ -1,4 +1,3 @@
-from tools.llm_tools import LLMTools
 
 
 class AgentBase:
@@ -25,6 +24,3 @@ class AgentBase:
             None
         """
         self.role = new_role
-
-    def call_gpt(self, input_text):
-        return LLMTools().run(param={"role": self.role, "content": input_text})

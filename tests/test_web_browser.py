@@ -1,16 +1,9 @@
-import logging
-import unittest
-from idlelib.searchengine import SearchEngine
-
 from langchain.agents import create_openai_functions_agent, AgentExecutor
-from langchain_core.messages import HumanMessage
 from langchain_core.prompts import SystemMessagePromptTemplate, PromptTemplate, MessagesPlaceholder, \
     HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain_core.utils.function_calling import convert_to_openai_function
-from langchain_openai import ChatOpenAI
-
 from tools.search_engine_tool import SearchEngineTool
-from utils.llm_util import LLMUtil
+
+from utils.llm_util import LLM_Util
 
 
 class TestWebBrowser:
@@ -24,7 +17,7 @@ class TestWebBrowser:
                 MessagesPlaceholder(variable_name='agent_scratchpad')
             ]
         )
-        model = LLMUtil().llm()
+        model = LLM_Util().llm()
         tools = [SearchEngineTool()]
         agent = create_openai_functions_agent(model, tools, prompt)
         agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
