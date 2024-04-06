@@ -40,19 +40,19 @@
      <string notr="true">border-radius: 30px</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="select_action">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>550</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>选行为</string>
-    </property>
-   </widget>
+   <!--   <widget class="QPushButton" name="select_action">-->
+   <!--    <property name="geometry">-->
+   <!--     <rect>-->
+   <!--      <x>40</x>-->
+   <!--      <y>550</y>-->
+   <!--      <width>75</width>-->
+   <!--      <height>23</height>-->
+   <!--     </rect>-->
+   <!--    </property>-->
+   <!--    <property name="text">-->
+   <!--     <string>选行为</string>-->
+   <!--    </property>-->
+   <!--   </widget>-->
    <widget class="QWidget" name="action_widget" native="true">
     <property name="geometry">
      <rect>

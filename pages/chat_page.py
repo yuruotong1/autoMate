@@ -60,7 +60,7 @@ class ChatPage(BasePage):
         self.ui.chat_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         # 设置 QListWidget 的焦点策略为 NoFocus
         self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.ui.select_action.clicked.connect(self.select_action_clicked)
+        # self.ui.select_action.clicked.connect(self.select_action_clicked)
 
     def hide_action(self, event):
         print("hello")
