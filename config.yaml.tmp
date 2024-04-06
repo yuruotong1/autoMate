@@ -6,6 +6,7 @@ openai:
   api_key: xxx
   #  xxxxx/v1/
   api_url: xx
+  model: gpt-4-1106-preview
 
 # local or remote
 data_position: local

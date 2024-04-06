@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class OpenApplicationInput(BaseModel):
-    path: str = Field(description="打开的应用路径", title="应用路径")
+    path: str = Field(description="应用路径", title="应用路径")
 
 
 class OpenApplicationAction(BaseTool):

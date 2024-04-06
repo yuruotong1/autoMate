@@ -7,7 +7,8 @@ class LLM_Util:
         self.config = Config()
         self.api_key = self.config.OPEN_AI.get("api_key")
         self.base_url = self.config.OPEN_AI.get("api_url")
-        self.model_name = self.config.OPEN_AI.get("model_name", "gpt-3.5-turbo")
+        self.open_ai_model = self.config.OPEN_AI.get("model")
+        self.model_name = self.config.OPEN_AI.get("model_name", self.open_ai_model)
 
     def llm(self):
         from langchain_openai import ChatOpenAI
