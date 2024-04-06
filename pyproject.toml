@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["yuruotong"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -18,6 +17,7 @@ pytest = "^8.0.1"
 pyqt6 = "^6.6.1"
 leancloud = "^2.9.12"
 pyautogui = "^0.9.54"
+langchainhub = "^0.1.15"
 
 
 [build-system]
