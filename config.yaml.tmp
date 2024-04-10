@@ -1,6 +1,3 @@
-browser:
-    browser_type: edge
-
 openai:
   # key
   api_key: xxx

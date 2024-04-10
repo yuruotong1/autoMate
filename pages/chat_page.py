@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSi
 
 from agent.woker_agent import WorkerAgent
 from pages.bse_page import BasePage
+from utils.config import Config
 from utils.qt_util import QtUtil
 
 
@@ -42,6 +43,10 @@ class ChatInput(QTextEdit):
 
 
 class ChatPage(BasePage):
+    def __init__(self):
+        super().__init__()
+        self.setting_page = None
+
     def setup_up(self):
         self.ui = QtUtil.load_ui("chat_page.ui")
         self.ui.text_edit = ChatInput()
@@ -61,9 +66,30 @@ class ChatPage(BasePage):
         # 设置 QListWidget 的焦点策略为 NoFocus
         self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         # self.ui.select_action.clicked.connect(self.select_action_clicked)
+        setting_action = self.ui.setting_action
+        setting_action.triggered.connect(self.open_setting_page)
+
+    def open_setting_page(self):
+        self.setting_page = QtUtil.load_ui("setting_page.ui")
+        config = Config()
+        self.setting_page.openai_key.setText(config.OPEN_AI.get("openai_key"))
+        self.setting_page.openai_url.setText(config.OPEN_AI.get("openai_url"))
+        self.setting_page.openai_model.setText(config.OPEN_AI.get("openai_model"))
+        self.setting_page.save_btn.clicked.connect(self.save_setting)
+        self.setting_page.cancel_btn.clicked.connect(self.cancel_btn)
+        self.setting_page.show()
+
+    def save_setting(self):
+        config = Config()
+        config.update_config(Config.OPENAI, Config.OPENAI_KEY, self.setting_page.openai_key.text())
+        config.update_config(Config.OPENAI, Config.OPENAI_URL, self.setting_page.openai_url.text())
+        config.update_config(Config.OPENAI, Config.OPENAI_MODEL, self.setting_page.openai_model.text())
+        self.setting_page.close()
+
+    def cancel_btn(self):
+        self.setting_page.close()
 
     def hide_action(self, event):
-        print("hello")
         action_widget = self.ui.action_widget
         if not QRect(action_widget.mapToGlobal(QPoint(0, 0)), action_widget.size()).contains(event.globalPos()):
             action_widget.hide()

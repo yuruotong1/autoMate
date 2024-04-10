@@ -40,19 +40,6 @@
      <string notr="true">border-radius: 30px</string>
     </property>
    </widget>
-   <!--   <widget class="QPushButton" name="select_action">-->
-   <!--    <property name="geometry">-->
-   <!--     <rect>-->
-   <!--      <x>40</x>-->
-   <!--      <y>550</y>-->
-   <!--      <width>75</width>-->
-   <!--      <height>23</height>-->
-   <!--     </rect>-->
-   <!--    </property>-->
-   <!--    <property name="text">-->
-   <!--     <string>选行为</string>-->
-   <!--    </property>-->
-   <!--   </widget>-->
    <widget class="QWidget" name="action_widget" native="true">
     <property name="geometry">
      <rect>
@@ -116,26 +103,21 @@ border: none;</string>
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="file_menu">
     <property name="title">
-     <string>主页</string>
+     <string>文件</string>
     </property>
+    <addaction name="setting_action"/>
+    <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menu_2">
-    <property name="title">
-     <string>个人空间</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_3">
-    <property name="title">
-     <string>商店</string>
-    </property>
-   </widget>
-   <addaction name="menu"/>
-   <addaction name="menu_2"/>
-   <addaction name="menu_3"/>
+   <addaction name="file_menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="setting_action">
+   <property name="text">
+    <string>设置</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

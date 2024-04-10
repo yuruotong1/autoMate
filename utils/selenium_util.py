@@ -12,7 +12,7 @@ from utils.config import Config
 class SeleniumUtil:
     def __init__(self):
         config = Config()
-        browser_type = config.BROWSER.get("browser_type")
+        browser_type = config.BROWSER_CONFIG.get("browser_type")
         if browser_type == "chrome":
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")  # Enable headless mode

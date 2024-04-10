@@ -6,7 +6,7 @@ authors = ["yuruotong"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.13"
 PyYAML = "6.0.1"
 requests = "2.31.0"
 selenium = "4.16.0"
@@ -18,6 +18,7 @@ pyqt6 = "^6.6.1"
 leancloud = "^2.9.12"
 pyautogui = "^0.9.54"
 langchainhub = "^0.1.15"
+pyinstaller = "^6.5.0"
 
 
 [build-system]

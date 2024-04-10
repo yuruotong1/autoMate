@@ -2,7 +2,7 @@
 # Ignore IDE and editor files
 .idea/
 .vscode/
-
+dist/
 # Ignore environment-specific files
 .venv
 config.yaml
