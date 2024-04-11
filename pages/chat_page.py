@@ -18,8 +18,16 @@ class WorkerThread(QThread):
         self.chat_page = chat_page
 
     def run(self):
-        res = WorkerAgent().run(self.text)
-        self.finished_signal.emit(res)
+        agent_iter = WorkerAgent().get_iter(self.text)
+        for step in agent_iter:
+            content = ""
+            if output := step.get("intermediate_step"):
+                action, value = output[0]
+                content = f"{action.tool} \n{value}"
+            elif step.get("output"):
+                content = step["output"]
+            content = content.replace("```", "")
+            self.finished_signal.emit(content)
 
 
 class ChatInput(QTextEdit):
@@ -56,8 +64,8 @@ class ChatPage(BasePage):
         chat_input.setObjectName("chat_input")
         self.ui.action_widget.hide()
         self.new_conversation(
-            "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！"
-            , "system"
+            "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！",
+            "system"
         )
         # 设置 QListWidget 的背景为透明
         self.ui.chat_list.setStyleSheet("""background: transparent;border: none;""")
@@ -98,6 +106,7 @@ class ChatPage(BasePage):
         self.ui.action_widget.show()
 
     def new_conversation(self, text, role):
+        text = text.replace("\n", "<br>")
         widget = QtWidgets.QWidget()
         widget.setGeometry(QtCore.QRect(110, 100, 160, 80))
         v_box = QtWidgets.QVBoxLayout(widget)

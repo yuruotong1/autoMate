@@ -4,7 +4,7 @@ from langchain_core.tools import BaseTool
 
 
 class FindDesktopPath(BaseTool):
-    name = "find desktop path"
+    name = "桌面路径"
     description = "返回桌面路径"
 
     # args_schema = None

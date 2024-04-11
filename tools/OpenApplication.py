@@ -9,7 +9,7 @@ class OpenApplicationInput(BaseModel):
 
 
 class OpenApplicationAction(BaseTool):
-    name = "open_application"
+    name = "打开应用"
     description = "打开指定目录的应用"
     args_schema = OpenApplicationInput
 
