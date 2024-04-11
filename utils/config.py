@@ -1,9 +1,10 @@
 import os
-
+import platform
 import yaml
 
 
 class Config:
+    APP_NAME = "autoMate"
     OPENAI_KEY = "openai_key"
     OPENAI_URL = "openai_url"
     OPENAI_MODEL = "openai_model"
@@ -11,9 +12,9 @@ class Config:
     BROWSER = "browser"
 
     def __init__(self):
-        # 项目根目录
-        project_root_path = os.path.abspath(os.path.dirname(__file__))
-        self.path = os.path.join(project_root_path, "..", "config.yaml")
+        # 全局配置文件根目录
+        self.global_config_path = Config.get_app_settings_path()
+        self.path = os.path.join(self.global_config_path, "config.yaml")
         # 上一层目录
         self.config = self._load_config(self.path)
         self.OPEN_AI = self.config[self.OPENAI]
@@ -28,6 +29,7 @@ class Config:
     def _load_config(file_path):
         # 如果文件不存在，则生成一个yaml文件
         if not os.path.exists(file_path):
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
             with open(file_path, 'w') as file:
                 data = {Config.OPENAI: {Config.OPENAI_KEY: "your_api_key",
                                         Config.OPENAI_URL: "https://api.openai.com/v1/",
@@ -44,3 +46,18 @@ class Config:
         self.config[loc][key] = value
         with open(self.path, 'w') as file:
             yaml.dump(self.config, file)
+
+    @staticmethod
+    def get_user_home():
+        if platform.system() == "Windows":
+            return os.environ["USERPROFILE"]
+        else:
+            return os.path.expanduser("~")
+
+    @staticmethod
+    def get_app_settings_path(app_name=APP_NAME):
+        user_home = Config.get_user_home()
+        if platform.system() == "Windows":
+            return os.path.join(os.environ["APPDATA"], app_name)
+        else:
+            return os.path.join(user_home, ".config", app_name)

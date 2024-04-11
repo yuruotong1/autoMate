@@ -22,11 +22,12 @@ class GlobalUtil:
 
     @classmethod
     def read_from_local(cls):
+        cache_path = os.path.join(Config.get_app_settings_path(), 'cache')
         # 判断文件是否存在
-        if not os.path.exists("./cache"):
+        if not os.path.exists(cache_path):
             return []
 
-        with open("./cache", "rb") as file:
+        with open(cache_path, "rb") as file:
             data = pickle.load(file).get("action_list_global")
             if not data:
                 data = []
@@ -34,7 +35,8 @@ class GlobalUtil:
 
     @classmethod
     def save_to_local(cls):
-        with open("./cache", "wb") as file:
+        cache_path = os.path.join(Config.get_app_settings_path(), 'cache')
+        with open(cache_path, "wb") as file:
             edit_page_dump = [i.dump() for i in cls.edit_page_global]
             pickle.dump({"action_list_global": edit_page_dump}, file)
 
