@@ -103,7 +103,7 @@ class ChatPage(BasePage):
         v_box = QtWidgets.QVBoxLayout(widget)
         h_box = QtWidgets.QHBoxLayout()
         if role == "system":
-            role_pic = QtUtil.get_icon("github", "logo.png")
+            role_pic = QtUtil.get_icon("logo.png")
             role_name = "智子"
         else:
             role_pic = QtUtil.get_icon("vip.png")
