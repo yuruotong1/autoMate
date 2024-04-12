@@ -1,7 +1,5 @@
 import os
-
-from langchain_core.tools import BaseTool
-
+from langchain.tools import BaseTool
 
 class FindDesktopPath(BaseTool):
     name = "桌面路径"
@@ -9,6 +7,6 @@ class FindDesktopPath(BaseTool):
 
     # args_schema = None
 
-    def _run(self, *tool_args, **tool_kwargs):
+    def _run(self):
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         return desktop_path

@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSi
 
 from agent.woker_agent import WorkerAgent
 from pages.bse_page import BasePage
+from pages.func_list_page import FuncListPage
 from utils.config import Config
 from utils.qt_util import QtUtil
 
@@ -62,7 +63,6 @@ class ChatPage(BasePage):
         chat_input.setGeometry(QtCore.QRect(40, 580, 601, 51))
         chat_input.setStyleSheet("border-radius: 30px")
         chat_input.setObjectName("chat_input")
-        self.ui.action_widget.hide()
         self.new_conversation(
             "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！",
             "system"
@@ -72,10 +72,24 @@ class ChatPage(BasePage):
         # 设置 QListWidget 的选择模式为 NoSelection
         self.ui.chat_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         # 设置 QListWidget 的焦点策略为 NoFocus
+
         self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        # 垂直滚动条滑动时才显示，否则隐藏
+        self.ui.chat_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # 隐藏水平滚动条
+        self.ui.chat_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # self.ui.select_action.clicked.connect(self.select_action_clicked)
         setting_action = self.ui.setting_action
         setting_action.triggered.connect(self.open_setting_page)
+        # 添加按钮点击事件，打开添加对话框
+        self.ui.add_action.clicked.connect(self.open_add_dialog)
+
+    def open_add_dialog(self):
+        self.func_list_page = FuncListPage(parent=self.ui)
+        # self.func_list_page.setParent(self.ui)
+
+        self.func_list_page.show()
+        self.ui.hide()
 
     def open_setting_page(self):
         self.setting_page = QtUtil.load_ui("setting_page.ui")
@@ -97,13 +111,6 @@ class ChatPage(BasePage):
     def cancel_btn(self):
         self.setting_page.close()
 
-    def hide_action(self, event):
-        action_widget = self.ui.action_widget
-        if not QRect(action_widget.mapToGlobal(QPoint(0, 0)), action_widget.size()).contains(event.globalPos()):
-            action_widget.hide()
-
-    def select_action_clicked(self):
-        self.ui.action_widget.show()
 
     def new_conversation(self, text, role):
         text = text.replace("\n", "<br>")

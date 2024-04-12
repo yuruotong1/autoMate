@@ -7,7 +7,11 @@ dist/
 .venv
 config.yaml
 
+build/
+cache
 **.lock
 # Ignore Python cache files
 **/__pycache__/
 /session
+
+main.spec

@@ -124,8 +124,8 @@ class ActionList(QListWidget):
             mime_data.setData(self.MY_MIME_TYPE, byte_array)
             # 设置拖拽缩略图
             drag = QDrag(self)
-            icon = self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarNormalButton)
             drag.setMimeData(mime_data)
+            icon = self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarNormalButton)
             pixmap = icon.pixmap(10, 10)
             drag.setPixmap(pixmap)
             # 拖拽结束

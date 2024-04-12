@@ -1,10 +1,13 @@
+import typing
+from PyQt6 import QtCore
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton
+from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget
 from pages.bse_page import BasePage
 from pages.edit_page import EditPage, GlobalUtil
 from utils.qt_util import QtUtil
 
+from PyQt6.uic import loadUiType 
 
 class AddFuncButton(QToolButton):
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, func_list_page):
@@ -48,17 +51,33 @@ class AddFuncButton(QToolButton):
             self.opacity_effect.setOpacity(0)
 
 
-class FuncListPage(BasePage):
+
+ 
+interface_ui = QtUtil.load_ui_type("func_list_page.ui")
+ 
+
+class FuncListPage(QMainWindow, interface_ui):
+    def __init__(self, parent):
+        self.parent_ui = parent
+        super().__init__()
+        self.setupUi(self)
+        self.setup_up()
+
+    # 关闭事件
+    def closeEvent(self, event):
+        self.parent_ui.show()
+
     def setup_up(self):
-        self.ui = QtUtil.load_ui("func_list_page.ui")
+        # self.ui = QtUtil.load_ui("func_list_page.ui")
         # 四行三列，辅满通用应用列表布局
         for i in range(3):  # 3行
             for j in range(4):  # 4列
-                add_button = AddFuncButton("通用", i, j, self.ui)
-                self.ui.general_layout.addWidget(add_button, i, j)
+                add_button = AddFuncButton("通用", i, j, self)
+                self.general_layout.addWidget(add_button, i, j)
 
         # 四行四列，辅满专属应用列表布局
         for i in range(3):  # 4行
             for j in range(4):  # 4列
-                add_button = AddFuncButton("专属", i, j, self.ui)
-                self.ui.special_layout.addWidget(add_button, i, j)
+                add_button = AddFuncButton("专属", i, j, self)
+                self.special_layout.addWidget(add_button, i, j)
+                

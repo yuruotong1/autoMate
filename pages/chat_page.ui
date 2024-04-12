@@ -40,58 +40,18 @@
      <string notr="true">border-radius: 30px</string>
     </property>
    </widget>
-   <widget class="QWidget" name="action_widget" native="true">
+   <widget class="QPushButton" name="add_action">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>340</y>
-      <width>201</width>
-      <height>201</height>
+      <y>550</y>
+      <width>75</width>
+      <height>23</height>
      </rect>
     </property>
-    <property name="styleSheet">
-     <string notr="true">background: rgb(255, 255, 255)</string>
+    <property name="text">
+     <string>注入魔力</string>
     </property>
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>0</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>新增插件</string>
-     </property>
-    </widget>
-    <widget class="QListWidget" name="listWidget">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>30</y>
-       <width>201</width>
-       <height>171</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background: transparent;
-border: none;</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>101</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>已选用 0/0 个插件</string>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
