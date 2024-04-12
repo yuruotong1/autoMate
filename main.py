@@ -46,7 +46,6 @@ def excepthook(exc_type, exc_value, exc_tb):
 
 # 加载全局数据
 def load():
-    GlobalUtil.load_data()
     # 生成 config.yaml 文件 
     Config()
 

@@ -19,7 +19,7 @@ class AddFuncButton(QToolButton):
         self.func_list_page = func_list_page
         self.setMouseTracking(True)
         self.clicked.connect(self.click)
-        self.edit_page = GlobalUtil.get_edit_page_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
+        self.edit_page = EditPage.get_edit_page_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
         if self.edit_page:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             self.setIcon(QIcon(QtUtil.get_icon("功能.png")))
@@ -37,8 +37,7 @@ class AddFuncButton(QToolButton):
     def click(self):
         self.func_list_page.hide()
         if not self.edit_page:
-            self.edit_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
-        GlobalUtil.edit_page_global.append(self.edit_page)
+            self.edit_page = EditPage(self.func_list_page, self.func_status, self.func_list_pos_row, self.func_list_pos_column)
         GlobalUtil.current_page = self.edit_page
         self.edit_page.show()
 
@@ -68,6 +67,7 @@ class FuncListPage(QMainWindow, interface_ui):
         self.parent_ui.show()
 
     def setup_up(self):
+        EditPage.global_load(self)
         # self.ui = QtUtil.load_ui("func_list_page.ui")
         # 四行三列，辅满通用应用列表布局
         for i in range(3):  # 3行
