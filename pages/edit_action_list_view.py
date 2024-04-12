@@ -234,7 +234,7 @@ class ActionList(QListWidget):
                 item = action_list.item(i)
                 if not item:
                     continue
-                if item.action.action_name == "循环执行":
+                if item.action.name == "循环执行":
                     widget = action_list.itemWidget(item)
                     action_list = widget.property("action_list")
                     clear_son_selection(action_list)

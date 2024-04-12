@@ -8,9 +8,6 @@ class GlobalUtil:
     current_page = None
     path = os.path.join(QtUtil.get_root_path(), "cache")
 
-    @classmethod
-    def delete_edit_page(cls, edit_page):
-        cls.edit_page_global.remove(edit_page)
 
     @classmethod
     def read_from_local(cls):

@@ -37,9 +37,11 @@ class AddFuncButton(QToolButton):
     def click(self):
         self.func_list_page.hide()
         if not self.edit_page:
-            self.edit_page = EditPage(self.func_list_page, self.func_status, self.func_list_pos_row, self.func_list_pos_column)
-        GlobalUtil.current_page = self.edit_page
-        self.edit_page.show()
+            edit_page = EditPage(self.func_list_page, self.func_status, self.func_list_pos_row, self.func_list_pos_column)
+            GlobalUtil.current_page = edit_page
+        else:
+            GlobalUtil.current_page = self.edit_page
+        GlobalUtil.current_page.show()
 
     def enterEvent(self, event):
         if not self.edit_page:
