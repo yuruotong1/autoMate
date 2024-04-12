@@ -41,12 +41,16 @@ class GlobalUtil:
     @classmethod
     def load_data(cls):
         # 根据配置文件的配置，从本地文件中或者网上读取
-        config = Config()
-        cls.edit_page_global = []
-        if config.DATA_POSITION == "local":
-            edit_pages_json = cls.read_from_local()
-        elif config.DATA_POSITION == "remote":
-            edit_pages_json = []
-        else:
-            edit_pages_json = []
-        return edit_pages_json
+        edit_pages_json = cls.read_from_local()
+        for edit_page_json in edit_pages_json:
+            from pages.edit_page import EditPage
+            from pages.edit_action_list_view import ActionList
+            edit_page = EditPage(
+                func_status=edit_page_json["func_status"],
+                func_list_pos_row=edit_page_json["func_list_pos_row"],
+                func_list_pos_column=edit_page_json["func_list_pos_column"],
+                # TODO待优化加载问题
+                action_list=ActionList.load(edit_page_json["action_list"]))
+            edit_page.func_name = edit_page_json["func_name"]
+            edit_page.func_description = edit_page_json["func_description"]
+            GlobalUtil.edit_page_global.append(edit_page)

@@ -7,7 +7,6 @@ import leancloud
 from PyQt6.QtWidgets import QApplication
 
 from pages.chat_page import ChatPage
-from pages.edit_action_list_view import ActionList
 from pages.edit_page import GlobalUtil, EditPage
 from pages.func_list_page import FuncListPage
 from pages.login_page import LoginPage
@@ -45,25 +44,19 @@ def excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
     print("catch exception:", tb)
 
-
+# 加载全局数据
 def load():
-    edit_pages_json = GlobalUtil.load_data()
-    for edit_page_json in edit_pages_json:
-        edit_page = EditPage(
-            func_status=edit_page_json["func_status"],
-            func_list_pos_row=edit_page_json["func_list_pos_row"],
-            func_list_pos_column=edit_page_json["func_list_pos_column"],
-            # TODO待优化加载问题
-            action_list=ActionList.load(edit_page_json["action_list"]))
-        edit_page.func_name = edit_page_json["func_name"]
-        edit_page.func_description = edit_page_json["func_description"]
-        GlobalUtil.edit_page_global.append(edit_page)
+    GlobalUtil.load_data()
+    # 生成 config.yaml 文件 
+    Config()
+
+
 
 
 if __name__ == "__main__":
     sys.excepthook = excepthook
     app = QApplication(sys.argv)
-    # load()
+    load()
     # page = FuncListPage()
     page = ChatPage()
     page.show()

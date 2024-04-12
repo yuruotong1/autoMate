@@ -2,6 +2,8 @@ import os
 
 import yaml
 
+from utils.qt_util import QtUtil
+
 
 class Config:
     OPENAI_KEY = "openai_key"
@@ -12,17 +14,12 @@ class Config:
 
     def __init__(self):
         # 项目根目录
-        project_root_path = os.path.abspath(os.path.dirname(__file__))
-        self.path = os.path.join(project_root_path, "..", "config.yaml")
+        self.path = os.path.join(QtUtil.get_root_path(), "config.yaml")
         # 上一层目录
         self.config = self._load_config(self.path)
         self.OPEN_AI = self.config[self.OPENAI]
         self.BROWSER_CONFIG = self.config[self.BROWSER]
-        self.DATA_POSITION = self.config["data_position"]
-        self.LEAN_CLOUD = None
-        if self.DATA_POSITION == "remote":
-            self.LEAN_CLOUD = self.config["leancloud"]
-
+        
     @staticmethod
     # Load content from a yaml file and return as variables
     def _load_config(file_path):
