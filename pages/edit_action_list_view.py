@@ -26,7 +26,7 @@ class ActionListItem(QListWidgetItem):
             raise ValueError("data must have a key named 'name'")
 
     def dump(self):
-        return {"name": self.action.name, "data": self.action.dict()}
+        return {"name": self.action.name, "data": self.action.model_dump()}
 
 
 class ActionList(QListWidget):
