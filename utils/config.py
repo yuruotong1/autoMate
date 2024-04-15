@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import yaml
 
@@ -6,38 +7,29 @@ from utils.qt_util import QtUtil
 
 
 class Config:
-    OPENAI_KEY = "openai_key"
-    OPENAI_URL = "openai_url"
-    OPENAI_MODEL = "openai_model"
-    OPENAI = "openai"
-    BROWSER = "browser"
-
     def __init__(self):
         # 项目根目录
-        self.path = os.path.join(QtUtil.get_root_path(), "config.yaml")
+        self.config_path = os.path.join(QtUtil.get_root_path(), "config.yaml")
         # 上一层目录
-        self.config = self._load_config(self.path)
-        self.OPEN_AI = self.config[self.OPENAI]
-        self.BROWSER_CONFIG = self.config[self.BROWSER]
+        self.config = self.load_config()
         
-    @staticmethod
-    # Load content from a yaml file and return as variables
-    def _load_config(file_path):
-        # 如果文件不存在，则生成一个yaml文件
-        if not os.path.exists(file_path):
-            with open(file_path, 'w') as file:
-                data = {Config.OPENAI: {Config.OPENAI_KEY: "your_api_key",
-                                        Config.OPENAI_URL: "https://api.openai.com/v1/",
-                                        Config.OPENAI_MODEL: "gpt-4-1106-preview"},
-                        "data_position": "local",
-                        Config.BROWSER: "edge"}
-                yaml.dump(data, file)
+    def get_config_from_base(self, title, key):
+        return self.config["base"][title]["config"][key]
 
-        with open(file_path, 'r') as file:
+    def get_config_from_component(self, title, key):
+        return self.config["components"][title]["config"][key]
+
+    def load_config(self):
+        # 如果文件不存在，则生成一个yaml文件
+        if not os.path.exists(self.config_path):
+            # 将 config_tmp.yaml 复制并改名为 config.yaml
+            shutil.copyfile(os.path.join(QtUtil.get_root_path(), "config_tmp.yaml"), self.config_path)
+
+        with open(self.config_path, 'r', encoding='utf-8') as file:
             config = yaml.safe_load(file)
         return config
 
-    def update_config(self, loc, key, value):
-        self.config[loc][key] = value
+    def update_config(self):
+        # 将 self.config 写入 yaml 文件
         with open(self.path, 'w') as file:
             yaml.dump(self.config, file)

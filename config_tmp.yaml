@@ -1,0 +1,24 @@
+base:
+  数据存储位置:
+    description: 数据存储位置
+    config:
+      数据存储位置: local
+
+components:
+  openai:
+    description: 用于配置openai相关信息
+    config:
+      api_key: 请输入api_key
+      api_url: https://api.openai.com/v1/
+      model: gpt-4-1106-preview
+  
+  feishu:
+    description: 配置飞书相关信息，用于与飞书进行交互
+    config:
+      app_id: 请输入api_id
+      app_secret: 请输入app_secret
+
+  browser: 
+    description: 配置本电脑的浏览器信息，用于浏览器自动化
+    config:
+      brow: edge

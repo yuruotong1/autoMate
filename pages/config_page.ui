@@ -11,34 +11,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>设置</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>60</y>
-      <width>531</width>
-      <height>261</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="config_list"/>
-   </widget>
-   <widget class="QScrollBar" name="verticalScrollBar">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>40</y>
-      <width>20</width>
-      <height>321</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="saveButton">
+   <widget class="QPushButton" name="save_button">
     <property name="geometry">
      <rect>
       <x>460</x>
@@ -51,7 +27,7 @@
      <string>保存</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="cancelButton">
+   <widget class="QPushButton" name="cancel_button">
     <property name="geometry">
      <rect>
       <x>520</x>
@@ -64,43 +40,45 @@
      <string>取消</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QStackedWidget" name="config_list">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>20</y>
+      <width>471</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="basic"/>
+    <widget class="QWidget" name="components"/>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
-      <width>54</width>
-      <height>12</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>配置</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>54</width>
-      <height>12</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>description</string>
-    </property>
-   </widget>
-   <widget class="Line" name="line">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
       <y>10</y>
-      <width>581</width>
-      <height>16</height>
+      <width>61</width>
+      <height>21</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+    <property name="text">
+     <string>基础配置</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>组件配置</string>
     </property>
    </widget>
   </widget>

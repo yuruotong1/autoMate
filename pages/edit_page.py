@@ -1,4 +1,3 @@
-from pages.bse_page import BasePage
 from pages.edit_action_list_view import ActionList
 from pages.edit_function_page import FunctionListView
 from pages.global_util import GlobalUtil

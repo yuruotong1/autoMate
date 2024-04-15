@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSi
 
 from agent.woker_agent import WorkerAgent
 from pages.bse_page import BasePage
+from pages.config_page import ConfigPage
 from pages.func_list_page import FuncListPage
 from utils.config import Config
 from utils.qt_util import QtUtil
@@ -92,24 +93,8 @@ class ChatPage(BasePage):
         self.ui.hide()
 
     def open_setting_page(self):
-        self.setting_page = QtUtil.load_ui("setting_page.ui")
-        config = Config()
-        self.setting_page.openai_key.setText(config.OPEN_AI.get("openai_key"))
-        self.setting_page.openai_url.setText(config.OPEN_AI.get("openai_url"))
-        self.setting_page.openai_model.setText(config.OPEN_AI.get("openai_model"))
-        self.setting_page.save_btn.clicked.connect(self.save_setting)
-        self.setting_page.cancel_btn.clicked.connect(self.cancel_btn)
+        self.setting_page = ConfigPage()
         self.setting_page.show()
-
-    def save_setting(self):
-        config = Config()
-        config.update_config(Config.OPENAI, Config.OPENAI_KEY, self.setting_page.openai_key.text())
-        config.update_config(Config.OPENAI, Config.OPENAI_URL, self.setting_page.openai_url.text())
-        config.update_config(Config.OPENAI, Config.OPENAI_MODEL, self.setting_page.openai_model.text())
-        self.setting_page.close()
-
-    def cancel_btn(self):
-        self.setting_page.close()
 
 
     def new_conversation(self, text, role):
