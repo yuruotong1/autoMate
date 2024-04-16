@@ -72,6 +72,13 @@ class EditPage(QMainWindow, interface_ui):
             print("执行结果：", res)
 
 
+    def get_chain(self):
+        chain = []
+        for index in range(self.action_list.count()):
+            func = self.action_list.item(index)
+            chain.append(func.__getattribute__("get_action")().convert_langchain_tool())
+        return chain
+
 
     @staticmethod
     def global_load( parent):
