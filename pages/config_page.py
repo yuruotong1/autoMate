@@ -1,8 +1,7 @@
 from utils.config import Config
 from utils.qt_util import QtUtil
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
-
-
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QWidget, QGridLayout, QSpacerItem, QSizePolicy
+from PyQt6.QtGui import QPalette, QColor
 
 interface_ui = QtUtil.load_ui_type("config_page.ui")
    
@@ -17,10 +16,12 @@ class ConfigPage(QMainWindow, interface_ui):
     
     def setup_up(self):
         self.config = Config()
-        config_list_widget = self.config_list
         for type_key, type_value  in self.config.config.items():
             widget = QWidget()
-            config_list_widget.addWidget(widget)
+            widget.setObjectName(type_key)
+            self.config_list.addTab(widget, type_key)
+            all_settings = QVBoxLayout()
+            widget.setLayout(all_settings)
             for sub_title, sub_value in type_value.items():
                 '''
                 components:
@@ -30,25 +31,32 @@ class ConfigPage(QMainWindow, interface_ui):
                             app_id: 请输入api_id
                             app_secret: 请输入app_secret
                 '''
-                sub_title_label = QLabel()
-                # feishu:配置飞书相关信息，用于与飞书进行交互
-                sub_title_label.setText(sub_title + ":"+ sub_value["description"])
-                v_box_layout = QVBoxLayout()
-                widget.setLayout(v_box_layout)
-                v_box_layout.addWidget(sub_title_label)
+                 # feishu
+                sub_title_label = QLabel(text=sub_title)
+                # 配置飞书相关信息，用于与飞书进行交互
+                sub_description_label = QLabel(text=sub_value["description"])
+                grid_layout = QGridLayout()
+                grid_layout.addWidget(sub_title_label, 0, 0)
+                grid_layout.addWidget(sub_description_label, 1, 0)
+                all_settings.addLayout(grid_layout)
+                row = 2
                 # app_id, 请输入api_id
                 # app_secret, 请输入app_secret
                 for config_key, config_value in sub_value["config"].items():
-                    h_box_layout = QHBoxLayout()
                     config_key_label = QLabel()
                     # app_id
                     config_key_label.setText(config_key)
                     line_edit = QLineEdit()
                     # 请输入api_id
                     line_edit.setText(config_value)
-                    h_box_layout.addWidget(config_key_label)
-                    h_box_layout.addWidget(line_edit)
-                    v_box_layout.addLayout(h_box_layout)
+                    grid_layout.addWidget(config_key_label, row, 0)
+                    grid_layout.addWidget(line_edit, row, 1)
+                    row += 1
+                spacer = QSpacerItem(10, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+                grid_layout.addItem(spacer, row, 0)
+            
+            spacer = QSpacerItem(10, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+            all_settings.addItem(spacer)
                 
             
 
