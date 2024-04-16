@@ -10,13 +10,14 @@ class ConfigPage(QMainWindow, interface_ui):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.config = Config()
+        self.tmp_config = self.config.config
         self.setup_up()
         self.save_button.clicked.connect(self.save_setting)
         self.cancel_button.clicked.connect(self.cancel_btn)
     
     def setup_up(self):
-        self.config = Config()
-        for type_key, type_value  in self.config.config.items():
+        for type_key, type_value  in self.tmp_config.items():
             widget = QWidget()
             widget.setObjectName(type_key)
             self.config_list.addTab(widget, type_key)
@@ -49,6 +50,7 @@ class ConfigPage(QMainWindow, interface_ui):
                     line_edit = QLineEdit()
                     # 请输入api_id
                     line_edit.setText(config_value)
+                    line_edit.textChanged.connect(lambda x, k=config_key, c=sub_value["config"]: self.text_changed(k, x, c))
                     grid_layout.addWidget(config_key_label, row, 0)
                     grid_layout.addWidget(line_edit, row, 1)
                     row += 1
@@ -57,13 +59,15 @@ class ConfigPage(QMainWindow, interface_ui):
             
             spacer = QSpacerItem(10, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             all_settings.addItem(spacer)
-                
-            
+
+    def text_changed(self, key, value, config):
+        config[key] = value
 
     
     def save_setting(self):
+        self.config.config = self.tmp_config
         self.config.update_config()
-        self.setting_page.close()
+        self.close()
 
     def cancel_btn(self):
-        self.setting_page.close()
+        self.close()

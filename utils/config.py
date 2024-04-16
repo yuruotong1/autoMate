@@ -30,6 +30,6 @@ class Config:
         return config
 
     def update_config(self):
-        # 将 self.config 写入 yaml 文件
-        with open(self.path, 'w') as file:
-            yaml.dump(self.config, file)
+        # 将 self.config 写入 yaml 文件，并允许 Unicode 字符
+        with open(self.config_path, 'w', encoding='utf-8') as file:
+            yaml.dump(self.config, file, allow_unicode=True, sort_keys=False)
