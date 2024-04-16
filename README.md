@@ -5,7 +5,12 @@
 <div style="font-size:24px;">autoMate</div>
 
 </div>
-autoMate是一个** Agent 开发 IDE**，它让大模型成为桌面级个人助手。它有着更强大的本地交互能力，意味着你可以整理杂乱的桌面文件、删除无用的文件、打开微信发送给好友一份文档，总之 autoMate 的愿景是**让生活更简单**。
+<b>autoMate 就像出行中的共享单车，帮你完成任务的最后一个步骤</b>。
+我们不做全流程自动化，也无法帮助政企完成数字化转型，我们能做的，是帮助你完成小任务，这些任务太小了，小到不值得开发自动化，但不开发又需要人去完成，让人左右为难，比如输入“打开影刀开启自动化”、“帮我检查一下文档里有没有错别字和敏感词”、“为自动化起一个简单好记的名子”。
+
+它有着更强大的本地交互能力，意味着你可以整理杂乱的桌面文件、删除无用的文件、打开微信发送给好友一份文档，总之，autoMate 的愿景是<b>让生活更简单</b>。
+
+
 <div align="center">
 
 
@@ -17,6 +22,42 @@ autoMate是一个** Agent 开发 IDE**，它让大模型成为桌面级个人助
 ![](source/github/main.gif)
 
 如果你对 autoMate 感兴趣，添加微信好友`RuotongYu001`，我拉你进群讨论！
+
+## 我们的优势
+
+更强的本地交互能力。相比于其他大语言模型开发平台（FastGPT、coze），autoMate 本地部署，能够直接读取本地文件、打开本地应用、对应用进行操作、移动文件、删除文件等等，操作权限的提升将赋予无限可能，autoMate 将成为得力的个人助手。
+
+## QuickStart
+
+### 安装依赖
+
+1. 安装python的3.9+版本。
+2. 安装包依赖管理工具 poetry，打开 PowerShell 或命令提示符，使用以下命令下载并安装 Poetry：
+```
+curl -sSL https://install.python-poetry.org/ | python
+```
+配置 poetry，将虚拟环境配置到当前项目目录：
+
+```
+poetry config virtualenvs.in-project true
+```
+
+创建虚拟环境并安装依赖：
+
+```
+poetry env use python
+poetry install
+```
+
+### 运行
+
+运行：
+
+```
+poetry run python main.py
+```
+
+如果你是第一次运行，运行成功后需要修改配置文件，添加 openai 的信息：autoMate 左上角，文件--〉设置，配置 openai 相关信息。然后，你就可以直接对话了！
 
 ## 感谢以下人员提交的宝贵代码！
 
