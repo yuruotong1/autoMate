@@ -1,6 +1,6 @@
 import typing
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, QEvent
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget
 from pages.bse_page import BasePage
@@ -19,6 +19,8 @@ class AddFuncButton(QToolButton):
         self.func_list_page = func_list_page
         self.setMouseTracking(True)
         self.clicked.connect(self.click)
+
+        
         self.edit_page = EditPage.get_edit_page_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
         if self.edit_page:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
@@ -33,6 +35,31 @@ class AddFuncButton(QToolButton):
             self.opacity_effect.setOpacity(0)
             self.setIconSize(QSize(50, 50))
         self.setFixedSize(QSize(80, 80))
+
+
+    def eventFilter(self, obj, event):
+        print(obj, event.type())
+        if obj == self and event.type() == QEvent.Gesture:
+            if self.gesture is None:
+                self.gesture = self.button.viewport().gesture(Qt.TwoFingerTap)
+                if self.gesture is not None:
+                    self.gesture.setDetected(True)
+                    print("双指点击")
+            return True
+        return super().eventFilter(obj, event)
+
+    # def event(self, event):
+    #     if event.type() == QEvent.TouchBegin:
+    #         self.touchPoints += event.touchPointCount()
+    #         if self.touchPoints > 1:
+    #             # 双指同时点击
+    #             print("Double touch detected!")
+    #             # 处理双指点击的代码
+    #             # ...
+    #             return True  # 事件已被处理，不再向下传递
+    #     elif event.type() == QEvent.TouchEnd:
+    #         self.touchPoints -= event.touchPointCount()
+    #     return super(AddFuncButton, self).event(event)
 
     def click(self):
         self.func_list_page.hide()
