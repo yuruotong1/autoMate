@@ -5,6 +5,7 @@ import traceback
 
 import leancloud
 from PyQt6.QtWidgets import QApplication
+from actions import open_application_action
 
 from pages.chat_page import ChatPage
 from pages.edit_page import GlobalUtil, EditPage
@@ -48,6 +49,7 @@ def excepthook(exc_type, exc_value, exc_tb):
 def load():
     # 生成 config.yaml 文件 
     Config()
+    EditPage.global_load()
 
 
 
@@ -56,7 +58,7 @@ if __name__ == "__main__":
     sys.excepthook = excepthook
     app = QApplication(sys.argv)
     load()
-    # page = FuncListPage()
     page = ChatPage()
     page.show()
     sys.exit(app.exec())
+    

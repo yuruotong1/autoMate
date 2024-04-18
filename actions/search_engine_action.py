@@ -5,7 +5,7 @@ from utils.selenium_util import SeleniumUtil
 
 
 class SearchInput(BaseModel):
-    key: str = Field(description="要查询的关键词", default="")
+    key: str = Field(description="要查询的内容", title="要查询的内容", default="")
 
 
 # 利用搜索引擎搜索关键词

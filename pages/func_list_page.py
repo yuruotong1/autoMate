@@ -1,5 +1,5 @@
 import typing
-from PyQt6 import QtCore
+from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget
@@ -37,10 +37,12 @@ class AddFuncButton(QToolButton):
     def click(self):
         self.func_list_page.hide()
         if not self.edit_page:
-            edit_page = EditPage(self.func_list_page, self.func_status, self.func_list_pos_row, self.func_list_pos_column)
+            edit_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
             GlobalUtil.current_page = edit_page
         else:
             GlobalUtil.current_page = self.edit_page
+        # 接收信号
+        GlobalUtil.current_page.page_closed.connect(lambda: self.func_list_page.show())
         GlobalUtil.current_page.show()
 
     def enterEvent(self, event):
@@ -51,25 +53,24 @@ class AddFuncButton(QToolButton):
         if not self.edit_page:
             self.opacity_effect.setOpacity(0)
 
-
-
- 
 interface_ui = QtUtil.load_ui_type("func_list_page.ui")
- 
-
 class FuncListPage(QMainWindow, interface_ui):
     def __init__(self, parent):
         self.parent_ui = parent
         super().__init__()
         self.setupUi(self)
-        self.setup_up()
+        # self.setup_up()
 
     # 关闭事件
     def closeEvent(self, event):
         self.parent_ui.show()
+    
+    def showEvent(self, a0) -> None:
+        self.setup_up()
+        return super().showEvent(a0)
+    
 
     def setup_up(self):
-        EditPage.global_load(self)
         # self.ui = QtUtil.load_ui("func_list_page.ui")
         # 四行三列，辅满通用应用列表布局
         for i in range(3):  # 3行

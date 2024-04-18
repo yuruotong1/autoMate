@@ -18,21 +18,14 @@ class ActionBase(BaseModel):
     def __init__(self, **data: Any):
         super().__init__(**data)
         self.__ui_name_and_line_edit = {}
-        self.__config_ui = QtUtil.load_ui("config_page.ui")
+        self.__config_ui = QtUtil.load_ui("action_config_page.ui")
+
 
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")
 
     def run_with_out_arg(self):
-        return self.run(**self.action_arg)
-
-    def convert_langchain_tool(self):
-        return StructuredTool.from_function(
-            func=self.run,
-            name=self.name,
-            description=self.description,
-            args_schema=self.args
-        )
+        return self.run(**self.args.model_dump())
 
     def _run(self, *args, **kwargs):
         self.run(*args, **kwargs)
@@ -63,10 +56,11 @@ class ActionBase(BaseModel):
         self.__config_ui.hide()
 
     def __save_button_clicked(self, the_insert_row):
-        args = {}
         from pages.edit_page import GlobalUtil
+        arg = {}
         for arg_name in self.__ui_name_and_line_edit:
-            args[arg_name] = self.__ui_name_and_line_edit[arg_name].text()
+            arg[arg_name] = self.__ui_name_and_line_edit[arg_name].text()
+        self.args= self.args.model_validate(arg)
         self.action_pos = the_insert_row
         self.action_level = 0
         #  向新位置增加元素

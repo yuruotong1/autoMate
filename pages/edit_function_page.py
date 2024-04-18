@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
 
 from actions.action_util import ActionUtil
 from pages.edit_action_list_view import ActionListItem
-from pages.global_util import GlobalUtil
+from utils.global_util import GlobalUtil
 
 
 class FunctionListView(QListWidget):

@@ -15,4 +15,5 @@ class OpenApplicationAction(ActionBase):
     args: OpenApplicationInput
 
     def run(self, path):
+        print("运行了这里", path)
         subprocess.Popen(path)
