@@ -68,12 +68,11 @@ class EditPage(QMainWindow, interface_ui):
         self.close()
 
 
-    def run_action(self, *args, **kwargs):
-        print("run_action", args, kwargs)
+    def run_action(self, s:str):
         for index in range(self.action_list.count()):
             func = self.action_list.item(index)
             res = func.action.run_with_out_arg()
-            print("执行结果：", res)
+        return "执行成功！"
 
 
     def get_chain(self):
