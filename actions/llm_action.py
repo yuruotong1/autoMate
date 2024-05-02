@@ -10,6 +10,7 @@ class LLMInput(BaseModel):
 
 class LLMAction(ActionBase):
     name = "大模型问答"
+    output_save_name = "llm_response"
     description = "利用大模型进行回答"
     args: LLMInput
 

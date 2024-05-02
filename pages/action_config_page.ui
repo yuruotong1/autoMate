@@ -20,7 +20,7 @@
       <x>20</x>
       <y>60</y>
       <width>531</width>
-      <height>261</height>
+      <height>211</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="config_list"/>
@@ -74,7 +74,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>配置</string>
+     <string>输入</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -102,6 +102,30 @@
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>280</y>
+      <width>54</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>输出</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>300</y>
+      <width>531</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="output_config"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

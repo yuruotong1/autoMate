@@ -10,6 +10,7 @@ from utils.qt_util import QtUtil
 
 class ActionBase(BaseModel):
     name: ClassVar[str]
+    output_save_name: ClassVar[str]
     description: ClassVar[str]
     args: Type[BaseModel]
     action_pos: int = -1
@@ -32,25 +33,39 @@ class ActionBase(BaseModel):
 
     # 设置配置界面的布局
     def config_page_ui(self, the_insert_row):
-        v_box_layout = QVBoxLayout()
         model_fields = self.model_fields["args"].annotation.model_fields
+        # 配置输入
         for field in model_fields:
-            # 水平布局
             h_box_layout = QHBoxLayout()
             label = QLabel(self.__config_ui)
             label.setText(model_fields[field].title)
             line_edit = QLineEdit(self.__config_ui)
             h_box_layout.addWidget(label)
             h_box_layout.addWidget(line_edit)
-            v_box_layout.addLayout(h_box_layout)
+            self.__config_ui.config_list.addLayout(h_box_layout)
             self.__ui_name_and_line_edit[field] = line_edit
+        
+        # 配置输出
+        h_box_layout = QHBoxLayout()
+        # 判断是否有
+        if hasattr(self, 'output_save_name'):
+            output_label = QLabel(self.__config_ui)
+            output_label.setText("保存结果至")
+            output_line_edit = QLineEdit(self.__config_ui)
+            output_line_edit.setText(self.output_save_name)
+            h_box_layout.addWidget(output_label)
+            h_box_layout.addWidget(output_line_edit)
+        else:
+            h_box_layout.addWidget(QLabel("不需要输出变量"))
+        
+        self.__config_ui.output_config.addLayout(h_box_layout)
+
+        
         save_button: QPushButton = self.__config_ui.saveButton
         save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
         cancel_button: QPushButton = self.__config_ui.cancelButton
         cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked)
-        container_widget = QWidget(self.__config_ui)
-        container_widget.setLayout(v_box_layout)
-        self.__config_ui.config_list.addWidget(container_widget)
+        
 
     def __cancel_button_clicked(self):
         self.__config_ui.hide()
