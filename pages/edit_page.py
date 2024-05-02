@@ -13,8 +13,9 @@ interface_ui = QtUtil.load_ui_type("edit_page.ui")
 class EditPage(QMainWindow, interface_ui):
     # 页面关闭的信号
     page_closed = pyqtSignal(str)
+
     
-    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, action_list: ActionList = None, func_name="默认名称", func_description="无"):
+    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无"):
         self.func_list_pos_column = func_list_pos_column
         self.func_list_pos_row = func_list_pos_row
         # 属于通用还是专属
@@ -22,6 +23,10 @@ class EditPage(QMainWindow, interface_ui):
         self.func_description = func_description
         # 在func上的名称
         self.func_name = func_name
+        if not output_save_dict:
+            output_save_dict = {}
+        # 保存action的输出结果
+        self.output_save_dict = output_save_dict
         if not action_list:
             action_list = ActionList()
         self.action_list = action_list
@@ -38,6 +43,8 @@ class EditPage(QMainWindow, interface_ui):
                 "func_name": self.func_name,
                 "func_status": self.func_status,
                 "func_description": self.func_description,
+                # 只保存结果名，不保存输出的结果值
+                "output_save_dict_keys": self.output_save_dict.keys,
                 "action_list": self.action_list.dump()
                 }
 
@@ -96,7 +103,9 @@ class EditPage(QMainWindow, interface_ui):
                 func_list_pos_column=edit_page_json["func_list_pos_column"],
                 func_name = edit_page_json["func_name"],
                 func_description = edit_page_json["func_description"],
-                action_list=ActionList.load(edit_page_json["action_list"])
+                action_list=ActionList.load(edit_page_json["action_list"]),
+                # 运行结果只有在运行时才会被保存
+                output_save_dict={i: None for i in edit_page_json["output_save_dict_keys"]}
                 )
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]

@@ -125,7 +125,7 @@
       <height>71</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="output_config"/>
+    <layout class="QHBoxLayout" name="output_config"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

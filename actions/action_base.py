@@ -4,21 +4,23 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget, QPushButton, QVBoxLayout
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel
+from utils.global_util import GlobalUtil
 
 from utils.qt_util import QtUtil
 
 
 class ActionBase(BaseModel):
     name: ClassVar[str]
-    output_save_name: ClassVar[str]
     description: ClassVar[str]
     args: Type[BaseModel]
+    output_save_name: ClassVar[str]
     action_pos: int = -1
     action_level: int = -1
 
     def __init__(self, **data: Any):
         super().__init__(**data)
         self.__ui_name_and_line_edit = {}
+        self.__output_edit = None
         self.__config_ui = QtUtil.load_ui("action_config_page.ui")
 
 
@@ -26,7 +28,11 @@ class ActionBase(BaseModel):
         raise TypeError("Not realize run function")
 
     def run_with_out_arg(self):
-        return self.run(**self.args.model_dump())
+        res = self.run(**self.args.model_dump())
+        # 保存输出结果
+        if self.output_save_name:
+            GlobalUtil.current_page.output_save_dict[self.__output_edit.text()] = res
+        return res
 
     def _run(self, *args, **kwargs):
         self.run(*args, **kwargs)
@@ -45,22 +51,30 @@ class ActionBase(BaseModel):
             self.__config_ui.config_list.addLayout(h_box_layout)
             self.__ui_name_and_line_edit[field] = line_edit
         
-        # 配置输出
-        h_box_layout = QHBoxLayout()
-        # 判断是否有
-        if hasattr(self, 'output_save_name'):
+        # 判断是否需要保存输出
+        if hasattr(self, "output_save_name"):
             output_label = QLabel(self.__config_ui)
             output_label.setText("保存结果至")
-            output_line_edit = QLineEdit(self.__config_ui)
-            output_line_edit.setText(self.output_save_name)
-            h_box_layout.addWidget(output_label)
-            h_box_layout.addWidget(output_line_edit)
+            
+            output_line_edit = QLineEdit("output_save_name")
+            self.__output_edit = output_line_edit
+            # output_line_edit.setObjectName("output_save_name")
+            output_save_dict = GlobalUtil.current_page.output_save_dict
+            output_save_name = self.output_save_name
+            i = 1
+            while True:
+                if output_save_name in output_save_dict:
+                    output_save_name = self.output_save_name + "_" + str(i)
+                    i += 1
+                    continue
+                else:
+                    output_line_edit.setText(output_save_name)
+                    break
+            self.__config_ui.output_config.addWidget(output_label)
+            self.__config_ui.output_config.addWidget(output_line_edit)
         else:
-            h_box_layout.addWidget(QLabel("不需要输出变量"))
-        
-        self.__config_ui.output_config.addLayout(h_box_layout)
+            self.__config_ui.output_config.addWidget(QLabel("当前行为不包含输出项"))
 
-        
         save_button: QPushButton = self.__config_ui.saveButton
         save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
         cancel_button: QPushButton = self.__config_ui.cancelButton
@@ -78,6 +92,10 @@ class ActionBase(BaseModel):
         self.args= self.args.model_validate(arg)
         self.action_pos = the_insert_row
         self.action_level = 0
+        # 如果设置了output_save_name
+        if hasattr(self, "output_save_name"):
+            output_save_name = self.__output_edit.text()
+            GlobalUtil.current_page.output_save_dict[output_save_name] = ""
         #  向新位置增加元素
         from pages.edit_action_list_view import ActionList
         from pages.edit_action_list_view import ActionListItem
