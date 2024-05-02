@@ -21,7 +21,7 @@ class ActionBase(BaseModel):
         super().__init__(**data)
         self.__ui_name_and_line_edit = {}
         self.__output_edit = None
-        self.__config_ui = QtUtil.load_ui("action_config_page.ui")
+        self._config_ui = QtUtil.load_ui("action_config_page.ui")
 
 
     def run(self, *args, **kwargs):
@@ -38,22 +38,22 @@ class ActionBase(BaseModel):
         self.run(*args, **kwargs)
 
     # 设置配置界面的布局
-    def config_page_ui(self, the_insert_row):
+    def config_page_ui(self):
         model_fields = self.model_fields["args"].annotation.model_fields
         # 配置输入
         for field in model_fields:
             h_box_layout = QHBoxLayout()
-            label = QLabel(self.__config_ui)
+            label = QLabel(self._config_ui)
             label.setText(model_fields[field].title)
-            line_edit = QLineEdit(self.__config_ui)
+            line_edit = QLineEdit(self._config_ui)
             h_box_layout.addWidget(label)
             h_box_layout.addWidget(line_edit)
-            self.__config_ui.config_list.addLayout(h_box_layout)
+            self._config_ui.config_list.addLayout(h_box_layout)
             self.__ui_name_and_line_edit[field] = line_edit
         
         # 判断是否需要保存输出
         if hasattr(self, "output_save_name"):
-            output_label = QLabel(self.__config_ui)
+            output_label = QLabel(self._config_ui)
             output_label.setText("保存结果至")
             
             output_line_edit = QLineEdit("output_save_name")
@@ -61,6 +61,7 @@ class ActionBase(BaseModel):
             # output_line_edit.setObjectName("output_save_name")
             output_save_dict = GlobalUtil.current_page.output_save_dict
             output_save_name = self.output_save_name
+            # 为输出结果自动取名
             i = 1
             while True:
                 if output_save_name in output_save_dict:
@@ -70,19 +71,16 @@ class ActionBase(BaseModel):
                 else:
                     output_line_edit.setText(output_save_name)
                     break
-            self.__config_ui.output_config.addWidget(output_label)
-            self.__config_ui.output_config.addWidget(output_line_edit)
+            self._config_ui.output_config.addWidget(output_label)
+            self._config_ui.output_config.addWidget(output_line_edit)
         else:
-            self.__config_ui.output_config.addWidget(QLabel("当前行为不包含输出项"))
+            self._config_ui.output_config.addWidget(QLabel("当前行为不包含输出项"))
 
-        save_button: QPushButton = self.__config_ui.saveButton
-        save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
-        cancel_button: QPushButton = self.__config_ui.cancelButton
-        cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked)
+
         
 
     def __cancel_button_clicked(self):
-        self.__config_ui.hide()
+        self._config_ui.hide()
 
     def __save_button_clicked(self, the_insert_row):
         from pages.edit_page import GlobalUtil
@@ -101,12 +99,16 @@ class ActionBase(BaseModel):
         from pages.edit_action_list_view import ActionListItem
         action_item = ActionListItem(self)
         ActionList.insert_item(GlobalUtil.current_page.action_list, self.action_pos, action_item)
-        self.__config_ui.hide()
+        self._config_ui.hide()
 
     def config_page_show(self, the_insert_row):
-        self.config_page_ui(the_insert_row)
-        if self.__config_ui is None:
+        self.config_page_ui()
+        save_button: QPushButton = self._config_ui.saveButton
+        save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
+        cancel_button: QPushButton = self._config_ui.cancelButton
+        cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked)
+        if self._config_ui is None:
             raise TypeError("config_ui not config")
         # 居上对齐
-        self.__config_ui.config_list.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.__config_ui.show()
+        self._config_ui.config_list.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
+        self._config_ui.show()

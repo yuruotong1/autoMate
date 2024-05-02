@@ -1,5 +1,5 @@
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import Qt, QRect, QPoint, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView
 

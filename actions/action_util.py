@@ -4,6 +4,7 @@ from actions.llm_action import LLMAction
 from actions.loop_action import LoopAction
 from actions.open_application_action import OpenApplicationAction
 from actions.open_browser_url_action import OpenBrowserUrlAction
+from actions.python_executor_action import PythonExecutorActoin
 from actions.search_engine_action import SearchEngineAction
 
 
@@ -12,7 +13,9 @@ class ActionUtil:
                OpenBrowserUrlAction,
                SearchEngineAction,
                LLMAction,
-               LoopAction]
+               LoopAction,
+               PythonExecutorActoin
+               ]
 
     @classmethod
     def get_funcs(cls) -> List[ActionBase.__class__]:
