@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-
 from actions.action_base import ActionBase
 from utils.selenium_util import SeleniumUtil
 import sys
@@ -37,20 +36,17 @@ class CodeEditor(QTextEdit):
         # text_option.setTabStopDistance(40 * self.fontMetrics().horizontalAdvance(' '))
         # # self.setTextOption(text_option)
         # self.setDocument(self.document().cloneWithChangedOptions(text_option))
-
         self.setFont(QFont("Courier New", 12))
-        # self.highlight()
         self.pasteText.connect(self.highlight)
 
-    def paste(self):
-        clipboard = QApplication.clipboard()
-        text = clipboard.text()
-        self.pasteText.emit(text)
-        super().paste()
+    def keyReleaseEvent(self, event):
+        all_text = self.toPlainText()
+        self.pasteText.emit(all_text)
 
     def highlight(self, text):
         lexer = PythonLexer()
         formatter = HtmlFormatter(style='colorful')
         html = highlight(text, lexer, formatter)
         css = formatter.get_style_defs('.highlight')
+        print(html)
         self.setHtml("<style>"+css+"</style>"+html)
