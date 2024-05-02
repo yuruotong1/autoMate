@@ -1,8 +1,8 @@
 import typing
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QSize, Qt, QEvent
-from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget
+from PyQt6.QtGui import QIcon, QMouseEvent
+from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget, QMenu
 from pages.bse_page import BasePage
 from pages.edit_page import EditPage, GlobalUtil
 from utils.qt_util import QtUtil
@@ -12,15 +12,12 @@ from PyQt6.uic import loadUiType
 class AddFuncButton(QToolButton):
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, func_list_page):
         super().__init__()
-        # 专属按钮还是通用按钮
         self.func_status = func_status
         self.func_list_pos_row = func_list_pos_row
         self.func_list_pos_column = func_list_pos_column
         self.func_list_page = func_list_page
         self.setMouseTracking(True)
         self.clicked.connect(self.click)
-
-        
         self.edit_page = EditPage.get_edit_page_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
         if self.edit_page:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
@@ -37,29 +34,18 @@ class AddFuncButton(QToolButton):
         self.setFixedSize(QSize(80, 80))
 
 
-    def eventFilter(self, obj, event):
-        print(obj, event.type())
-        if obj == self and event.type() == QEvent.Gesture:
-            if self.gesture is None:
-                self.gesture = self.button.viewport().gesture(Qt.TwoFingerTap)
-                if self.gesture is not None:
-                    self.gesture.setDetected(True)
-                    print("双指点击")
-            return True
-        return super().eventFilter(obj, event)
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.RightButton:
+            # 创建菜单栏
+            menu = QMenu(self)
+            menu.addAction("删除")
+            # 菜单栏点击函数处理
+            menu.triggered.connect(self.right_menu_triggered)
+            # 菜单栏出现的位置
+            menu.exec(self.mapToGlobal(event.pos()))
 
-    # def event(self, event):
-    #     if event.type() == QEvent.TouchBegin:
-    #         self.touchPoints += event.touchPointCount()
-    #         if self.touchPoints > 1:
-    #             # 双指同时点击
-    #             print("Double touch detected!")
-    #             # 处理双指点击的代码
-    #             # ...
-    #             return True  # 事件已被处理，不再向下传递
-    #     elif event.type() == QEvent.TouchEnd:
-    #         self.touchPoints -= event.touchPointCount()
-    #     return super(AddFuncButton, self).event(event)
+    def right_menu_triggered(self, act):
+        print('xxxxxxxxx', act.text())
 
     def click(self):
         self.func_list_page.hide()
@@ -110,4 +96,3 @@ class FuncListPage(QMainWindow, interface_ui):
             for j in range(4):  # 4列
                 add_button = AddFuncButton("专属", i, j, self)
                 self.special_layout.addWidget(add_button, i, j)
-                

@@ -47,6 +47,7 @@ def excepthook(exc_type, exc_value, exc_tb):
 
 # 加载全局数据
 def load():
+    
     # 生成 config.yaml 文件 
     Config()
     EditPage.global_load()

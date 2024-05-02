@@ -17,8 +17,12 @@ components:
     config:
       app_id: 请输入api_id
       app_secret: 请输入app_secret
-
+  win
   browser: 
     description: 配置本电脑的浏览器信息，用于浏览器自动化
     config:
       浏览器类型: edge
+
+
+
+
