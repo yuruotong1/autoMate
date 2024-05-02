@@ -1,8 +1,9 @@
+from tkinter import messagebox
 import typing
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QSize, Qt, QEvent
 from PyQt6.QtGui import QIcon, QMouseEvent
-from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget, QMenu
+from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget, QMenu, QMessageBox
 from pages.bse_page import BasePage
 from pages.edit_page import EditPage, GlobalUtil
 from utils.qt_util import QtUtil
@@ -16,9 +17,12 @@ class AddFuncButton(QToolButton):
         self.func_list_pos_row = func_list_pos_row
         self.func_list_pos_column = func_list_pos_column
         self.func_list_page = func_list_page
-        self.setMouseTracking(True)
-        self.clicked.connect(self.click)
-        self.edit_page = EditPage.get_edit_page_by_position(self.func_status, func_list_pos_row, func_list_pos_column)
+        # self.setMouseTracking(True)
+        self.refresh()
+        self.setFixedSize(QSize(80, 80))
+
+    def refresh(self):
+        self.edit_page = EditPage.get_edit_page_by_position(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
         if self.edit_page:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             self.setIcon(QIcon(QtUtil.get_icon("功能.png")))
@@ -31,8 +35,6 @@ class AddFuncButton(QToolButton):
             self.setGraphicsEffect(self.opacity_effect)
             self.opacity_effect.setOpacity(0)
             self.setIconSize(QSize(50, 50))
-        self.setFixedSize(QSize(80, 80))
-
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.RightButton:
@@ -43,9 +45,24 @@ class AddFuncButton(QToolButton):
             menu.triggered.connect(self.right_menu_triggered)
             # 菜单栏出现的位置
             menu.exec(self.mapToGlobal(event.pos()))
+        elif event.button() == Qt.MouseButton.LeftButton:
+            self.click()
 
     def right_menu_triggered(self, act):
-        print('xxxxxxxxx', act.text())
+        # 如果是删除，则从列表中删除该选择
+        if act.text() == "删除":
+            # 弹出确认删除窗口
+            confirm_dialog = QMessageBox()
+            confirm_dialog.setIcon(QMessageBox.Icon.Warning)
+            confirm_dialog.setText("您确定要删除这个功能吗？")
+            confirm_dialog.setWindowTitle("确认删除")
+            confirm_dialog.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            confirm_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+            response = confirm_dialog.exec()
+            if response == QMessageBox.StandardButton.Yes:
+                EditPage.delete_edite_page(self.edit_page)
+                self.refresh()
+        
 
     def click(self):
         self.func_list_page.hide()

@@ -110,3 +110,10 @@ class EditPage(QMainWindow, interface_ui):
                     and i.func_status == func_status:
                 return i
         return None
+    
+    @staticmethod
+    def delete_edite_page(edit_page):
+        GlobalUtil.edit_page_global.remove(edit_page)
+        GlobalUtil.save_to_local()
+        
+
