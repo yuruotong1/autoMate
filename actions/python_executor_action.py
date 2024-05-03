@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel, Field
 from actions.action_base import ActionBase
 from PyQt6.QtCore import Qt
@@ -276,6 +277,7 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
                 # if there are some triple quotes within the string
                 # they will be ignored if they are matched again
                 if expression.pattern() in [r'"[^"\\]*(\\.[^"\\]*)*"', r"'[^'\\]*(\\.[^'\\]*)*'"]:
+                    # 匹配到三个引号
                     innerIndex = self.tri_single[0].match(text, index + 1).capturedStart(0)
                     if innerIndex == -1:
                         innerIndex = self.tri_double[0].match(text, index + 1).capturedStart(0)
@@ -285,17 +287,28 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
                         self.tripleQuoutesWithinStrings.extend(tripleQuoteIndexes)
 
             while index >= 0:
-                # skipping triple quotes within strings
+                print("text:", text)
+                print("nth", nth)
+                print("index1:", index)
+                print("expression:", expression)
+                print("triplequout", self.tripleQuoutesWithinStrings)
+                # 跳过三引号
                 if index in self.tripleQuoutesWithinStrings:
                     index += 1
-                    expression.match(text, index)
                     continue
 
                 # We actually want the index of the nth match
                 index = expression.match(text).capturedStart(nth)
                 length = expression.match(text).capturedLength(nth)
                 self.setFormat(index, length, format)
-                index = expression.match(text, index + length).capturedStart(0)
+                print("index:", index)
+                print("length:", length)
+                tmp_index = expression.match(text, index + length).capturedStart(0)
+                if tmp_index <= index + length:
+                    break
+                else:
+                    index = tmp_index
+
 
         self.setCurrentBlockState(0)
 
@@ -325,12 +338,11 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             add = delimiter.match(text).capturedLength()
 
         # As long as there's a delimiter match on this line...
-        while start >= 0:
-            # Look for the ending delimiter
-            end = delimiter.match(text).capturedStart(text, start + add)
+        while start >= 0:            # Look for the ending delimiter
+            end = delimiter.match(text, start + add).capturedStart(0)
             # Ending delimiter on this line?
             if end >= add:
-                length = end - start + add + delimiter.match(text).matchedLength()
+                length = end - start + add + delimiter.match(text).matchedLength(0)
                 self.setCurrentBlockState(0)
             # No; multi-line string
             else:
@@ -339,7 +351,7 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             # Apply formatting
             self.setFormat(start, length, style)
             # Look for the next match
-            start = delimiter.match(text).capturedStart(text, start + length)
+            start = delimiter.match(text, start + length).capturedStart(0)
 
         # Return True if still inside a multi-line string, False otherwise
         if self.currentBlockState() == in_state:
