@@ -1,8 +1,8 @@
 import pickle
 
 from PyQt6.QtCore import Qt, QMimeData, QByteArray
-from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem
+from PyQt6.QtGui import QDrag, QPixmap
+from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QStyle
 
 from actions.action_util import ActionUtil
 from pages.edit_action_list_view import ActionListItem
@@ -13,9 +13,8 @@ class FunctionListView(QListWidget):
     def __init__(self):
         # 支持元素拖拽
         super().__init__()
-        self.setAcceptDrops(True)
         self.start_pos = None
-        self.setDragDropMode(QAbstractItemView.DragDropMode.DragOnly)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.NoDragDrop)
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         for func in ActionUtil.get_funcs():
@@ -51,5 +50,9 @@ class FunctionListView(QListWidget):
             from pages.edit_action_list_view import ActionList
             mime_data.setData(ActionList.MY_MIME_TYPE, byte_array)
             drag = QDrag(self)
+            # 设置拖拽时的图标
+            system_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
+            pixmap = system_icon.pixmap(16, 16)  # 32x32是图标大小，可以根据需要调整
+            drag.setPixmap(pixmap)
             drag.setMimeData(mime_data)
             drag.exec(Qt.DropAction.MoveAction)
