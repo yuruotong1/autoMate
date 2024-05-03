@@ -1,14 +1,8 @@
-from tkinter import messagebox
-import typing
-from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import QSize, Qt, QEvent
-from PyQt6.QtGui import QIcon, QMouseEvent
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGraphicsOpacityEffect, QToolButton, QMainWindow, QWidget, QMenu, QMessageBox
-from pages.bse_page import BasePage
 from pages.edit_page import EditPage, GlobalUtil
 from utils.qt_util import QtUtil
-
-from PyQt6.uic import loadUiType 
 
 class AddFuncButton(QToolButton):
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, func_list_page):
@@ -27,14 +21,16 @@ class AddFuncButton(QToolButton):
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             self.setIcon(QIcon(QtUtil.get_icon("功能.png")))
             self.setText(self.edit_page.func_name)
-            self.setIconSize(QSize(50, 50))
         else:
+            self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
             self.setIcon(QIcon(QtUtil.get_icon("添加.png")))
             # 按钮消息
             self.opacity_effect = QGraphicsOpacityEffect(self)
             self.setGraphicsEffect(self.opacity_effect)
             self.opacity_effect.setOpacity(0)
-            self.setIconSize(QSize(50, 50))
+        # 刷新展示内容
+        self.setIconSize(QSize(50, 50))
+        
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.RightButton:
@@ -54,7 +50,7 @@ class AddFuncButton(QToolButton):
             # 弹出确认删除窗口
             confirm_dialog = QMessageBox()
             confirm_dialog.setIcon(QMessageBox.Icon.Warning)
-            confirm_dialog.setText("您确定要删除这个功能吗？")
+            confirm_dialog.setText("您确定要删除这个行为吗？")
             confirm_dialog.setWindowTitle("确认删除")
             confirm_dialog.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
             confirm_dialog.setDefaultButton(QMessageBox.StandardButton.No)
@@ -88,8 +84,6 @@ class FuncListPage(QMainWindow, interface_ui):
     def __init__(self, parent):
         self.parent_ui = parent
         super().__init__()
-        self.setupUi(self)
-        # self.setup_up()
 
     # 关闭事件
     def closeEvent(self, event):
@@ -101,7 +95,8 @@ class FuncListPage(QMainWindow, interface_ui):
     
 
     def setup_up(self):
-        # self.ui = QtUtil.load_ui("func_list_page.ui")
+        # 初始化页面布局
+        self.setupUi(self)
         # 四行三列，辅满通用应用列表布局
         for i in range(3):  # 3行
             for j in range(4):  # 4列

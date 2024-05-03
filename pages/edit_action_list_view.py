@@ -122,13 +122,8 @@ class ActionList(QListWidget):
             byte_array = QByteArray(pickle.dumps(the_drag_item.dump()))
             mime_data = QMimeData()
             mime_data.setData(self.MY_MIME_TYPE, byte_array)
-            # 设置拖拽缩略图
             drag = QDrag(self)
             drag.setMimeData(mime_data)
-            icon = self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarNormalButton)
-            pixmap = icon.pixmap(10, 10)
-            drag.setPixmap(pixmap)
-            # 拖拽结束
             if drag.exec(Qt.DropAction.MoveAction) == Qt.DropAction.MoveAction:
                 # 将组件向包含组件中拖动
                 if self.the_insert_row < 0:
