@@ -298,16 +298,12 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
                     continue
 
                 # We actually want the index of the nth match
-                index = expression.match(text).capturedStart(nth)
-                length = expression.match(text).capturedLength(nth)
+                index = expression.match(text, index).capturedStart(nth)
+                length = expression.match(text, index).capturedLength(nth)
                 self.setFormat(index, length, format)
                 print("index:", index)
                 print("length:", length)
-                tmp_index = expression.match(text, index + length).capturedStart(0)
-                if tmp_index <= index + length:
-                    break
-                else:
-                    index = tmp_index
+                index = expression.match(text, index + length).capturedStart(0)
 
 
         self.setCurrentBlockState(0)
@@ -342,7 +338,7 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             end = delimiter.match(text, start + add).capturedStart(0)
             # Ending delimiter on this line?
             if end >= add:
-                length = end - start + add + delimiter.match(text).matchedLength(0)
+                length = end - start + add + delimiter.match(text).capturedLength()
                 self.setCurrentBlockState(0)
             # No; multi-line string
             else:
@@ -351,7 +347,7 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
             # Apply formatting
             self.setFormat(start, length, style)
             # Look for the next match
-            start = delimiter.match(text, start + length).capturedStart(0)
+            start = delimiter.match(text, start + length).capturedStart()
 
         # Return True if still inside a multi-line string, False otherwise
         if self.currentBlockState() == in_state:
