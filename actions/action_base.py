@@ -22,9 +22,15 @@ class ActionBase(BaseModel):
         self._ui_name_and_line_edit = {}
         self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")
-        self.save_out_put_ui()
-        self.config_page_ui()
+        self._parent = None
+        self._is_config_page_init = False
+        
 
+    def set_parent(self, parent):
+        self._parent = parent
+    
+    def get_parent(self):
+        return self._parent
 
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")
@@ -57,11 +63,10 @@ class ActionBase(BaseModel):
         if hasattr(self, "output_save_name"):
             output_label = QLabel(self._config_ui)
             output_label.setText("保存结果至")
-            
             output_line_edit = QLineEdit("output_save_name")
             self._output_edit = output_line_edit
-            # output_line_edit.setObjectName("output_save_name")
-            output_save_dict = GlobalUtil.current_page.output_save_dict
+            # 获取 editPage 页面的 output_save_dict
+            output_save_dict = self.get_parent().get_parent().get_parent().output_save_dict
             output_save_name = self.output_save_name
             # 为输出结果自动取名
             i = 1
@@ -103,4 +108,10 @@ class ActionBase(BaseModel):
             raise TypeError("config_ui not config")
         # 居上对齐
         self._config_ui.config_list.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
+        # 如果配置页面未加载过，就进行加载
+        if not self._is_config_page_init:
+            self.save_out_put_ui()
+            self.config_page_ui()
+        # 如果已经加载过，就直接显示
+        self._is_config_page_init = True
         self._config_ui.show()

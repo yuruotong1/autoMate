@@ -28,7 +28,7 @@ class EditPage(QMainWindow, interface_ui):
         # 保存action的输出结果
         self.output_save_dict = output_save_dict
         if not action_list:
-            action_list = ActionList()
+            action_list = ActionList(parent=self)
         self.action_list = action_list
         super().__init__()
         self.setupUi(self)
@@ -44,7 +44,7 @@ class EditPage(QMainWindow, interface_ui):
                 "func_status": self.func_status,
                 "func_description": self.func_description,
                 # 只保存结果名，不保存输出的结果值
-                "output_save_dict_keys": self.output_save_dict.keys,
+                "output_save_dict_keys": list(self.output_save_dict.keys()),
                 "action_list": self.action_list.dump()
                 }
 
@@ -109,16 +109,18 @@ class EditPage(QMainWindow, interface_ui):
         for edit_page_json in edit_pages_json:
             from pages.edit_page import EditPage
             from pages.edit_action_list_view import ActionList
+            action_list = ActionList.load(edit_page_json["action_list"])
             edit_page = EditPage(
                 func_status=edit_page_json["func_status"],
                 func_list_pos_row=edit_page_json["func_list_pos_row"],
                 func_list_pos_column=edit_page_json["func_list_pos_column"],
                 func_name = edit_page_json["func_name"],
                 func_description = edit_page_json["func_description"],
-                action_list=ActionList.load(edit_page_json["action_list"]),
-                # 运行结果只有在运行时才会被保存
+                action_list=action_list,
+                # 保存结果输出变量名，运行结果只有在运行时才会被保存
                 output_save_dict={i: None for i in edit_page_json["output_save_dict_keys"]}
                 )
+            action_list.setParent(edit_page)
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]
             GlobalUtil.edit_page_global.append(edit_page)

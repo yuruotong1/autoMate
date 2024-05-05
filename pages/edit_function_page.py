@@ -30,7 +30,7 @@ class FunctionListView(QListWidget):
         item.action.config_page_show()
          #  向新位置增加元素
         from pages.edit_action_list_view import ActionList,ActionListItem
-        action_item = ActionListItem(self)
+        action_item = ActionListItem(item.action)
         ActionList.insert_item(GlobalUtil.current_page.action_list, GlobalUtil.current_page.action_list.count(), action_item)
 
     # 记录拖拽初始位置

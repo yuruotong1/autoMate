@@ -12,17 +12,27 @@ from utils.global_util import GlobalUtil
 
 
 class ActionListItem(QListWidgetItem):
-    def __init__(self, action: ActionBase, *args, **kwargs):
+    def __init__(self, action: ActionBase, parent=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.action = action
         self.setText(action.name)
+        self._parent = parent
+    
+    def set_parent(self, parent):
+        self._parent = parent
+
+    def get_parent(self):
+        return self._parent
 
     @staticmethod
     def load(data: dict):
         if data.get("name"):
             action_model = ActionUtil.get_action_by_name(data.get("name"))
             assert isinstance(action_model, ActionBase.__class__)
-            return ActionListItem(action_model.model_validate(data.get("data")))
+            action = action_model.model_validate(data.get("data"))
+            action_item = ActionListItem(action)
+            action.set_parent(action_item)
+            return action_item
         else:
             raise ValueError("data must have a key named 'name'")
 
@@ -54,8 +64,7 @@ class ActionList(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
-        if parent:
-            self.setParent(parent)
+        self._parent = parent
         if not action_list_items:
             action_list_items = []
         for action_list_item in action_list_items:
@@ -65,6 +74,8 @@ class ActionList(QListWidget):
     def load(cls, actions_raw_data: List[dict]):
         actions = [ActionListItem.load(i) for i in actions_raw_data]
         action_list_view = ActionList(actions, level=0)
+        for action in actions:
+            action.set_parent(action_list_view)
         return action_list_view
 
     def dump(self):
@@ -76,6 +87,12 @@ class ActionList(QListWidget):
                 raise TypeError("item must be an instance of ActionListItem")
             res.append(item.dump())
         return res
+
+    def setParent(self, parent):
+        self._parent = parent
+
+    def get_parent(self):
+        return self._parent
 
     def init(self):
         # 设置列表项和列表之间的间距为 1 像素
@@ -212,10 +229,11 @@ class ActionList(QListWidget):
             action = ActionUtil.get_action_by_name(source_data)
             # 打开配置页面
             self.drop_down_action = action(args={})
-            self.drop_down_action.config_page_show()
              #  向新位置增加元素
-            action_item = ActionListItem(self)
+            action_item = ActionListItem(self.drop_down_action, parent=self)
             ActionList.insert_item(GlobalUtil.current_page.action_list, self.the_insert_row, action_item)
+            self.drop_down_action.set_parent(action_item)
+            self.drop_down_action.config_page_show()
         else:
             drag_action_item = ActionListItem.load(source_data)
             drag_action_item.action.action_pos = self.the_insert_row
