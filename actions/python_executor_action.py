@@ -12,18 +12,26 @@ class PythonExecutorInput(BaseModel):
 
 
 class PythonExecutorActoin(ActionBase):
-    name = "python执行器"
+    name = "执行python代码"
     description = "执行python代码"
     args: PythonExecutorInput
-    
-    def config_page_ui(self):
-        self._config_ui.config_list.addWidget(QCodeEditor(display_line_numbers=True,
-                                    highlight_current_line=True,
-                                    syntax_high_lighter=PythonHighlighter))
+    output_save_name = "python_output"
 
-    # 打开指定目录的应用
+    def config_page_ui(self):
+        code_editor = QCodeEditor(display_line_numbers=True,
+                                    highlight_current_line=True,
+                                    syntax_high_lighter=PythonHighlighter)
+        self._config_ui.config_list.addWidget(code_editor)
+        self._ui_name_and_line_edit["code"] = code_editor
+        code_editor.setPlainText('# 保存输出结果\n' + self._output_edit.text() + " = ''")
+        
+
+    # 执行python代码
     def run(self, code):
-        pass
+        environent = {}
+        exec(code, environent)
+        return environent[self._output_edit.text()]
+    
 
 
 class LineNumberArea(QWidget):
@@ -145,6 +153,9 @@ class QCodeEditor(QPlainTextEdit):
 
         QPlainTextEdit.resizeEvent(self, *e)
 
+    # 获取代码
+    def text(self):
+        return self.toPlainText()
 
     def highlight_current_line(self):
         new_current_line_number = self.textCursor().blockNumber()
@@ -287,11 +298,6 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
                         self.tripleQuoutesWithinStrings.extend(tripleQuoteIndexes)
 
             while index >= 0:
-                print("text:", text)
-                print("nth", nth)
-                print("index1:", index)
-                print("expression:", expression)
-                print("triplequout", self.tripleQuoutesWithinStrings)
                 # 跳过三引号
                 if index in self.tripleQuoutesWithinStrings:
                     index += 1
@@ -301,8 +307,6 @@ class PythonHighlighter(QtGui.QSyntaxHighlighter):
                 index = expression.match(text, index).capturedStart(nth)
                 length = expression.match(text, index).capturedLength(nth)
                 self.setFormat(index, length, format)
-                print("index:", index)
-                print("length:", length)
                 index = expression.match(text, index + length).capturedStart(0)
 
 

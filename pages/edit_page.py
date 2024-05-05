@@ -2,8 +2,8 @@ from pages.edit_action_list_view import ActionList
 from pages.edit_function_page import FunctionListView
 from utils.global_util import GlobalUtil
 from utils.qt_util import QtUtil
-from PyQt6.QtWidgets import QMainWindow
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QMainWindow, QLabel
+from PyQt6.QtCore import pyqtSignal, Qt
 
 
 
@@ -61,6 +61,17 @@ class EditPage(QMainWindow, interface_ui):
         self.action_list_view_layout.setStretch(0, 1)
         self.action_list_view_layout.setStretch(1, 2)
         self.action_list_view_layout.setStretch(2, 10)
+        # 设置居上对齐
+        self.run_output_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+
+    def run_output_ui(self):
+        i = 0
+        for output in self.output_save_dict:
+            self.run_output_layout.addWidget(QLabel(output), i, 0)
+            self.run_output_layout.addWidget(" : ", i, 1) 
+            self.run_output_layout.addWidget(QLabel(str(self.output_save_dict[output])), i, 2) 
+            i += 1       
 
     def __save_button_click(self):
         self.func_name = self.func_name_edit.text()
@@ -79,6 +90,7 @@ class EditPage(QMainWindow, interface_ui):
         for index in range(self.action_list.count()):
             func = self.action_list.item(index)
             res = func.action.run_with_out_arg()
+            self.run_output_ui()
         return "执行成功！"
 
 
@@ -125,4 +137,3 @@ class EditPage(QMainWindow, interface_ui):
         GlobalUtil.edit_page_global.remove(edit_page)
         GlobalUtil.save_to_local()
         
-

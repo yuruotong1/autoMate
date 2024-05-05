@@ -19,8 +19,8 @@ class ActionBase(BaseModel):
 
     def __init__(self, **data: Any):
         super().__init__(**data)
-        self.__ui_name_and_line_edit = {}
-        self.__output_edit = None
+        self._ui_name_and_line_edit = {}
+        self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")
 
 
@@ -31,11 +31,8 @@ class ActionBase(BaseModel):
         res = self.run(**self.args.model_dump())
         # 保存输出结果
         if self.output_save_name:
-            GlobalUtil.current_page.output_save_dict[self.__output_edit.text()] = res
+            GlobalUtil.current_page.output_save_dict[self._output_edit.text()] = res
         return res
-
-    def _run(self, *args, **kwargs):
-        self.run(*args, **kwargs)
 
     # 设置配置界面的布局
     def config_page_ui(self):
@@ -49,15 +46,18 @@ class ActionBase(BaseModel):
             h_box_layout.addWidget(label)
             h_box_layout.addWidget(line_edit)
             self._config_ui.config_list.addLayout(h_box_layout)
-            self.__ui_name_and_line_edit[field] = line_edit
+            self._ui_name_and_line_edit[field] = line_edit
         
+
+
+    def save_out_put_ui(self):
         # 判断是否需要保存输出
         if hasattr(self, "output_save_name"):
             output_label = QLabel(self._config_ui)
             output_label.setText("保存结果至")
             
             output_line_edit = QLineEdit("output_save_name")
-            self.__output_edit = output_line_edit
+            self._output_edit = output_line_edit
             # output_line_edit.setObjectName("output_save_name")
             output_save_dict = GlobalUtil.current_page.output_save_dict
             output_save_name = self.output_save_name
@@ -76,23 +76,20 @@ class ActionBase(BaseModel):
         else:
             self._config_ui.output_config.addWidget(QLabel("当前行为不包含输出项"))
 
-
-        
-
     def __cancel_button_clicked(self):
         self._config_ui.hide()
 
     def __save_button_clicked(self, the_insert_row):
         from pages.edit_page import GlobalUtil
         arg = {}
-        for arg_name in self.__ui_name_and_line_edit:
-            arg[arg_name] = self.__ui_name_and_line_edit[arg_name].text()
+        for arg_name in self._ui_name_and_line_edit:
+            arg[arg_name] = self._ui_name_and_line_edit[arg_name].text()
         self.args= self.args.model_validate(arg)
         self.action_pos = the_insert_row
         self.action_level = 0
         # 如果设置了output_save_name
         if hasattr(self, "output_save_name"):
-            output_save_name = self.__output_edit.text()
+            output_save_name = self._output_edit.text()
             GlobalUtil.current_page.output_save_dict[output_save_name] = ""
         #  向新位置增加元素
         from pages.edit_action_list_view import ActionList
@@ -102,6 +99,7 @@ class ActionBase(BaseModel):
         self._config_ui.hide()
 
     def config_page_show(self, the_insert_row):
+        self.save_out_put_ui()
         self.config_page_ui()
         save_button: QPushButton = self._config_ui.saveButton
         save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
