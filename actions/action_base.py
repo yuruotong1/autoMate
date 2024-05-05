@@ -22,6 +22,8 @@ class ActionBase(BaseModel):
         self._ui_name_and_line_edit = {}
         self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")
+        self.save_out_put_ui()
+        self.config_page_ui()
 
 
     def run(self, *args, **kwargs):
@@ -99,8 +101,6 @@ class ActionBase(BaseModel):
         self._config_ui.hide()
 
     def config_page_show(self, the_insert_row):
-        self.save_out_put_ui()
-        self.config_page_ui()
         save_button: QPushButton = self._config_ui.saveButton
         save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
         cancel_button: QPushButton = self._config_ui.cancelButton

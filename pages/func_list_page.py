@@ -42,7 +42,7 @@ class AddFuncButton(QToolButton):
             # 菜单栏出现的位置
             menu.exec(self.mapToGlobal(event.pos()))
         elif event.button() == Qt.MouseButton.LeftButton:
-            self.click()
+            self.signle_click_function()
 
     def right_menu_triggered(self, act):
         # 如果是删除，则从列表中删除该选择
@@ -60,7 +60,7 @@ class AddFuncButton(QToolButton):
                 self.refresh()
         
 
-    def click(self):
+    def signle_click_function(self):
         self.func_list_page.hide()
         if not self.edit_page:
             edit_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)

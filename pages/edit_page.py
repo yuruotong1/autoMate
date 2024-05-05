@@ -104,7 +104,7 @@ class EditPage(QMainWindow, interface_ui):
 
     @staticmethod
     def global_load():
-        # 根据配置文件的配置，从本地文件中或者网上读取
+        # 从本地缓存数据读取数据
         edit_pages_json = GlobalUtil.read_from_local()
         for edit_page_json in edit_pages_json:
             from pages.edit_page import EditPage

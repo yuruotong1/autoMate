@@ -90,6 +90,15 @@ class ActionList(QListWidget):
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    
+    # 双击打开配置页面
+    def mouseDoubleClickEvent(self, event):
+        super().mouseDoubleClickEvent(event)
+        # 获取双击的项
+        item = self.itemAt(event.pos())
+        item.action.config_page_show(item.action.action_pos)
+        
+
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
