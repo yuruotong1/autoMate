@@ -1,11 +1,9 @@
 from typing import Type, Any, ClassVar
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget, QPushButton, QVBoxLayout
-from langchain_core.tools import StructuredTool
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton
 from pydantic import BaseModel
 from utils.global_util import GlobalUtil
-
 from utils.qt_util import QtUtil
 
 
@@ -13,18 +11,22 @@ class ActionBase(BaseModel):
     name: ClassVar[str]
     description: ClassVar[str]
     args: Type[BaseModel]
-    output_save_name: ClassVar[str]
+    output_save_name: str = ""
     action_pos: int = -1
     action_level: int = -1
 
-    def __init__(self, **data: Any):
+    def __init__(self, output_save_name_from_drag: str = None, **data: Any):
         super().__init__(**data)
         self._ui_name_and_line_edit = {}
         self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")
         self._parent = None
         self._is_config_page_init = False
-        
+        # 如果拖动过 action，则使用传进来的 output_save_name
+        self._output_save_name_from_drag = output_save_name_from_drag
+    
+    def set_output_save_name_from_drag(self, output_save_name_from_drag: str):
+        self._output_save_name_from_drag = output_save_name_from_drag
 
     def set_parent(self, parent):
         self._parent = parent
@@ -39,7 +41,7 @@ class ActionBase(BaseModel):
         res = self.run(**self.args.model_dump())
         # 保存输出结果
         if self.output_save_name:
-            GlobalUtil.current_page.output_save_dict[self._output_edit.text()] = res
+            self._get_edit_page().output_save_dict[self._output_edit.text()] = res
         return res
 
     # 设置配置界面的布局
@@ -66,18 +68,26 @@ class ActionBase(BaseModel):
             output_line_edit = QLineEdit("output_save_name")
             self._output_edit = output_line_edit
             # 获取 editPage 页面的 output_save_dict
-            output_save_dict = self.get_parent().get_parent().get_parent().output_save_dict
-            output_save_name = self.output_save_name
-            # 为输出结果自动取名
-            i = 1
-            while True:
-                if output_save_name in output_save_dict:
-                    output_save_name = self.output_save_name + "_" + str(i)
-                    i += 1
-                    continue
-                else:
-                    output_line_edit.setText(output_save_name)
-                    break
+            output_save_dict = self._get_edit_page().output_save_dict
+            # 使用外部传进来的 output_save_name
+            if self._output_save_name_from_drag:
+                self.output_save_name = self._output_save_name_from_drag
+                # 设置编辑框的默认名称
+                output_line_edit.setText(self.output_save_name)
+            else:
+                output_save_name = self.output_save_name
+                # 为输出结果自动取名
+                i = 1
+                while True:
+                    if output_save_name in output_save_dict:
+                        output_save_name = self.output_save_name + "_" + str(i)
+                        i += 1
+                        continue
+                    else:
+                        self.output_save_name = output_save_name
+                        # 设置编辑框的默认名称
+                        output_line_edit.setText(output_save_name)
+                        break
             self._config_ui.output_config.addWidget(output_label)
             self._config_ui.output_config.addWidget(output_line_edit)
         else:
@@ -86,8 +96,16 @@ class ActionBase(BaseModel):
     def __cancel_button_clicked(self):
         self._config_ui.hide()
 
+    def _get_edit_page(self):
+        return self.get_parent().get_parent().get_parent()
+
+    def _get_action_list(self):
+        return self.get_parent().get_parent()
+    
+    def _get_action_list_item(self):
+        return self.get_parent()
+
     def __save_button_clicked(self):
-        from pages.edit_page import GlobalUtil
         arg = {}
         for arg_name in self._ui_name_and_line_edit:
             arg[arg_name] = self._ui_name_and_line_edit[arg_name].text()
@@ -95,9 +113,13 @@ class ActionBase(BaseModel):
         self.action_level = 0
         # 如果设置了output_save_name，向全局中插入该变量
         if hasattr(self, "output_save_name"):
-            output_save_name = self._output_edit.text()
-            GlobalUtil.current_page.output_save_dict[output_save_name] = ""
+            self.output_save_name = self._output_edit.text()
+            self._get_edit_page().output_save_dict[self.output_save_name] = ""
         self._config_ui.hide()
+        if self._get_action_list_item() not in self._get_action_list().action_list_items:
+            from pages.edit_action_list_view import ActionList
+            ActionList.insert_item(self._get_action_list(), self.action_pos, self._get_action_list_item())
+            
 
     def config_page_show(self):
         save_button: QPushButton = self._config_ui.saveButton

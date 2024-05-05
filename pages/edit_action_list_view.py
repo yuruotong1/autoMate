@@ -67,7 +67,8 @@ class ActionList(QListWidget):
         self._parent = parent
         if not action_list_items:
             action_list_items = []
-        for action_list_item in action_list_items:
+        self.action_list_items = action_list_items
+        for action_list_item in self.action_list_items:
             self.insertItem(action_list_item.action.action_pos, action_list_item)
 
     @classmethod
@@ -116,8 +117,7 @@ class ActionList(QListWidget):
         item = self.itemAt(event.pos())
         item.action.config_page_show()
         
-
-
+        
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
         # 如果在历史事件中左键点击过
@@ -231,11 +231,12 @@ class ActionList(QListWidget):
             self.drop_down_action = action(args={})
              #  向新位置增加元素
             action_item = ActionListItem(self.drop_down_action, parent=self)
-            ActionList.insert_item(GlobalUtil.current_page.action_list, self.the_insert_row, action_item)
             self.drop_down_action.set_parent(action_item)
             self.drop_down_action.config_page_show()
         else:
             drag_action_item = ActionListItem.load(source_data)
+            drag_action_item.set_parent(self)
+            drag_action_item.action.set_output_save_name_from_drag(drag_action_item.action.output_save_name)
             drag_action_item.action.action_pos = self.the_insert_row
             # 如果拖动前位置和拖动后位置相同
             if self.the_insert_row == self.the_drag_row and self.level == drag_action_item.action.action_level:

@@ -18,20 +18,23 @@ class FunctionListView(QListWidget):
         # 禁止双击编辑
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         for func in ActionUtil.get_funcs():
-            item = QListWidgetItem()
-            item.setText(func.name)
-            self.addItem(item)
+            action = func(args={})
+             #  向新位置增加元素
+            action_item = ActionListItem(action)
+            action.set_parent(action_item)
+            action_item.setText(func.name)
+            self.addItem(action_item)
 
     def mouseDoubleClickEvent(self, e):
         item = self.itemAt(e.pos())
         if not isinstance(item, ActionListItem):
             return
+        item.set_parent(GlobalUtil.current_page.action_list)
+        item.action.action_pos = GlobalUtil.current_page.action_list.count()
         # 打开配置页面
         item.action.config_page_show()
-         #  向新位置增加元素
-        from pages.edit_action_list_view import ActionList,ActionListItem
-        action_item = ActionListItem(item.action)
-        ActionList.insert_item(GlobalUtil.current_page.action_list, GlobalUtil.current_page.action_list.count(), action_item)
+        
+    
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):

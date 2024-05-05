@@ -15,7 +15,7 @@ class PythonExecutorActoin(ActionBase):
     name = "执行python代码"
     description = "执行python代码"
     args: PythonExecutorInput
-    output_save_name = "python_output"
+    output_save_name:str = "python_output"
 
     def config_page_ui(self):
         code_editor = QCodeEditor(display_line_numbers=True,
@@ -23,14 +23,14 @@ class PythonExecutorActoin(ActionBase):
                                     syntax_high_lighter=PythonHighlighter)
         self._config_ui.config_list.addWidget(code_editor)
         self._ui_name_and_line_edit["code"] = code_editor
-        code_editor.setPlainText('# 保存输出结果\n' + self._output_edit.text() + " = ''")
+        code_editor.setPlainText('# 保存输出结果\n' + self.output_save_name + " = ''")
         
 
     # 执行python代码
     def run(self, code):
         environent = {}
         exec(code, environent)
-        return environent[self._output_edit.text()]
+        return environent[self.output_save_name]
     
 
 
