@@ -69,7 +69,7 @@ class EditPage(QMainWindow, interface_ui):
         i = 0
         for output in self.output_save_dict:
             self.run_output_layout.addWidget(QLabel(output), i, 0)
-            self.run_output_layout.addWidget(" : ", i, 1) 
+            self.run_output_layout.addWidget(QLabel(" : "), i, 1) 
             self.run_output_layout.addWidget(QLabel(str(self.output_save_dict[output])), i, 2) 
             i += 1       
 
