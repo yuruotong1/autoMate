@@ -27,7 +27,11 @@ class FunctionListView(QListWidget):
         if not isinstance(item, ActionListItem):
             return
         # 打开配置页面
-        item.action.config_page_show(GlobalUtil.current_page.action_list.count())
+        item.action.config_page_show()
+         #  向新位置增加元素
+        from pages.edit_action_list_view import ActionList,ActionListItem
+        action_item = ActionListItem(self)
+        ActionList.insert_item(GlobalUtil.current_page.action_list, GlobalUtil.current_page.action_list.count(), action_item)
 
     # 记录拖拽初始位置
     def mousePressEvent(self, e):

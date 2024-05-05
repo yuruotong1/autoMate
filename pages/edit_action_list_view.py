@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
 from actions.action_base import ActionBase
 from actions.action_util import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
+from utils.global_util import GlobalUtil
 
 
 class ActionListItem(QListWidgetItem):
@@ -96,7 +97,7 @@ class ActionList(QListWidget):
         super().mouseDoubleClickEvent(event)
         # 获取双击的项
         item = self.itemAt(event.pos())
-        item.action.config_page_show(item.action.action_pos)
+        item.action.config_page_show()
         
 
 
@@ -211,7 +212,10 @@ class ActionList(QListWidget):
             action = ActionUtil.get_action_by_name(source_data)
             # 打开配置页面
             self.drop_down_action = action(args={})
-            self.drop_down_action.config_page_show(self.the_insert_row)
+            self.drop_down_action.config_page_show()
+             #  向新位置增加元素
+            action_item = ActionListItem(self)
+            ActionList.insert_item(GlobalUtil.current_page.action_list, self.the_insert_row, action_item)
         else:
             drag_action_item = ActionListItem.load(source_data)
             drag_action_item.action.action_pos = self.the_insert_row

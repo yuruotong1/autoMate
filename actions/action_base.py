@@ -81,28 +81,22 @@ class ActionBase(BaseModel):
     def __cancel_button_clicked(self):
         self._config_ui.hide()
 
-    def __save_button_clicked(self, the_insert_row):
+    def __save_button_clicked(self):
         from pages.edit_page import GlobalUtil
         arg = {}
         for arg_name in self._ui_name_and_line_edit:
             arg[arg_name] = self._ui_name_and_line_edit[arg_name].text()
         self.args= self.args.model_validate(arg)
-        self.action_pos = the_insert_row
         self.action_level = 0
-        # 如果设置了output_save_name
+        # 如果设置了output_save_name，向全局中插入该变量
         if hasattr(self, "output_save_name"):
             output_save_name = self._output_edit.text()
             GlobalUtil.current_page.output_save_dict[output_save_name] = ""
-        #  向新位置增加元素
-        from pages.edit_action_list_view import ActionList
-        from pages.edit_action_list_view import ActionListItem
-        action_item = ActionListItem(self)
-        ActionList.insert_item(GlobalUtil.current_page.action_list, self.action_pos, action_item)
         self._config_ui.hide()
 
-    def config_page_show(self, the_insert_row):
+    def config_page_show(self):
         save_button: QPushButton = self._config_ui.saveButton
-        save_button.clicked.__getattribute__("connect")(lambda: self.__save_button_clicked(the_insert_row))
+        save_button.clicked.__getattribute__("connect")(self.__save_button_clicked)
         cancel_button: QPushButton = self._config_ui.cancelButton
         cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked)
         if self._config_ui is None:
