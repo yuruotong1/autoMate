@@ -1,4 +1,5 @@
 from typing import Type, Any, ClassVar
+import uuid
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton
@@ -14,9 +15,13 @@ class ActionBase(BaseModel):
     output_save_name: str = ""
     action_pos: int = -1
     action_level: int = -1
+    uuid: str = ""
 
     def __init__(self, output_save_name_from_drag: str = None, **data: Any):
         super().__init__(**data)
+        # 为每个实例生成唯一的 UUID
+        if self.uuid == "":
+            self.uuid = str(uuid.uuid4())  
         self._ui_name_and_line_edit = {}
         self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")
@@ -25,6 +30,7 @@ class ActionBase(BaseModel):
         # 如果拖动过 action，则使用传进来的 output_save_name
         self._output_save_name_from_drag = output_save_name_from_drag
     
+
     def set_output_save_name_from_drag(self, output_save_name_from_drag: str):
         self._output_save_name_from_drag = output_save_name_from_drag
 
@@ -41,7 +47,7 @@ class ActionBase(BaseModel):
         res = self.run(**self.args.model_dump())
         # 保存输出结果
         if self.output_save_name:
-            self._get_edit_page().output_save_dict[self._output_edit.text()] = res
+            self._get_edit_page().output_save_dict[self.uuid][self._output_edit.text()] = res
         return res
 
     # 设置配置界面的布局
@@ -67,8 +73,6 @@ class ActionBase(BaseModel):
             output_label.setText("保存结果至")
             output_line_edit = QLineEdit("output_save_name")
             self._output_edit = output_line_edit
-            # 获取 editPage 页面的 output_save_dict
-            output_save_dict = self._get_edit_page().output_save_dict
             # 使用外部传进来的 output_save_name
             if self._output_save_name_from_drag:
                 self.output_save_name = self._output_save_name_from_drag
@@ -78,8 +82,11 @@ class ActionBase(BaseModel):
                 output_save_name = self.output_save_name
                 # 为输出结果自动取名
                 i = 1
+                 # 获取 editPage 页面的 output_save_dict
+                output_save_dict = self._get_edit_page().output_save_dict
+                # 找到一个不存在的名称
                 while True:
-                    if output_save_name in output_save_dict:
+                    if output_save_name in [list(i.keys())[0] for i in output_save_dict.values()]:
                         output_save_name = self.output_save_name + "_" + str(i)
                         i += 1
                         continue
@@ -105,25 +112,29 @@ class ActionBase(BaseModel):
     def _get_action_list_item(self):
         return self.get_parent()
 
-    def __save_button_clicked(self):
+    def _save_button_clicked(self):
         arg = {}
         for arg_name in self._ui_name_and_line_edit:
             arg[arg_name] = self._ui_name_and_line_edit[arg_name].text()
-        self.args= self.args.model_validate(arg)
+        self.args = self.args.model_validate(arg)
         self.action_level = 0
         # 如果设置了output_save_name，向全局中插入该变量
         if hasattr(self, "output_save_name"):
             self.output_save_name = self._output_edit.text()
-            self._get_edit_page().output_save_dict[self.output_save_name] = ""
-        self._config_ui.hide()
+            self._get_edit_page().output_save_dict[self.uuid] = {}
+            self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = ""
+            self._get_edit_page().update_send_to_ai_selection()
+        # 插入新的 action
         if self._get_action_list_item() not in self._get_action_list().action_list_items:
             from pages.edit_action_list_view import ActionList
             ActionList.insert_item(self._get_action_list(), self.action_pos, self._get_action_list_item())
+        
+        self._config_ui.hide()
             
 
     def config_page_show(self):
         save_button: QPushButton = self._config_ui.saveButton
-        save_button.clicked.__getattribute__("connect")(self.__save_button_clicked)
+        save_button.clicked.__getattribute__("connect")(self._save_button_clicked)
         cancel_button: QPushButton = self._config_ui.cancelButton
         cancel_button.clicked.__getattribute__("connect")(self.__cancel_button_clicked)
         if self._config_ui is None:

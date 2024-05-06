@@ -158,7 +158,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>运行监控</string>
+     <string>运行中端</string>
     </property>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget">
@@ -167,10 +167,33 @@
       <x>860</x>
       <y>30</y>
       <width>241</width>
-      <height>391</height>
+      <height>351</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="run_output_layout"/>
+   </widget>
+   <widget class="QComboBox" name="send_to_ai_selection">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>440</y>
+      <width>241</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>410</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>发送给智子</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

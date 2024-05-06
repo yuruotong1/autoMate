@@ -64,13 +64,20 @@ class EditPage(QMainWindow, interface_ui):
         # 设置居上对齐
         self.run_output_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+    # 将返回结果发送到 ai 选择 器
+    def update_send_to_ai_selection(self):
+        self.send_to_ai_selection.clear()
+        self.send_to_ai_selection.addItems([list(i.keys())[0] for i in self.output_save_dict.values()])
 
-    def run_output_ui(self):
+    def get_output_dict(self):
+        return {list(i.keys())[0]: list(i.values())[0] for i in self.output_save_dict.values()}
+
+    def update_runing_terminal(self):
         i = 0
-        for output in self.output_save_dict:
-            self.run_output_layout.addWidget(QLabel(output), i, 0)
+        for k, v in self.get_output_dict().items():
+            self.run_output_layout.addWidget(QLabel(k), i, 0)
             self.run_output_layout.addWidget(QLabel(" : "), i, 1) 
-            self.run_output_layout.addWidget(QLabel(str(self.output_save_dict[output])), i, 2) 
+            self.run_output_layout.addWidget(QLabel(v), i, 2) 
             i += 1       
 
     def __save_button_click(self):
@@ -89,8 +96,11 @@ class EditPage(QMainWindow, interface_ui):
     def run_action(self, s:str):
         for index in range(self.action_list.count()):
             func = self.action_list.item(index)
-            res = func.action.run_with_out_arg()
-            self.run_output_ui()
+            func.action.run_with_out_arg()
+            self.update_runing_terminal()
+        dict_key = self.send_to_ai_selection.currentText()
+        if dict_key in self.output_save_dict:
+            return self.output_save_dict[dict_key]
         return "执行成功！"
 
 
