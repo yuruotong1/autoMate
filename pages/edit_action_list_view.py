@@ -307,7 +307,7 @@ class ActionList(QListWidget):
             # 调整 action_list 的 widget 大小
             action_list.parent().setFixedHeight(height)
             # 调整item大小
-            action_list.get_parent().get_action_list_item().get_widget().setFixedHeight(height)
+            action_list.get_parent().get_action_list_item().setSizeHint(action_list.parent().size())
             
         # 插入带包含的组件，渲染组件样式
         if action_item.action.name == "循环执行":
