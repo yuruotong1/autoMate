@@ -14,4 +14,4 @@ cache
 **/__pycache__/
 /session
 
-main.spec
+*.spec
