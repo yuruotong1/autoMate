@@ -150,6 +150,10 @@ class ActionList(QListWidget):
             mime_data = QMimeData()
             mime_data.setData(self.MY_MIME_TYPE, byte_array)
             drag = QDrag(self)
+            # 设置拖拽时的图标
+            system_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_FileIcon)
+            pixmap = system_icon.pixmap(16, 16)  # 32x32是图标大小，可以根据需要调整
+            drag.setPixmap(pixmap)
             drag.setMimeData(mime_data)
             if drag.exec(Qt.DropAction.MoveAction) == Qt.DropAction.MoveAction:
                 # 将组件向包含组件中拖动
@@ -223,16 +227,18 @@ class ActionList(QListWidget):
         self.the_highlighted_row = -2
         # 向指定行插入数据
         source_data = pickle.loads(e.mimeData().data(self.MY_MIME_TYPE))
-        # 非内部拖动，打开配置窗口，新建动作
+        # 从 functionList 拖动到 actionList，打开配置窗口
         if isinstance(source_data, str):
             from actions.action_util import ActionUtil
             action = ActionUtil.get_action_by_name(source_data)
             # 打开配置页面
             self.drop_down_action = action(args={})
+            self.drop_down_action.action_pos = self.the_insert_row
              #  向新位置增加元素
             action_item = ActionListItem(self.drop_down_action, parent=self)
             self.drop_down_action.set_parent(action_item)
             self.drop_down_action.config_page_show()
+        # 在 actionList 内部拖动，行为调换顺序
         else:
             drag_action_item = ActionListItem.load(source_data)
             drag_action_item.set_parent(self)

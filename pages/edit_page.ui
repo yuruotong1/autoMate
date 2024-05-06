@@ -158,7 +158,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>运行中端</string>
+     <string>运行监控</string>
     </property>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget">
