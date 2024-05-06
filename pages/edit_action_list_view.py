@@ -4,7 +4,7 @@ from typing import List
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
-
+from PyQt6 import QtCore, QtWidgets
 from actions.action_base import ActionBase
 from actions.action_util import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
@@ -38,13 +38,16 @@ class ActionListItem(QListWidgetItem):
 
     def dump(self):
         return {"name": self.action.name, "data": self.action.model_dump()}
+    
+    def get_widget(self):
+        return self.get_parent().itemWidget(self)
 
 
 class ActionList(QListWidget):
     MY_MIME_TYPE = "ActionListView/data_drag"
 
-    def __init__(self, action_list_items: list[ActionListItem] = None, parent=None, level=0):
-        super().__init__()
+    def __init__(self, action_list_items: list[ActionListItem] = None, parent_widget=None, level=0, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # 设置列表项之间的间距为 3 像素
         self.ITEM_MARGIN_LEFT = 3
         # 拖动结束时，生成新的的 action
@@ -64,12 +67,19 @@ class ActionList(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
-        self._parent = parent
+        self._parent = parent_widget
+        self._data = {}
         if not action_list_items:
             action_list_items = []
         self.action_list_items = action_list_items
         for action_list_item in self.action_list_items:
             self.insertItem(action_list_item.action.action_pos, action_list_item)
+
+    def set_data(self, key, value):
+        self._data[key] = value
+    
+    def get_data(self, key):
+        return self._data.get(key, None)
 
     @classmethod
     def load(cls, actions_raw_data: List[dict]):
@@ -130,7 +140,7 @@ class ActionList(QListWidget):
             return
         # 鼠标release时才选中
         index = self.indexAt(e.pos())
-        self.select_index(index)
+        self.clear_selection(index)
 
     def mouseMoveEvent(self, e):
         # 如果在历史事件中左键点击过
@@ -142,7 +152,7 @@ class ActionList(QListWidget):
             self.the_drag_row = the_drag_index.row()
             self.the_selected_row = self.currentIndex().row()
             # 拖拽即选中
-            self.select_index(the_drag_index)
+            self.clear_selection(the_drag_index)
             the_drag_item = self.item(the_drag_index.row())
             assert  isinstance(the_drag_item, ActionListItem)
             # 把拖拽数据放在QMimeData容器中
@@ -253,57 +263,63 @@ class ActionList(QListWidget):
                 return
             self.insert_item(self, self.the_insert_row, drag_action_item)
         # 选中当前行
-        self.select_index(QListWidget().currentIndex())
+        self.clear_selection(QListWidget().currentIndex())
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
-    # 取消选中
-    def select_index(self, index):
-        def clear_son_selection(action_list):
-            # 取消选中所有当前组件
-            action_list.setCurrentRow(-1)
-            # 取消选中所有子组件
+    def iter_include_action_list(self, action_list, action, iter_way="parent"):
+        action(action_list)
+        if iter_way == "son":
             for i in range(action_list.count()):
                 item = action_list.item(i)
-                if not item:
-                    continue
-                if item.action.name == "循环执行":
-                    widget = action_list.itemWidget(item)
-                    action_list = widget.property("action_list")
-                    clear_son_selection(action_list)
-
-        def clear_father_selection(action_list):
-            # 取消选中所有当前组件
-            action_list.setCurrentRow(-1)
+                if item.action.name == "循环执行" and item.action.get_data("action_list") is not None:
+                    self.iter_include_action_list(item.action.get_data("action_list"), action, iter_way)
+        
+        elif iter_way == "parent":
             # 取消选中父组件
-            parent_action_list = action_list.parent().property("parent_action_list")
-            if parent_action_list:
-                clear_father_selection(parent_action_list)
+            if isinstance(action_list.get_parent(), ActionBase):
+                parent_action_list = action_list.get_parent().get_action_list()
+                self.iter_include_action_list(parent_action_list, action, iter_way)
 
-        clear_father_selection(self)
-        clear_son_selection(self)
+          
+
+    # 取消选中
+    def clear_selection(self, index):
+        # 取消选中
+        self.iter_include_action_list(self, lambda x:x.setCurrentRow(-1), "parent")
+        self.iter_include_action_list(self, lambda x:x.setCurrentRow(-1), "son")
         # 选中当前行
         self.setCurrentIndex(index)
 
     @staticmethod
     def insert_item(action_list, row, action_item):
         action_list.insertItem(row, action_item)
-        # 向带包含关系的组件插入子组件
-        if action_list.parent().objectName() == "include_widget":
+        # 向带包含关系的组件插入子组件，调整大小
+        if action_list.get_data("type") == "include":
             total_height = 0
             for i in range(action_list.count()):
                 item = action_list.item(i)
                 total_height += action_list.visualItemRect(item).height()
             action_list.setFixedHeight(total_height)
-            widget = action_list.parent()
-            widget.setFixedHeight(action_list.height() + 40)
-            item = widget.property("action_item")
-            item.setSizeHint(widget.size())
-        # 插入带包含的组件
+            # 根据子组件的大小调整父组件的大小
+            # todo递归调整大小
+            height = action_list.height() + 40
+            # 调整 action_list 的 widget 大小
+            action_list.parent().setFixedHeight(height)
+            # 调整item大小
+            action_list.get_parent().get_action_list_item().get_widget().setFixedHeight(height)
+            
+        # 插入带包含的组件，渲染组件样式
         if action_item.action.name == "循环执行":
-            from pages.include_action_ui import IncludeActionUi
-            widget = IncludeActionUi().widget(action_list.level + 1)
-            widget.setProperty("parent_action_list", action_list)
-            widget.setProperty("action_item", action_item)
+            widget = QtWidgets.QWidget()
+            widget.setStyleSheet("background-color: white;")
+            label = QtWidgets.QLabel(parent=widget)
+            label.setGeometry(QtCore.QRect(30, 10, 54, 12))
+            label.setText("循环")
+            sub_action_list = ActionList(parent=widget, parent_widget=action_item.action, level=action_list.level + 1)
+            sub_action_list.set_data("type", "include")
+            sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 10, 20))
+            action_item.action.set_data("action_list", sub_action_list)
+            widget.setFixedHeight(sub_action_list.height() + 40)
             action_item.setSizeHint(widget.size())
             action_list.setItemWidget(action_item, widget)

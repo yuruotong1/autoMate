@@ -28,7 +28,7 @@ class EditPage(QMainWindow, interface_ui):
         # 保存action的输出结果
         self.output_save_dict = output_save_dict
         if not action_list:
-            action_list = ActionList(parent=self)
+            action_list = ActionList(parent_widget=self)
         self.action_list = action_list
         super().__init__()
         self.setupUi(self)
@@ -64,7 +64,7 @@ class EditPage(QMainWindow, interface_ui):
         # 设置居上对齐
         self.run_output_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-    # 将返回结果发送到 ai 选择 器
+    # 将返回结果发送到 ai
     def update_send_to_ai_selection(self):
         self.send_to_ai_selection.clear()
         self.send_to_ai_selection.addItems([list(i.keys())[0] for i in self.output_save_dict.values()])

@@ -61,5 +61,5 @@ if __name__ == "__main__":
     load()
     page = ChatPage()
     page.show()
-    sys.exit(app.exec())
+    print(sys.exit(app.exec()))
     

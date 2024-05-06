@@ -16,7 +16,7 @@ class ActionBase(BaseModel):
     action_pos: int = -1
     action_level: int = -1
     uuid: str = ""
-
+    
     def __init__(self, output_save_name_from_drag: str = None, **data: Any):
         super().__init__(**data)
         # 为每个实例生成唯一的 UUID
@@ -29,7 +29,13 @@ class ActionBase(BaseModel):
         self._is_config_page_init = False
         # 如果拖动过 action，则使用传进来的 output_save_name
         self._output_save_name_from_drag = output_save_name_from_drag
+        self._data = {}
+
+    def set_data(self, key, value):
+        self._data[key] = value
     
+    def get_data(self, key):
+        return self._data.get(key, None)
 
     def set_output_save_name_from_drag(self, output_save_name_from_drag: str):
         self._output_save_name_from_drag = output_save_name_from_drag
@@ -59,6 +65,7 @@ class ActionBase(BaseModel):
             label = QLabel(self._config_ui)
             label.setText(model_fields[field].title)
             line_edit = QLineEdit(self._config_ui)
+            line_edit.setText(str(self.args.model_dump().get(field, "")))
             h_box_layout.addWidget(label)
             h_box_layout.addWidget(line_edit)
             self._config_ui.config_list.addLayout(h_box_layout)
@@ -68,7 +75,7 @@ class ActionBase(BaseModel):
 
     def save_out_put_ui(self):
         # 判断是否需要保存输出
-        if hasattr(self, "output_save_name"):
+        if self.output_save_name != "":
             output_label = QLabel(self._config_ui)
             output_label.setText("保存结果至")
             output_line_edit = QLineEdit("output_save_name")
@@ -106,10 +113,10 @@ class ActionBase(BaseModel):
     def _get_edit_page(self):
         return self.get_parent().get_parent().get_parent()
 
-    def _get_action_list(self):
+    def get_action_list(self):
         return self.get_parent().get_parent()
     
-    def _get_action_list_item(self):
+    def get_action_list_item(self):
         return self.get_parent()
 
     def _save_button_clicked(self):
@@ -119,15 +126,15 @@ class ActionBase(BaseModel):
         self.args = self.args.model_validate(arg)
         self.action_level = 0
         # 如果设置了output_save_name，向全局中插入该变量
-        if hasattr(self, "output_save_name"):
+        if self.output_save_name != "":
             self.output_save_name = self._output_edit.text()
             self._get_edit_page().output_save_dict[self.uuid] = {}
             self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = ""
             self._get_edit_page().update_send_to_ai_selection()
         # 插入新的 action
-        if self._get_action_list_item() not in self._get_action_list().action_list_items:
+        if self.get_action_list_item() not in self.get_action_list().action_list_items:
             from pages.edit_action_list_view import ActionList
-            ActionList.insert_item(self._get_action_list(), self.action_pos, self._get_action_list_item())
+            ActionList.insert_item(self.get_action_list(), self.action_pos, self.get_action_list_item())
         
         self._config_ui.hide()
             
