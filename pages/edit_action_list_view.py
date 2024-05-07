@@ -313,18 +313,20 @@ class ActionList(QListWidget):
         # 向带包含关系的组件插入子组件，递归调整父组件大小
         if action_list.get_data("type") == "include":
             def adjust_size(action_list):
-                total_height = 0
-                for i in range(action_list.count()):
-                    item = action_list.item(i)
-                    total_height += action_list.visualItemRect(item).height()
-                action_list.setFixedHeight(total_height)
-                # 根据子组件的大小调整父组件的大小
-                # todo递归调整大小
-                height = action_list.height() + 40
-                # 调整 action_list 的 widget 大小
-                action_list.parent().setFixedHeight(height)
-                # 调整item大小
-                action_list.get_parent().get_action_list_item().setSizeHint(action_list.parent().size())
+                # 只调整大于0层级的actionList
+                if action_list.level > 0:
+                    total_height = 0
+                    for i in range(action_list.count()):
+                        item = action_list.item(i)
+                        total_height += action_list.visualItemRect(item).height()
+                    action_list.setFixedHeight(total_height)
+                    # 根据子组件的大小调整父组件的大小
+                    # todo递归调整大小
+                    height = action_list.height() + 40
+                    # 调整 action_list 的 widget 大小
+                    action_list.parent().setFixedHeight(height)
+                    # 调整item大小
+                    action_list.get_parent().get_action_list_item().setSizeHint(action_list.parent().size())
             cls.iter_include_action_list(action_list, adjust_size, "parent")
 
         
