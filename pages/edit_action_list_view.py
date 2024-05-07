@@ -304,11 +304,15 @@ class ActionList(QListWidget):
             label.setText("循环")
             sub_action_list = ActionList(parent=widget, parent_widget=action_item.action, level=action_list.level + 1)
             sub_action_list.set_data("type", "include")
-            sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 10, 20))
+            sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
             action_item.action.set_data("action_list", sub_action_list)
-            widget.setFixedHeight(sub_action_list.height() + 40)
-            action_item.setSizeHint(widget.size())
+            print(sub_action_list.width())
+            print(sub_action_list.height())
+            print(action_list.width())
+            widget.setFixedHeight(60)
+            widget.setFixedWidth(action_list.width() - 10)
             action_list.setItemWidget(action_item, widget)
+            # todo 为什么 action_item 的大小没有变？
 
         # 向带包含关系的组件插入子组件，递归调整父组件大小
         if action_list.get_data("type") == "include":
@@ -321,10 +325,10 @@ class ActionList(QListWidget):
                         total_height += action_list.visualItemRect(item).height()
                     action_list.setFixedHeight(total_height)
                     # 根据子组件的大小调整父组件的大小
-                    # todo递归调整大小
-                    height = action_list.height() + 40
                     # 调整 action_list 的 widget 大小
-                    action_list.parent().setFixedHeight(height)
+                    action_list.parent().setFixedHeight(total_height + 60)
+                    # 调整 action_list 的大小 
+                    action_list.setFixedHeight(total_height + 20)
                     # 调整item大小
                     action_list.get_parent().get_action_list_item().setSizeHint(action_list.parent().size())
             cls.iter_include_action_list(action_list, adjust_size, "parent")
