@@ -324,7 +324,6 @@ class ActionList(QListWidget):
                 for i in range(action_list.count()):
                     item = action_list.item(i)
                     total_height += action_list.visualItemRect(item).height()
-                print(total_height)
                 # 内圈大小
                 action_list.setFixedHeight(total_height + 5)
                 # 面板大小
