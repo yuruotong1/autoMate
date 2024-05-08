@@ -286,9 +286,13 @@ class ActionList(QListWidget):
 
     # 取消选中
     def clear_selection(self, index):
+        def clear(action_list):
+            action_list.setCurrentRow(-1)
+            # 刷新
+            action_list.update()
         # 取消选中
-        self.iter_include_action_list(self, lambda x:x.setCurrentRow(-1), "parent")
-        self.iter_include_action_list(self, lambda x:x.setCurrentRow(-1), "son")
+        self.iter_include_action_list(self, clear, "parent")
+        self.iter_include_action_list(self, clear, "son")
         # 选中当前行
         self.setCurrentIndex(index)
 
@@ -300,37 +304,35 @@ class ActionList(QListWidget):
             widget = QtWidgets.QWidget()
             widget.setStyleSheet("background-color: white;")
             label = QtWidgets.QLabel(parent=widget)
-            label.setGeometry(QtCore.QRect(30, 10, 54, 12))
+            label.setGeometry(QtCore.QRect(5, 10, 54, 12))
             label.setText("循环")
+            widget.setFixedHeight(60)
+            # 当父元素是包含类型的组件时，调整当前元素的大小
+            if action_list.level > 0:
+                widget.setFixedWidth(action_list.width() - 10)
+            action_item.setSizeHint(widget.size())
             sub_action_list = ActionList(parent=widget, parent_widget=action_item.action, level=action_list.level + 1)
             sub_action_list.set_data("type", "include")
             sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
             action_item.action.set_data("action_list", sub_action_list)
-            print(sub_action_list.width())
-            print(sub_action_list.height())
-            print(action_list.width())
-            widget.setFixedHeight(60)
-            widget.setFixedWidth(action_list.width() - 10)
             action_list.setItemWidget(action_item, widget)
-            # todo 为什么 action_item 的大小没有变？
 
         # 向带包含关系的组件插入子组件，递归调整父组件大小
-        if action_list.get_data("type") == "include":
-            def adjust_size(action_list):
-                # 只调整大于0层级的actionList
-                if action_list.level > 0:
-                    total_height = 0
-                    for i in range(action_list.count()):
-                        item = action_list.item(i)
-                        total_height += action_list.visualItemRect(item).height()
-                    action_list.setFixedHeight(total_height)
-                    # 根据子组件的大小调整父组件的大小
-                    # 调整 action_list 的 widget 大小
-                    action_list.parent().setFixedHeight(total_height + 60)
-                    # 调整 action_list 的大小 
-                    action_list.setFixedHeight(total_height + 20)
-                    # 调整item大小
-                    action_list.get_parent().get_action_list_item().setSizeHint(action_list.parent().size())
-            cls.iter_include_action_list(action_list, adjust_size, "parent")
+        def adjust_size(action_list):
+            if action_list.get_data("type") == "include":
+                total_height = 0
+                for i in range(action_list.count()):
+                    item = action_list.item(i)
+                    total_height += action_list.visualItemRect(item).height()
+                print(total_height)
+                # 内圈大小
+                action_list.setFixedHeight(total_height + 5)
+                # 面板大小
+                action_list.parent().setFixedHeight(total_height + 5)
+                
+                # 调整item大小
+                action_list.get_parent().get_action_list_item().setSizeHint(QtCore.QSize(action_list.width(), total_height + 60))
+                action_list.get_parent().get_action_list_item().get_widget().setFixedHeight(total_height + 60)
+        cls.iter_include_action_list(action_list, adjust_size, "parent")
 
         
