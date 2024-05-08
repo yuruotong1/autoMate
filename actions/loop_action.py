@@ -15,12 +15,14 @@ class LoopInput(BaseModel):
 
 class LoopAction(ActionBase):
     name = "循环执行"
-    description = "根据循环次数，执行输入内容"
+    description = "根据循环条件循环执行"
     args: LoopInput
 
     def run(self, stop_condition, loop_interval_time):
         while True:
-            if eval(stop_condition):
+            if eval(stop_condition, {}, self._get_edit_page().get_output_dict()):
                 break
             # action_list.run()
+            action_list = self.get_data("action_list")
+            action_list.run()
             time.sleep(loop_interval_time)
