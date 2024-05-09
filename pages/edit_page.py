@@ -15,7 +15,7 @@ class EditPage(QMainWindow, interface_ui):
     page_closed = pyqtSignal(str)
 
     
-    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无"):
+    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无", send_to_ai_selection_text=""):
         self.func_list_pos_column = func_list_pos_column
         self.func_list_pos_row = func_list_pos_row
         # 属于通用还是专属
@@ -27,6 +27,7 @@ class EditPage(QMainWindow, interface_ui):
             output_save_dict = {}
         # 保存action的输出结果
         self.output_save_dict = output_save_dict
+        self.send_to_ai_selection_text = send_to_ai_selection_text
         if not action_list:
             action_list = ActionList(parent_widget=self)
         self.action_list = action_list
@@ -44,8 +45,9 @@ class EditPage(QMainWindow, interface_ui):
                 "func_status": self.func_status,
                 "func_description": self.func_description,
                 # 只保存结果名，不保存输出的结果值
-                "output_save_dict_keys": list(self.output_save_dict.keys()),
-                "action_list": self.action_list.dump()
+                "output_save_dict": {i: {i1: None for i1,_ in j.items()} for i,j  in self.output_save_dict.items()},
+                "action_list": self.action_list.dump(),
+                "send_to_ai_selection_text": self.send_to_ai_selection_text
                 }
 
     def setup_up(self):
@@ -63,6 +65,7 @@ class EditPage(QMainWindow, interface_ui):
         self.action_list_view_layout.setStretch(2, 10)
         # 设置居上对齐
         self.run_output_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.send_to_ai_selection.setCurrentText(self.send_to_ai_selection_text)
 
     # 将返回结果发送到 ai
     def update_send_to_ai_selection(self):
@@ -89,6 +92,7 @@ class EditPage(QMainWindow, interface_ui):
     def __save_button_click(self):
         self.func_name = self.func_name_edit.text()
         self.func_description = self.func_description_edit.text()
+        self.send_to_ai_selection_text = self.send_to_ai_selection.currentText()
         GlobalUtil.edit_page_global.append(self)
         GlobalUtil.save_to_local()
         self.close()
@@ -97,17 +101,6 @@ class EditPage(QMainWindow, interface_ui):
     def __cancel_button_click(self):
         # GlobalUtil.delete_edit_page(GlobalUtil.current_page)
         self.close()
-
-    
-    # def run_action(self):
-    #     for index in range(self.action_list.count()):
-    #         func = self.action_list.item(index)
-    #         func.action.run_with_out_arg()
-    #         self.update_runing_terminal()
-    #     dict_key = self.send_to_ai_selection.currentText()
-    #     if dict_key in self.output_save_dict:
-    #         return self.output_save_dict[dict_key]
-    #     return "执行成功！"
 
 
     def get_chain(self):
@@ -134,8 +127,10 @@ class EditPage(QMainWindow, interface_ui):
                 func_description = edit_page_json["func_description"],
                 action_list=action_list,
                 # 保存结果输出变量名，运行结果只有在运行时才会被保存
-                output_save_dict={i: None for i in edit_page_json["output_save_dict_keys"]}
+                output_save_dict=edit_page_json["output_save_dict"],
+                send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"]
                 )
+            edit_page.update_runing_terminal()
             action_list.setParent(edit_page)
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]

@@ -51,6 +51,7 @@ class ActionBase(BaseModel):
 
     def run_with_out_arg(self):
         res = self.run(**self.args.model_dump())
+        print(res)
         # 保存输出结果
         if self.output_save_name:
             self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = res

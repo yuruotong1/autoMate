@@ -16,7 +16,6 @@ class LLMAction(ActionBase):
 
     def run(self, question):
         llm = LLM_Util().llm()
-        
         return llm.invoke(question).content
 
 
