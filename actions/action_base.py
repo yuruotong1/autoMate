@@ -61,6 +61,9 @@ class ActionBase(BaseModel):
         model_fields = self.model_fields["args"].annotation.model_fields
         # 配置输入
         for field in model_fields:
+            # 如果是 after_config 类型，则需要在editPage页面手动配置后填充值
+            if hasattr(model_fields[field], "json_schema_extra") and model_fields[field].json_schema_extra and model_fields[field].json_schema_extra.get("_type") == "after_config":
+                continue
             h_box_layout = QHBoxLayout()
             label = QLabel(self._config_ui)
             label.setText(model_fields[field].title)

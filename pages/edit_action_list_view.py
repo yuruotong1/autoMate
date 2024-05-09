@@ -317,6 +317,9 @@ class ActionList(QListWidget):
             action_item.action.set_data("action_list", sub_action_list)
             action_list.setItemWidget(action_item, widget)
 
+        if action_list.get_data("type") == "include":
+            action_list.get_parent().action.args.action_list.append(action_item.action)
+
         # 向带包含关系的组件插入子组件，递归调整父组件大小
         def adjust_size(action_list):
             if action_list.get_data("type") == "include":
@@ -324,7 +327,6 @@ class ActionList(QListWidget):
                 for i in range(action_list.count()):
                     item = action_list.item(i)
                     total_height += action_list.visualItemRect(item).height()
-                print(total_height)
                 # 内圈大小
                 action_list.setFixedHeight(total_height + 5)
                 # 面板大小
