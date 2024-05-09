@@ -10,12 +10,12 @@ from actions.search_engine_action import SearchEngineAction
 
 class ActionUtil:
     actions = [
-        # OpenApplicationAction,
-            #    OpenBrowserUrlAction,
-            #    SearchEngineAction,
+        OpenApplicationAction,
+               OpenBrowserUrlAction,
+               SearchEngineAction,
                LLMAction,
                LoopAction,
-            #    PythonExecutorActoin
+               PythonExecutorActoin
                ]
 
     @classmethod

@@ -15,7 +15,7 @@ class ToolsUtil:
         for edit_page in GlobalUtil.edit_page_global:
             # 动态生成 langchain 工具
             langchain_tools = StructuredTool.from_function(
-            func=edit_page.run_action,
+            func=edit_page.action_list.run,
             name=edit_page.func_name,
             description=edit_page.func_description,
                 return_direct=True)

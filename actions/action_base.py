@@ -53,7 +53,7 @@ class ActionBase(BaseModel):
         res = self.run(**self.args.model_dump())
         # 保存输出结果
         if self.output_save_name:
-            self._get_edit_page().output_save_dict[self.uuid][self._output_edit.text()] = res
+            self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = res
             self._get_edit_page().update_send_to_ai_selection()
         return res
 
