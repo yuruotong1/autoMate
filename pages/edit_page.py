@@ -54,7 +54,7 @@ class EditPage(QMainWindow, interface_ui):
         function_list_view = FunctionListView()
         self.function_list_layout.addWidget(function_list_view)
         self.action_list_view_layout.addWidget(self.action_list)
-        self.run_button.clicked.connect(self.run_action)
+        self.run_button.clicked.connect(self.action_list.run)
         self.save_button.clicked.connect(self.__save_button_click)
         self.cancel_button.clicked.connect(self.__cancel_button_click)
         # 设置间距
@@ -92,16 +92,16 @@ class EditPage(QMainWindow, interface_ui):
         # GlobalUtil.delete_edit_page(GlobalUtil.current_page)
         self.close()
 
-
-    def run_action(self, s:str):
-        for index in range(self.action_list.count()):
-            func = self.action_list.item(index)
-            func.action.run_with_out_arg()
-            self.update_runing_terminal()
-        dict_key = self.send_to_ai_selection.currentText()
-        if dict_key in self.output_save_dict:
-            return self.output_save_dict[dict_key]
-        return "执行成功！"
+    
+    # def run_action(self):
+    #     for index in range(self.action_list.count()):
+    #         func = self.action_list.item(index)
+    #         func.action.run_with_out_arg()
+    #         self.update_runing_terminal()
+    #     dict_key = self.send_to_ai_selection.currentText()
+    #     if dict_key in self.output_save_dict:
+    #         return self.output_save_dict[dict_key]
+    #     return "执行成功！"
 
 
     def get_chain(self):

@@ -104,10 +104,15 @@ class ActionList(QListWidget):
 
     def get_parent(self):
         return self._parent
+    
+    def get_edit_page(self):
+        from pages.edit_page import EditPage
+        parent = self.get_parent()
+        while not isinstance(parent, EditPage):
+            parent = parent.get_parent()
+        return parent
 
     def init(self):
-        # 设置列表项和列表之间的间距为 1 像素
-
         # 设置列表项之间的间距为 1 像素
         self.setSpacing(1)
         self.setStyleSheet(
@@ -282,6 +287,16 @@ class ActionList(QListWidget):
                 parent_action_list = action_list.get_parent().get_action_list()
                 cls.iter_include_action_list(parent_action_list, action, iter_way)
 
+    def run(self):
+        for index in range(self.count()):
+            func = self.item(index)
+            func.action.run_with_out_arg()
+            self.get_edit_page().update_runing_terminal()
+        # 将返回结果发送到 ai
+        dict_key = self.get_edit_page().send_to_ai_selection.currentText()
+        if dict_key in self.get_edit_page().output_save_dict:
+            return self.get_edit_page().output_save_dict[dict_key]
+        return "执行成功！"
           
 
     # 取消选中

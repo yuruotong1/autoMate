@@ -114,7 +114,11 @@ class ActionBase(BaseModel):
         self._config_ui.hide()
 
     def _get_edit_page(self):
-        return self.get_parent().get_parent().get_parent()
+        parent = self.get_parent()
+        from pages.edit_page import EditPage
+        while not isinstance(parent, EditPage):
+            parent = parent.get_parent()
+        return parent
 
     def get_action_list(self):
         return self.get_parent().get_parent()
