@@ -9,8 +9,8 @@ from utils.qt_util import QtUtil
 
 
 class ActionBase(BaseModel):
-    name: ClassVar[str]
-    description: ClassVar[str]
+    name: str = ""
+    description: str = ""
     args: Type[BaseModel]
     output_save_name: str = ""
     action_pos: int = -1
@@ -54,6 +54,7 @@ class ActionBase(BaseModel):
         # 保存输出结果
         if self.output_save_name:
             self._get_edit_page().output_save_dict[self.uuid][self._output_edit.text()] = res
+            self._get_edit_page().update_send_to_ai_selection()
         return res
 
     # 设置配置界面的布局
@@ -93,10 +94,10 @@ class ActionBase(BaseModel):
                 # 为输出结果自动取名
                 i = 1
                  # 获取 editPage 页面的 output_save_dict
-                output_save_dict = self._get_edit_page().output_save_dict
+                output_save_dict = self._get_edit_page().get_output_dict()
                 # 找到一个不存在的名称
                 while True:
-                    if output_save_name in [list(i.keys())[0] for i in output_save_dict.values()]:
+                    if output_save_name in output_save_dict.keys():
                         output_save_name = self.output_save_name + "_" + str(i)
                         i += 1
                         continue
@@ -115,6 +116,9 @@ class ActionBase(BaseModel):
 
     def _get_edit_page(self):
         parent = self.get_parent()
+        # loop 中运行 action list 时，构建的 action 没有 parent
+        if parent is None:
+            return GlobalUtil.current_page
         from pages.edit_page import EditPage
         while not isinstance(parent, EditPage):
             parent = parent.get_parent()

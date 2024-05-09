@@ -9,12 +9,13 @@ from actions.search_engine_action import SearchEngineAction
 
 
 class ActionUtil:
-    actions = [OpenApplicationAction,
-               OpenBrowserUrlAction,
-               SearchEngineAction,
+    actions = [
+        # OpenApplicationAction,
+            #    OpenBrowserUrlAction,
+            #    SearchEngineAction,
                LLMAction,
                LoopAction,
-               PythonExecutorActoin
+            #    PythonExecutorActoin
                ]
 
     @classmethod
@@ -24,6 +25,6 @@ class ActionUtil:
     @classmethod
     def get_action_by_name(cls, name) -> ActionBase.__class__:
         for i in cls.actions:
-            if i.name == name:
+            if i.model_fields["name"].default == name:
                 return i
         raise ValueError(f"未找到名为{name}的Action")

@@ -10,8 +10,8 @@ class OpenApplicationInput(BaseModel):
 
 
 class OpenApplicationAction(ActionBase):
-    name = "打开应用"
-    description = "打开指定目录的应用"
+    name: str = "打开应用"
+    description: str = "打开指定目录的应用"
     args: OpenApplicationInput
 
     def run(self, path):

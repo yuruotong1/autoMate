@@ -12,8 +12,8 @@ class PythonExecutorInput(BaseModel):
 
 
 class PythonExecutorActoin(ActionBase):
-    name = "执行python代码"
-    description = "执行python代码"
+    name: str = "执行python代码"
+    description: str = "执行python代码"
     args: PythonExecutorInput
     output_save_name:str = "python_output"
 

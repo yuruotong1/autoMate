@@ -10,8 +10,8 @@ class SearchInput(BaseModel):
 
 # 利用搜索引擎搜索关键词
 class SearchEngineAction(ActionBase):
-    name = "百度搜索内容"
-    description = "利用搜索引擎搜索关键词，得到结果列表"
+    name: str = "百度搜索内容"
+    description: str = "利用搜索引擎搜索关键词，得到结果列表"
     args: SearchInput
 
     def run(self, key):

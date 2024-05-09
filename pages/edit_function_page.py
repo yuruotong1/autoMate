@@ -22,7 +22,7 @@ class FunctionListView(QListWidget):
              #  向新位置增加元素
             action_item = ActionListItem(action)
             action.set_parent(action_item)
-            action_item.setText(func.name)
+            action_item.setText(action.name)
             self.addItem(action_item)
 
     def mouseDoubleClickEvent(self, e):

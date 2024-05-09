@@ -290,9 +290,7 @@ class ActionList(QListWidget):
     def run(self):
         for index in range(self.count()):
             func = self.item(index)
-            func.action.run_with_out_arg()
-            self.get_edit_page().update_runing_terminal()
-        # 将返回结果发送到 ai
+            func.action.run_with_out_arg()        # 将返回结果发送到 ai
         dict_key = self.get_edit_page().send_to_ai_selection.currentText()
         if dict_key in self.get_edit_page().output_save_dict:
             return self.get_edit_page().output_save_dict[dict_key]
@@ -333,7 +331,8 @@ class ActionList(QListWidget):
             action_list.setItemWidget(action_item, widget)
 
         if action_list.get_data("type") == "include":
-            action_list.get_parent().action.args.action_list.append(action_item.action)
+            parent_args = action_list.get_parent().args
+            parent_args.action_list.append(action_item.action)
 
         # 向带包含关系的组件插入子组件，递归调整父组件大小
         def adjust_size(action_list):

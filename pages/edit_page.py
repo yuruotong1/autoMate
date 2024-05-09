@@ -67,10 +67,16 @@ class EditPage(QMainWindow, interface_ui):
     # 将返回结果发送到 ai
     def update_send_to_ai_selection(self):
         self.send_to_ai_selection.clear()
-        self.send_to_ai_selection.addItems([list(i.keys())[0] for i in self.output_save_dict.values()])
+        for k,_ in self.get_output_dict().items():
+            self.send_to_ai_selection.addItem(k)
 
     def get_output_dict(self):
-        return {list(i.keys())[0]: list(i.values())[0] for i in self.output_save_dict.values()}
+        res = {}
+        for k, v in self.output_save_dict.items():
+            if v:
+                for k2, v2 in v.items():
+                    res[k2] = v2
+        return res
 
     def update_runing_terminal(self):
         i = 0
