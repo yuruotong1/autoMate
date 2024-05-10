@@ -143,8 +143,17 @@ class ActionBase(BaseModel):
             self._get_edit_page().output_save_dict[self.uuid] = {}
             self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = ""
             self._get_edit_page().update_send_to_ai_selection()
+            
+        # 判断 item 是否在 action_list 中
+        def item_in_action_list():
+            count = self.get_action_list().count()
+            for item in range(count):
+                if self.get_action_list().item(item) == self.get_action_list_item():
+                    return True
+            return False
+        
         # 插入新的 action
-        if self.get_action_list_item() not in self.get_action_list().action_list_items:
+        if not item_in_action_list():
             from pages.edit_action_list_view import ActionList
             ActionList.insert_item(self.get_action_list(), self.action_pos, self.get_action_list_item())
         

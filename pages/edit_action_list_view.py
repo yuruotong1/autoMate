@@ -1,9 +1,8 @@
 import pickle
 from typing import List
-
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
 from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle
+from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle, QMenu, QMessageBox
 from PyQt6 import QtCore, QtWidgets
 from actions.action_base import ActionBase
 from actions.action_util import ActionUtil
@@ -50,7 +49,7 @@ class ActionList(QListWidget):
         super().__init__(*args, **kwargs)
         # 设置列表项之间的间距为 3 像素
         self.ITEM_MARGIN_LEFT = 3
-        # 拖动结束时，生成新的的 action
+        # 拖动结束时，生成新的 action
         self.drop_down_action = None
         self.setAcceptDrops(True)
         # 拖动到当前位置对应的元素序号
@@ -69,10 +68,13 @@ class ActionList(QListWidget):
         self.init()
         self._parent = parent_widget
         self._data = {}
+        # 操作序列，用于撤销
+        # todo 当进行移动、增加操作时将操作序列添加到列表中
+        # todo 实现 ctral + z 撤销功能
+        self.opeartion_list = []
         if not action_list_items:
             action_list_items = []
-        self.action_list_items = action_list_items
-        for action_list_item in self.action_list_items:
+        for action_list_item in action_list_items:
             self.insertItem(action_list_item.action.action_pos, action_list_item)
 
     def set_data(self, key, value):
@@ -119,7 +121,7 @@ class ActionList(QListWidget):
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
             "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: " + str(
                 self.ITEM_MARGIN_LEFT) + "px;}"
-            # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;}")
+            # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;})"
                                          "QListView::Item:selected{color:rgb(0, 0, 0);}")
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
@@ -135,14 +137,35 @@ class ActionList(QListWidget):
         
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
-        # 如果在历史事件中左键点击过
-        if e.buttons() & Qt.MouseButton.LeftButton:
+        super().mousePressEvent(e)
+        # 右键点击弹出菜单
+        if e.button() == Qt.MouseButton.RightButton:
+            # 创建菜单栏
+            menu = QMenu(self)
+            menu.addAction("删除")
+            # 菜单栏点击函数处理
+            menu.triggered.connect(self.right_menu_triggered)
+            # 菜单栏出现的位置
+            menu.exec(self.mapToGlobal(e.pos()))
+        # 记录左键点击位置
+        elif e.button() == Qt.MouseButton.LeftButton:
             self.start_pos = e.pos()
+            
+        
+    def right_menu_triggered(self, act):
+        # 如果是删除，则从列表中删除该选择
+        if act.text() == "删除":
+            self.opeartion_list.append({"type": "delete", "item": self.currentIndex().row(), "row": self.currentIndex().row()})
+            self.model().removeRow(self.currentIndex().row())
+    
+    # 获取所有 action_list_items
+    def get_action_list_items(self):
+        res = []
+        for i in range(self.count()):
+            res.append(self.item(i))
+        return res
 
     def mouseReleaseEvent(self, e):
-        # 为什么有这段代码？
-        if (e.pos() - self.start_pos).manhattanLength() > 5:
-            return
         # 鼠标release时才选中
         index = self.indexAt(e.pos())
         self.clear_selection(index)
@@ -334,7 +357,7 @@ class ActionList(QListWidget):
             parent_args = action_list.get_parent().args
             parent_args.action_list.append(action_item.action)
 
-        # 向带包含关系的组件插入子组件，递归调整父组件大小
+        # 向带包含关系的组件插入子组件，递归调整父组件���小
         def adjust_size(action_list):
             if action_list.get_data("type") == "include":
                 total_height = 0
