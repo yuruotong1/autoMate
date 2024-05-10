@@ -84,11 +84,9 @@ class ChatPage(BasePage):
         setting_action.triggered.connect(self.open_setting_page)
         # 添加按钮点击事件，打开添加对话框
         self.ui.add_action.clicked.connect(self.open_add_dialog)
+        self.func_list_page = FuncListPage(parent_widget=self.ui)
 
     def open_add_dialog(self):
-        self.func_list_page = FuncListPage(parent=self.ui)
-        # self.func_list_page.setParent(self.ui)
-
         self.func_list_page.show()
         self.ui.hide()
 

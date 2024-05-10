@@ -81,13 +81,13 @@ class AddFuncButton(QToolButton):
 
 interface_ui = QtUtil.load_ui_type("func_list_page.ui")
 class FuncListPage(QMainWindow, interface_ui):
-    def __init__(self, parent):
-        self.parent_ui = parent
+    def __init__(self, parent_widget):
+        self._parent = parent_widget
         super().__init__()
 
     # 关闭事件
     def closeEvent(self, event):
-        self.parent_ui.show()
+        self._parent.show()
     
     def showEvent(self, a0) -> None:
         self.setup_up()
