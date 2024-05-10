@@ -8,6 +8,7 @@ from actions.action_base import ActionBase
 from actions.action_util import ActionUtil
 from pages.styled_item_delegate import StyledItemDelegate
 from utils.global_util import GlobalUtil
+from utils.undo_command import ActionListAddCommand
 
 
 class ActionListItem(QListWidgetItem):
@@ -157,7 +158,14 @@ class ActionList(QListWidget):
         if act.text() == "删除":
             self.opeartion_list.append({"type": "delete", "item": self.currentIndex().row(), "row": self.currentIndex().row()})
             self.model().removeRow(self.currentIndex().row())
-    
+
+    # def delete_item(self, index):
+    #     self.get_edit_page().q_undo_stack.push(RemoveCommand(self, index))
+
+    # todo 完善
+    def add_item(self, index, data):
+        self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, index, data))
+
     # 获取所有 action_list_items
     def get_action_list_items(self):
         res = []
@@ -357,7 +365,7 @@ class ActionList(QListWidget):
             parent_args = action_list.get_parent().args
             parent_args.action_list.append(action_item.action)
 
-        # 向带包含关系的组件插入子组件，递归调整父组件���小
+        # 向带包含关系的组件插入子组件，递归调整父组件大小
         def adjust_size(action_list):
             if action_list.get_data("type") == "include":
                 total_height = 0

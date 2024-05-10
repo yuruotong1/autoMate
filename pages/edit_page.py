@@ -4,6 +4,7 @@ from utils.global_util import GlobalUtil
 from utils.qt_util import QtUtil
 from PyQt6.QtWidgets import QMainWindow, QLabel
 from PyQt6.QtCore import pyqtSignal, Qt
+from PyQt6.QtGui import QUndoStack
 
 
 
@@ -31,6 +32,7 @@ class EditPage(QMainWindow, interface_ui):
         if not action_list:
             action_list = ActionList(parent_widget=self)
         self.action_list = action_list
+        self.q_undo_stack = QUndoStack()
         super().__init__()
         self.setupUi(self)
         self.setup_up()
@@ -49,6 +51,8 @@ class EditPage(QMainWindow, interface_ui):
                 "action_list": self.action_list.dump(),
                 "send_to_ai_selection_text": self.send_to_ai_selection_text
                 }
+
+        
 
     def setup_up(self):
         self.func_name_edit.setText(self.func_name)
@@ -75,7 +79,7 @@ class EditPage(QMainWindow, interface_ui):
 
     def get_output_dict(self):
         res = {}
-        for k, v in self.output_save_dict.items():
+        for _, v in self.output_save_dict.items():
             if v:
                 for k2, v2 in v.items():
                     res[k2] = v2
