@@ -100,9 +100,6 @@ class EditPage(QMainWindow, interface_ui):
 
     def __cancel_button_click(self):
         # GlobalUtil.delete_edit_page(GlobalUtil.current_page)
-        for item in self.action_list.opeartion_list:
-
-
         self.close()
 
 
