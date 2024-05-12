@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton
 from pydantic import BaseModel
 from utils.global_util import GlobalUtil
 from utils.qt_util import QtUtil
+from utils.undo_command import ActionListAddCommand
 
 
 class ActionBase(BaseModel):
@@ -54,8 +55,8 @@ class ActionBase(BaseModel):
         print(res)
         # 保存输出结果
         if self.output_save_name:
-            self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = res
-            self._get_edit_page().update_send_to_ai_selection()
+            self.get_edit_page().output_save_dict[self.uuid][self.output_save_name] = res
+            self.get_edit_page().update_send_to_ai_selection()
         return res
 
     # 设置配置界面的布局
@@ -95,7 +96,7 @@ class ActionBase(BaseModel):
                 # 为输出结果自动取名
                 i = 1
                  # 获取 editPage 页面的 output_save_dict
-                output_save_dict = self._get_edit_page().get_output_dict()
+                output_save_dict = self.get_edit_page().get_output_dict()
                 # 找到一个不存在的名称
                 while True:
                     if output_save_name in output_save_dict.keys():
@@ -115,7 +116,7 @@ class ActionBase(BaseModel):
     def __cancel_button_clicked(self):
         self._config_ui.hide()
 
-    def _get_edit_page(self):
+    def get_edit_page(self):
         parent = self.get_parent()
         # loop 中运行 action list 时，构建的 action 没有 parent
         if parent is None:
@@ -140,22 +141,22 @@ class ActionBase(BaseModel):
         # 如果设置了output_save_name，向全局中插入该变量
         if self.output_save_name != "":
             self.output_save_name = self._output_edit.text()
-            self._get_edit_page().output_save_dict[self.uuid] = {}
-            self._get_edit_page().output_save_dict[self.uuid][self.output_save_name] = ""
-            self._get_edit_page().update_send_to_ai_selection()
+            self.get_edit_page().output_save_dict[self.uuid] = {}
+            self.get_edit_page().output_save_dict[self.uuid][self.output_save_name] = ""
+            self.get_edit_page().update_send_to_ai_selection()
             
         # 判断 item 是否在 action_list 中
         def item_in_action_list():
-            count = self.get_action_list().count()
-            for item in range(count):
-                if self.get_action_list().item(item) == self.get_action_list_item():
+            action_list = self.get_action_list()
+            for item in action_list.get_action_list_items(action_list):
+                if item == self.get_action_list_item():
                     return True
             return False
         
         # 插入新的 action
         if not item_in_action_list():
-            from pages.edit_action_list_view import ActionList
-            ActionList.insert_item(self.get_action_list(), self.action_pos, self.get_action_list_item())
+            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self.get_action_list(), self.action_pos, self.get_action_list_item()))
+            # ActionList.insert_item(self.get_action_list(), self.action_pos, self.get_action_list_item())
         
         self._config_ui.hide()
             

@@ -4,7 +4,7 @@ from utils.global_util import GlobalUtil
 from utils.qt_util import QtUtil
 from PyQt6.QtWidgets import QMainWindow, QLabel
 from PyQt6.QtCore import pyqtSignal, Qt
-from PyQt6.QtGui import QUndoStack
+from PyQt6.QtGui import QUndoStack, QKeySequence
 
 
 
@@ -17,6 +17,7 @@ class EditPage(QMainWindow, interface_ui):
 
     
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无", send_to_ai_selection_text=""):
+        super().__init__()
         self.func_list_pos_column = func_list_pos_column
         self.func_list_pos_row = func_list_pos_row
         # 属于通用还是专属
@@ -33,7 +34,12 @@ class EditPage(QMainWindow, interface_ui):
             action_list = ActionList(parent_widget=self)
         self.action_list = action_list
         self.q_undo_stack = QUndoStack()
-        super().__init__()
+        redo_action = self.q_undo_stack.createRedoAction(self, "Redo")
+        redo_action.setShortcut(QKeySequence.StandardKey.Redo)
+        undo_action = self.q_undo_stack.createUndoAction(self, "Undo")
+        undo_action.setShortcut(QKeySequence.StandardKey.Undo)
+        self.addAction(redo_action)
+        self.addAction(undo_action)
         self.setupUi(self)
         self.setup_up()
 
@@ -52,7 +58,6 @@ class EditPage(QMainWindow, interface_ui):
                 "send_to_ai_selection_text": self.send_to_ai_selection_text
                 }
 
-        
 
     def setup_up(self):
         self.func_name_edit.setText(self.func_name)
@@ -154,3 +159,9 @@ class EditPage(QMainWindow, interface_ui):
         GlobalUtil.edit_page_global.remove(edit_page)
         GlobalUtil.save_to_local()
         
+
+
+
+
+    
+
