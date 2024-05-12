@@ -51,7 +51,6 @@ class ActionListAddCommand(QUndoCommand):
         self.action_list.iter_include_action_list(self.action_list, adjust_size, "parent")
 
     def undo(self):
-        # self.action_item.get_widget().setParent(None)
         self.action_list.model().removeRow(self.row)
 
 
