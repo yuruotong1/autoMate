@@ -16,6 +16,7 @@ class LoopInput(BaseModel):
 class LoopAction(ActionBase):
     name: str = "循环执行"
     description: str = "根据循环条件循环执行"
+    action_type: str = "include"
     args: LoopInput
 
     def run(self, stop_condition, loop_interval_time, action_list):

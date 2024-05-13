@@ -1,4 +1,6 @@
-from pages.edit_action_list_view import ActionList
+from actions.action_list_item import ActionListItem
+from actions.action_list import ActionList
+
 from pages.edit_function_page import FunctionListView
 from utils.global_util import GlobalUtil
 from utils.qt_util import QtUtil
@@ -125,22 +127,24 @@ class EditPage(QMainWindow, interface_ui):
         # 从本地缓存数据读取数据
         edit_pages_json = GlobalUtil.read_from_local()
         for edit_page_json in edit_pages_json:
-            from pages.edit_page import EditPage
-            from pages.edit_action_list_view import ActionList
-            action_list = ActionList.load(edit_page_json["action_list"])
+            from actions.action_list import ActionList
             edit_page = EditPage(
                 func_status=edit_page_json["func_status"],
                 func_list_pos_row=edit_page_json["func_list_pos_row"],
                 func_list_pos_column=edit_page_json["func_list_pos_column"],
                 func_name = edit_page_json["func_name"],
                 func_description = edit_page_json["func_description"],
-                action_list=action_list,
+                action_list=None,
                 # 保存结果输出变量名，运行结果只有在运行时才会被保存
                 output_save_dict=edit_page_json["output_save_dict"],
                 send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"]
                 )
+            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], edit_page=edit_page)
+            edit_page.action_list = action_list
             edit_page.update_runing_terminal()
             action_list.setParent(edit_page)
+            action_list_items = [ActionListItem.load(i) for i in edit_page_json["action_list"]]
+            action_list.add_action_list_items(action_list_items)
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]
             GlobalUtil.edit_page_global.append(edit_page)

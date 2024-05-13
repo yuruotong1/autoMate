@@ -12,6 +12,8 @@ from utils.undo_command import ActionListAddCommand
 class ActionBase(BaseModel):
     name: str = ""
     description: str = ""
+    # 用于标识 action 类型，include 和 single 两种类型
+    action_type: str = ""
     args: Type[BaseModel]
     output_save_name: str = ""
     action_pos: int = -1
@@ -156,7 +158,6 @@ class ActionBase(BaseModel):
         # 插入新的 action
         if not item_in_action_list():
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self.get_action_list(), self.action_pos, self.get_action_list_item()))
-            # ActionList.insert_item(self.get_action_list(), self.action_pos, self.get_action_list_item())
         
         self._config_ui.hide()
             

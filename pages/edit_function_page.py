@@ -5,7 +5,7 @@ from PyQt6.QtGui import QDrag, QPixmap
 from PyQt6.QtWidgets import QAbstractItemView, QListWidget, QListWidgetItem, QStyle
 
 from actions.action_util import ActionUtil
-from pages.edit_action_list_view import ActionListItem
+from actions.action_list_item import ActionListItem
 from utils.global_util import GlobalUtil
 
 
@@ -54,7 +54,8 @@ class FunctionListView(QListWidget):
             mime_data = QMimeData()
             # 对原数据进行深拷贝
             byte_array = QByteArray((pickle.dumps(the_drag_item.text())))
-            from pages.edit_action_list_view import ActionList
+            from actions.action_list import ActionList
+
             mime_data.setData(ActionList.MY_MIME_TYPE, byte_array)
             drag = QDrag(self)
             # 设置拖拽时的图标

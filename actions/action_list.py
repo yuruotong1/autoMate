@@ -2,88 +2,17 @@ import pickle
 from typing import List
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal
 from PyQt6.QtGui import QDrag
-from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle, QMenu, QMessageBox
-from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtWidgets import QListWidget, QApplication, QStyle, QMenu
 from actions.action_base import ActionBase
-from actions.action_util import ActionUtil
+from actions.action_list_item import ActionListItem
+from actions.action_signal import ActionSignal
 from pages.styled_item_delegate import StyledItemDelegate
-from utils.global_util import GlobalUtil
 from utils.undo_command import ActionListAddCommand
-
-
-class ActionListItem(QListWidgetItem):
-    size_changed = pyqtSignal('ActionListItem')
-    def __init__(self, action: ActionBase, widget_parent=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.action = action
-        self.setText(action.name)
-        self._parent = widget_parent
-        self.set_up()
-        if self.action.get_data("action_list") is not None:
-            self.action.get_data("action_list").items_number_changed.connect(self.adjust_ui_size)
-
-    def set_up(self):
-         # 插入带包含的组件时，更新组件样式
-        if self.action.name == "循环执行":
-            widget = QtWidgets.QWidget()
-            widget.setStyleSheet("background-color: white;")
-            label = QtWidgets.QLabel(parent=widget)
-            label.setGeometry(QtCore.QRect(5, 10, 54, 12))
-            label.setText("循环")
-            widget.setFixedHeight(60)
-            # 当父元素是包含类型的组件时，调整当前元素的大小
-            if self.get_parent().level > 0:
-                widget.setFixedWidth(self.get_parent().width() - 10)
-            self.setSizeHint(widget.size())
-            from pages.edit_action_list_view import ActionList
-            sub_action_list = ActionList(parent=widget, parent_widget=self.action, level=self.get_parent().level + 1)
-            sub_action_list.set_data("type", "include")
-            sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
-            self.action.set_data("action_list", sub_action_list)
-            self.get_parent().setItemWidget(self, widget)
-
-    # 根据子元素数量调整当前元素尺寸大小
-    def adjust_ui_size(self, action_list):
-        total_height = 0
-        for item in action_list.get_action_list_items(action_list):
-            total_height += action_list.visualItemRect(item).height()
-        # 调整item大小
-        self.setSizeHint(QtCore.QSize(action_list.width(), total_height + 60))
-        self.get_widget().setFixedHeight(total_height + 60)
-        # 发送元素大小更新的信号给父元素
-        self.size_changed.emit(self)
-    
-    def ActionListItem(self, parent):
-        self._parent = parent
-
-
-    def get_parent(self):
-        return self._parent
-
-    @staticmethod
-    def load(data: dict):
-        if data.get("name"):
-            action_model = ActionUtil.get_action_by_name(data.get("name"))
-            assert isinstance(action_model, ActionBase.__class__)
-            action = action_model.model_validate(data.get("data"))
-            action_item = ActionListItem(action)
-            action.set_parent(action_item)
-            return action_item
-        else:
-            raise ValueError("data must have a key named 'name'")
-
-    def dump(self):
-        return {"name": self.action.name, "data": self.action.model_dump()}
-    
-    def get_widget(self):
-        return self.get_parent().itemWidget(self)
-
 
 class ActionList(QListWidget):
     MY_MIME_TYPE = "ActionListView/data_drag"
-    size_changed = pyqtSignal(list[ActionListItem])
 
-    def __init__(self, action_list_items: list[ActionListItem] = None, parent_widget=None, level=0, *args, **kwargs):
+    def __init__(self, action_list_items: List[ActionListItem] = None, parent_widget=None, level=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # 设置列表项之间的间距为 3 像素
         self.ITEM_MARGIN_LEFT = 3
@@ -106,25 +35,20 @@ class ActionList(QListWidget):
         self.init()
         self._parent = parent_widget
         self._data = {}
+        self.action_signal = ActionSignal()
         if not action_list_items:
             action_list_items = []
         for action_list_item in action_list_items:
-            self.insert_item(action_list_item.action.action_pos, action_list_item)
-
-    def insert_item(self, pos, action_item):
-        self.insertItem(pos, action_item)
-        # 插入数据
-        if self.get_data("type") == "include":
-            parent_args = self.get_parent().args
-            parent_args.action_list.insert_item(pos, action_item.action)
+            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
         
-        # 不是顶层，调整UI大小
-        if self.level > 0: 
-            self.adjust_ui(action_item)
-            
+
+
+    def add_action_list_items(self, action_list_items):
+        for action_list_item in action_list_items:
+            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
 
     # 当 item 数量发生变化时，更新组件样式
-    def adjust_ui(self, action_item):
+    def adjust_ui(self, _):
         if self.get_data("type") == "include":
             total_height = 0
             for item in self.get_action_list_items(self):
@@ -133,7 +57,7 @@ class ActionList(QListWidget):
             self.setFixedHeight(total_height + 5)
             # 面板大小
             self.parent().setFixedHeight(total_height + 5)
-            self.size_changed.emit(self.get_action_list_items(self))
+            self.action_signal.emit()
 
     def set_data(self, key, value):
         self._data[key] = value
@@ -142,22 +66,20 @@ class ActionList(QListWidget):
         return self._data.get(key, None)
 
     @classmethod
-    def load(cls, actions_raw_data: List[dict]):
+    def load(cls, actions_raw_data: List[dict], edit_page):
         action_list_items = [ActionListItem.load(i) for i in actions_raw_data]
-        action_list = ActionList(action_list_items, level=0)
+        action_list = ActionList(action_list_items, level=0, parent_widget=edit_page)
         for action_list_item in action_list_items:
             action_list_item.set_parent(action_list)
-            action_list_item.size_changed.connect(action_list.adjust_ui)
+            action_list_item.render()
+            action_list_item.action_signal.size_changed.connect(action_list.adjust_ui)
         return action_list
 
     def dump(self):
         res = []
         # 获取所有 items
-        for i in range(self.count()):
-            item = self.item(i)
-            if not isinstance(item, ActionListItem):
-                raise TypeError("item must be an instance of ActionListItem")
-            res.append(item.dump())
+        for i in self.get_action_list_items(self):
+            res.append(i.dump())
         return res
 
     def setParent(self, parent):
@@ -217,9 +139,6 @@ class ActionList(QListWidget):
             self.opeartion_list.append({"type": "delete", "item": self.currentIndex().row(), "row": self.currentIndex().row()})
             self.model().removeRow(self.currentIndex().row())
 
-    # def delete_item(self, index):
-    #     self.get_edit_page().q_undo_stack.push(RemoveCommand(self, index))
-
 
     @staticmethod
     # 获取所有 action_list_items
@@ -229,7 +148,6 @@ class ActionList(QListWidget):
             res.append(action_list.item(i))
         return res
 
-    
 
     def mouseReleaseEvent(self, e):
         # 鼠标release时才选中
@@ -338,17 +256,17 @@ class ActionList(QListWidget):
             # 打开配置页面
             self.drop_down_action = action(args={})
             self.drop_down_action.action_pos = self.the_insert_row
-             #  向新位置增加元素
+            # 向新位置增加元素
             action_item = ActionListItem(self.drop_down_action, widget_parent=self)
             # 当子元素数量发生变化时，调整父元素大小
-            action_item.size_changed.connect(self.adjust_ui)
+            action_item.action_signal.size_changed.connect(self.adjust_ui)
             self.drop_down_action.set_parent(action_item)
             self.drop_down_action.config_page_show()
         # 在 actionList 内部拖动，行为调换顺序
         else:
             drag_action_item = ActionListItem.load(source_data)
             drag_action_item.set_parent(self)
-            drag_action_item.size_changed.connect(self.adjust_ui)
+            drag_action_item.action_signal.size_changed.connect(self.adjust_ui)
             drag_action_item.action.set_output_save_name_from_drag(drag_action_item.action.output_save_name)
             drag_action_item.action.action_pos = self.the_insert_row
             # 如果拖动前位置和拖动后位置相同
@@ -359,7 +277,6 @@ class ActionList(QListWidget):
                     and self.level == drag_action_item.action.action_level):
                 return
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
-            # self.insert_item(self, self.the_insert_row, drag_action_item)
         # 选中当前行
         self.clear_selection(QListWidget().currentIndex())
         e.setDropAction(Qt.DropAction.MoveAction)
