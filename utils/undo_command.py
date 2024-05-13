@@ -16,7 +16,7 @@ class ActionListAddCommand(QUndoCommand):
          # 插入数据
         if self.action_list.get_data("type") == "include":
             parent_args = self.action_list.get_parent().args
-            parent_args.action_list.insert_item(self.row, self.action_item.action)
+            parent_args.action_list.insert(self.row, self.action_item.action)
         
         # 不是顶层，调整UI大小
         if self.action_list.level > 0: 

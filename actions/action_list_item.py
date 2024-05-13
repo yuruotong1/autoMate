@@ -41,7 +41,7 @@ class ActionListItem(QListWidgetItem):
 
 
     # 根据子元素数量调整当前元素尺寸大小
-    def _adjust_ui(self, _):
+    def _adjust_ui(self):
         action_list = self.action.get_data("action_list")
         total_height = 0
         for item in action_list.get_action_list_items(action_list):
