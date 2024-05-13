@@ -1,11 +1,10 @@
 import sys
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QMainWindow, QApplication  # Add this import statement at the top of your file to resolve the "QApplication is not defined" error.
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-from PyQt6.QtWidgets import QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView
+from PyQt6.QtWidgets import QTextEdit, QMainWindow, QApplication 
 
 
 class CodeEditor(QTextEdit):

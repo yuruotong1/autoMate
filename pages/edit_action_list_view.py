@@ -1,6 +1,6 @@
 import pickle
 from typing import List
-from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint
+from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QListWidgetItem, QApplication, QStyle, QMenu, QMessageBox
 from PyQt6 import QtCore, QtWidgets
@@ -12,14 +12,50 @@ from utils.undo_command import ActionListAddCommand
 
 
 class ActionListItem(QListWidgetItem):
-    def __init__(self, action: ActionBase, parent=None, *args, **kwargs):
+    size_changed = pyqtSignal('ActionListItem')
+    def __init__(self, action: ActionBase, widget_parent=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.action = action
         self.setText(action.name)
-        self._parent = parent
+        self._parent = widget_parent
+        self.set_up()
+        if self.action.get_data("action_list") is not None:
+            self.action.get_data("action_list").items_number_changed.connect(self.adjust_ui_size)
+
+    def set_up(self):
+         # 插入带包含的组件时，更新组件样式
+        if self.action.name == "循环执行":
+            widget = QtWidgets.QWidget()
+            widget.setStyleSheet("background-color: white;")
+            label = QtWidgets.QLabel(parent=widget)
+            label.setGeometry(QtCore.QRect(5, 10, 54, 12))
+            label.setText("循环")
+            widget.setFixedHeight(60)
+            # 当父元素是包含类型的组件时，调整当前元素的大小
+            if self.get_parent().level > 0:
+                widget.setFixedWidth(self.get_parent().width() - 10)
+            self.setSizeHint(widget.size())
+            from pages.edit_action_list_view import ActionList
+            sub_action_list = ActionList(parent=widget, parent_widget=self.action, level=self.get_parent().level + 1)
+            sub_action_list.set_data("type", "include")
+            sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
+            self.action.set_data("action_list", sub_action_list)
+            self.get_parent().setItemWidget(self, widget)
+
+    # 根据子元素数量调整当前元素尺寸大小
+    def adjust_ui_size(self, action_list):
+        total_height = 0
+        for item in action_list.get_action_list_items(action_list):
+            total_height += action_list.visualItemRect(item).height()
+        # 调整item大小
+        self.setSizeHint(QtCore.QSize(action_list.width(), total_height + 60))
+        self.get_widget().setFixedHeight(total_height + 60)
+        # 发送元素大小更新的信号给父元素
+        self.size_changed.emit(self)
     
-    def set_parent(self, parent):
+    def ActionListItem(self, parent):
         self._parent = parent
+
 
     def get_parent(self):
         return self._parent
@@ -45,6 +81,7 @@ class ActionListItem(QListWidgetItem):
 
 class ActionList(QListWidget):
     MY_MIME_TYPE = "ActionListView/data_drag"
+    size_changed = pyqtSignal(list[ActionListItem])
 
     def __init__(self, action_list_items: list[ActionListItem] = None, parent_widget=None, level=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,14 +106,34 @@ class ActionList(QListWidget):
         self.init()
         self._parent = parent_widget
         self._data = {}
-        # 操作序列，用于撤销
-        # todo 当进行移动、增加操作时将操作序列添加到列表中
-        # todo 实现 ctral + z 撤销功能
-        self.opeartion_list = []
         if not action_list_items:
             action_list_items = []
         for action_list_item in action_list_items:
-            self.insertItem(action_list_item.action.action_pos, action_list_item)
+            self.insert_item(action_list_item.action.action_pos, action_list_item)
+
+    def insert_item(self, pos, action_item):
+        self.insertItem(pos, action_item)
+        # 插入数据
+        if self.get_data("type") == "include":
+            parent_args = self.get_parent().args
+            parent_args.action_list.insert_item(pos, action_item.action)
+        
+        # 不是顶层，调整UI大小
+        if self.level > 0: 
+            self.adjust_ui(action_item)
+            
+
+    # 当 item 数量发生变化时，更新组件样式
+    def adjust_ui(self, action_item):
+        if self.get_data("type") == "include":
+            total_height = 0
+            for item in self.get_action_list_items(self):
+                total_height += self.visualItemRect(item).height()
+            # 内圈大小
+            self.setFixedHeight(total_height + 5)
+            # 面板大小
+            self.parent().setFixedHeight(total_height + 5)
+            self.size_changed.emit(self.get_action_list_items(self))
 
     def set_data(self, key, value):
         self._data[key] = value
@@ -86,11 +143,12 @@ class ActionList(QListWidget):
 
     @classmethod
     def load(cls, actions_raw_data: List[dict]):
-        actions = [ActionListItem.load(i) for i in actions_raw_data]
-        action_list_view = ActionList(actions, level=0)
-        for action in actions:
-            action.set_parent(action_list_view)
-        return action_list_view
+        action_list_items = [ActionListItem.load(i) for i in actions_raw_data]
+        action_list = ActionList(action_list_items, level=0)
+        for action_list_item in action_list_items:
+            action_list_item.set_parent(action_list)
+            action_list_item.size_changed.connect(action_list.adjust_ui)
+        return action_list
 
     def dump(self):
         res = []
@@ -281,13 +339,16 @@ class ActionList(QListWidget):
             self.drop_down_action = action(args={})
             self.drop_down_action.action_pos = self.the_insert_row
              #  向新位置增加元素
-            action_item = ActionListItem(self.drop_down_action, parent=self)
+            action_item = ActionListItem(self.drop_down_action, widget_parent=self)
+            # 当子元素数量发生变化时，调整父元素大小
+            action_item.size_changed.connect(self.adjust_ui)
             self.drop_down_action.set_parent(action_item)
             self.drop_down_action.config_page_show()
         # 在 actionList 内部拖动，行为调换顺序
         else:
             drag_action_item = ActionListItem.load(source_data)
             drag_action_item.set_parent(self)
+            drag_action_item.size_changed.connect(self.adjust_ui)
             drag_action_item.action.set_output_save_name_from_drag(drag_action_item.action.output_save_name)
             drag_action_item.action.action_pos = self.the_insert_row
             # 如果拖动前位置和拖动后位置相同
@@ -310,7 +371,7 @@ class ActionList(QListWidget):
         if iter_way == "son":
             for i in range(action_list.count()):
                 item = action_list.item(i)
-                if item.action.name == "循环执行" and item.action.get_data("action_list") is not None:
+                if item.action.get_data("action_list") is not None:
                     cls.iter_include_action_list(item.action.get_data("action_list"), action, iter_way)
         
         elif iter_way == "parent":
@@ -340,47 +401,3 @@ class ActionList(QListWidget):
         self.iter_include_action_list(self, clear, "son")
         # 选中当前行
         self.setCurrentIndex(index)
-
-    # @classmethod
-    # def insert_item(cls, action_list, row, action_item):
-    #     action_list.insertItem(row, action_item)
-        
-    #     # 插入带包含的组件，更新组件样式
-    #     if action_item.action.name == "循环执行":
-    #         widget = QtWidgets.QWidget()
-    #         widget.setStyleSheet("background-color: white;")
-    #         label = QtWidgets.QLabel(parent=widget)
-    #         label.setGeometry(QtCore.QRect(5, 10, 54, 12))
-    #         label.setText("循环")
-    #         widget.setFixedHeight(60)
-    #         # 当父元素是包含类型的组件时，调整当前元素的大小
-    #         if action_list.level > 0:
-    #             widget.setFixedWidth(action_list.width() - 10)
-    #         action_item.setSizeHint(widget.size())
-    #         sub_action_list = ActionList(parent=widget, parent_widget=action_item.action, level=action_list.level + 1)
-    #         sub_action_list.set_data("type", "include")
-    #         sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
-    #         action_item.action.set_data("action_list", sub_action_list)
-    #         action_list.setItemWidget(action_item, widget)
-
-    #     if action_list.get_data("type") == "include":
-    #         parent_args = action_list.get_parent().args
-    #         parent_args.action_list.append(action_item.action)
-
-    #     # 向带包含关系的组件插入子组件，递归调整父组件大小
-    #     def adjust_size(action_list):
-    #         if action_list.get_data("type") == "include":
-    #             total_height = 0
-    #             for item in cls.get_action_list_items(action_list):
-    #                 total_height += action_list.visualItemRect(item).height()
-    #             # 内圈大小
-    #             action_list.setFixedHeight(total_height + 5)
-    #             # 面板大小
-    #             action_list.parent().setFixedHeight(total_height + 5)
-                
-    #             # 调整item大小
-    #             action_list.get_parent().get_action_list_item().setSizeHint(QtCore.QSize(action_list.width(), total_height + 60))
-    #             action_list.get_parent().get_action_list_item().get_widget().setFixedHeight(total_height + 60)
-    #     cls.iter_include_action_list(action_list, adjust_size, "parent")
-
-        
