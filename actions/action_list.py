@@ -48,13 +48,13 @@ class ActionList(QListWidget):
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
 
     # 当 item 数量发生变化时，更新组件样式
-    def adjust_ui(self, *args):
+    def adjust_ui(self):
         if self.get_data("type") == "include":
             total_height = 0
             for item in self.get_action_list_items(self):
                 total_height += self.visualItemRect(item).height()
             # 内圈大小
-            self.setFixedHeight(total_height + 5)
+            self.setFixedHeight(20 if total_height + 5 < 20 else total_height + 5)
             # 面板大小
             self.parent().setFixedHeight(total_height + 5)
             self.action_signal.emit()
