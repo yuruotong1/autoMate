@@ -14,11 +14,10 @@ class ActionListItem(QListWidgetItem):
         self.setText(action.name)
         self._parent = widget_parent
         self.action_signal = ActionSignal()
-        
-        
-            
+
+
+    # 当父元素是包含类型的组件，减少当前元素的宽度让其能够被包含    
     def render(self):
-         # 插入带包含的组件时，更新组件样式
         if self.action.action_type == "include":
             widget = QtWidgets.QWidget()
             widget.setStyleSheet("background-color: white;")
@@ -26,19 +25,15 @@ class ActionListItem(QListWidgetItem):
             label.setGeometry(QtCore.QRect(5, 10, 54, 12))
             label.setText("循环")
             widget.setFixedHeight(60)
-            # 当父元素是包含类型的组件时，调整当前元素的大小
-            if self.get_parent().level > 0:
-                widget.setFixedWidth(self.get_parent().width() - 10)
-            self.setSizeHint(widget.size())
+            widget.setFixedWidth(self.get_parent().width() - 10)
             from actions.action_list import ActionList
             sub_action_list = ActionList(parent=widget, parent_widget=self.action, level=self.get_parent().level + 1)
             sub_action_list.action_signal.size_changed.connect(self._adjust_ui)
             sub_action_list.set_data("type", "include")
             sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
+            self.setSizeHint(widget.size())
             self.action.set_data("action_list", sub_action_list)
             self.get_parent().setItemWidget(self, widget)
-            
-
 
     # 根据子元素数量调整当前元素尺寸大小
     def _adjust_ui(self):

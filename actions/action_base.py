@@ -158,7 +158,6 @@ class ActionBase(BaseModel):
         # 插入新的 action
         if not item_in_action_list():
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self.get_action_list(), self.action_pos, self.get_action_list_item()))
-        
         self._config_ui.hide()
             
 

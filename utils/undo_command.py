@@ -13,7 +13,6 @@ class ActionListAddCommand(QUndoCommand):
     def redo(self):
         self.action_list.insertItem(self.row, self.action_item)
         self.action_item.render()
-         # 插入数据
         if self.action_list.get_data("type") == "include":
             parent_args = self.action_list.get_parent().args
             parent_args.action_list.insert(self.row, self.action_item.action)

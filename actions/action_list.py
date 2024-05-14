@@ -71,7 +71,7 @@ class ActionList(QListWidget):
         action_list = ActionList(action_list_items, level=0, parent_widget=edit_page)
         for action_list_item in action_list_items:
             action_list_item.set_parent(action_list)
-            action_list_item.render()
+            # action_list_item.render()
             action_list_item.action_signal.size_changed.connect(action_list.adjust_ui)
         return action_list
 
@@ -261,6 +261,7 @@ class ActionList(QListWidget):
             # 当子元素数量发生变化时，调整父元素大小
             action_item.action_signal.size_changed.connect(self.adjust_ui)
             self.drop_down_action.set_parent(action_item)
+            # action_item.render()
             self.drop_down_action.config_page_show()
         # 在 actionList 内部拖动，行为调换顺序
         else:
