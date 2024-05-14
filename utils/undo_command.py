@@ -4,7 +4,6 @@ from PyQt6 import QtCore, QtWidgets
 class ActionListAddCommand(QUndoCommand):
     def __init__(self, action_list, row, action_item):
         super().__init__()
-        print(action_list)
         self.action_list = action_list
         self.action_item = action_item
         self.row = row
@@ -12,6 +11,7 @@ class ActionListAddCommand(QUndoCommand):
         
 
     def redo(self):
+        print(self.action_list, self.row, self.action_item, "hello")
         self.action_list.insertItem(self.row, self.action_item)
         self.action_item.render()
         if self.action_list.get_data("type") == "include":
