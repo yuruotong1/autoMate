@@ -32,13 +32,7 @@ class ActionBase(BaseModel):
         self._is_config_page_init = False
         # 如果拖动过 action，则使用传进来的 output_save_name
         self._output_save_name_from_drag = output_save_name_from_drag
-        self._data = {}
 
-    def set_data(self, key, value):
-        self._data[key] = value
-    
-    def get_data(self, key):
-        return self._data.get(key, None)
 
     def set_output_save_name_from_drag(self, output_save_name_from_drag: str):
         self._output_save_name_from_drag = output_save_name_from_drag

@@ -1,5 +1,6 @@
 import pickle
 from typing import List
+from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QApplication, QStyle, QMenu
@@ -34,45 +35,37 @@ class ActionList(QListWidget):
         self.offset = 19
         self.init()
         self._parent = parent_widget
-        self._data = {}
         self.action_signal = ActionSignal()
         if not action_list_items:
             action_list_items = []
         for action_list_item in action_list_items:
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
-            action_list_item.render()
+            # action_list_item.render()
 
 
     def add_action_list_items(self, action_list_items):
         for action_list_item in action_list_items:
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
-            action_list_item.render()
+            # action_list_item.render()
 
     # 当 item 数量发生变化时，更新组件样式
     def adjust_ui(self):
-        if self.get_data("type") == "include":
-            total_height = 0
-            for item in self.get_action_list_items(self):
-                total_height += self.visualItemRect(item).height()
-            # 内圈大小
-            self.setFixedHeight(20 if total_height + 5 < 20 else total_height + 5)
-            # 面板大小
-            self.parent().setFixedHeight(total_height + 5)
-            self.action_signal.emit()
-
-    def set_data(self, key, value):
-        self._data[key] = value
-    
-    def get_data(self, key):
-        return self._data.get(key, None)
+        if self.level == 0:
+            return
+        total_height = 0
+        for item in self.get_action_list_items(self):
+            total_height += self.visualItemRect(item).height()
+        # 内圈大小
+        self.setFixedHeight(20 if total_height + 5 < 20 else total_height + 5)
+        self.action_signal.size_changed_emit()
 
     @classmethod
-    def load(cls, actions_raw_data: List[dict], edit_page):
+    def load(cls, actions_raw_data: List[dict], parent, level=0):
         action_list_items = [ActionListItem.load(i) for i in actions_raw_data]
-        action_list = ActionList(action_list_items, level=0, parent_widget=edit_page)
+        action_list = ActionList(action_list_items, level=level, parent_widget=parent)
         for action_list_item in action_list_items:
             action_list_item.set_parent(action_list)
-            # action_list_item.render()
+            action_list_item.render()
             action_list_item.action_signal.size_changed.connect(action_list.adjust_ui)
         return action_list
 
@@ -153,7 +146,8 @@ class ActionList(QListWidget):
     def mouseReleaseEvent(self, e):
         # 鼠标release时才选中
         index = self.indexAt(e.pos())
-        self.clear_selection(index)
+        self.clear_selection()
+        self.setCurrentIndex(index)
 
     def mouseMoveEvent(self, e):
         # 如果在历史事件中左键点击过
@@ -165,7 +159,8 @@ class ActionList(QListWidget):
             self.the_drag_row = the_drag_index.row()
             self.the_selected_row = self.currentIndex().row()
             # 拖拽即选中
-            self.clear_selection(the_drag_index)
+            self.clear_selection()
+            self.setCurrentIndex(the_drag_index)
             the_drag_item = self.item(the_drag_index.row())
             assert  isinstance(the_drag_item, ActionListItem)
             # 把拖拽数据放在QMimeData容器中
@@ -280,7 +275,8 @@ class ActionList(QListWidget):
             # todo 使用 action move command
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
         # 选中当前行
-        self.clear_selection(QListWidget().currentIndex())
+        self.clear_selection()
+        self.setCurrentIndex(QListWidget().currentIndex())
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
@@ -290,13 +286,13 @@ class ActionList(QListWidget):
         if iter_way == "son":
             for i in range(action_list.count()):
                 item = action_list.item(i)
-                if item.action.get_data("action_list") is not None:
-                    cls.iter_include_action_list(item.action.get_data("action_list"), action, iter_way)
+                if item.type == "include":
+                    cls.iter_include_action_list(item.data(QtCore.Qt.ItemDataRole.UserRole), action, iter_way)
         
         elif iter_way == "parent":
             # 取消选中父组件
             if isinstance(action_list.get_parent(), ActionBase):
-                parent_action_list = action_list.get_parent().get_action_list()
+                parent_action_list = action_list.get_parent()
                 cls.iter_include_action_list(parent_action_list, action, iter_way)
 
     def run(self):
@@ -310,13 +306,16 @@ class ActionList(QListWidget):
           
 
     # 取消选中
-    def clear_selection(self, index):
-        def clear(action_list):
-            action_list.setCurrentRow(-1)
-            # 刷新
-            action_list.update()
-        # 取消选中
-        self.iter_include_action_list(self, clear, "parent")
-        self.iter_include_action_list(self, clear, "son")
-        # 选中当前行
-        self.setCurrentIndex(index)
+    def clear_selection(self):
+        self.setCurrentRow(-1)
+        self.update()
+        self.action_signal.cancel_selection_emit()
+        # def clear(action_list):
+        #     action_list.setCurrentRow(-1)
+        #     # 刷新
+        #     action_list.update()
+        # # 取消选中
+        # self.iter_include_action_list(self, clear, "parent")
+        # self.iter_include_action_list(self, clear, "son")
+        # # 选中当前行
+        # self.setCurrentIndex(index)

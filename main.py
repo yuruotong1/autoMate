@@ -56,10 +56,11 @@ def load():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     sys.excepthook = excepthook
     app = QApplication(sys.argv)
     load()
     page = ChatPage()
     page.show()
-    print(sys.exit(app.exec()))
+    logging.error(sys.exit(app.exec()))
     

@@ -1,4 +1,5 @@
 
+import uuid
 from PyQt6.QtWidgets import QListWidgetItem
 from PyQt6 import QtCore, QtWidgets
 from actions.action_base import ActionBase
@@ -11,6 +12,7 @@ class ActionListItem(QListWidgetItem):
     def __init__(self, action: ActionBase, widget_parent=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.action = action
+        self.type = self.action.action_type
         self.setText(action.name)
         self._parent = widget_parent
         self.action_signal = ActionSignal()
@@ -18,7 +20,7 @@ class ActionListItem(QListWidgetItem):
 
     # 当父元素是包含类型的组件，减少当前元素的宽度让其能够被包含    
     def render(self):
-        if self.action.action_type == "include":
+        if self.type == "include":
             widget = QtWidgets.QWidget()
             widget.setStyleSheet("background-color: white;")
             label = QtWidgets.QLabel()
@@ -30,18 +32,19 @@ class ActionListItem(QListWidgetItem):
             widget.setFixedHeight(60)
             widget.setFixedWidth(self.get_parent().width() - 10)
             from actions.action_list import ActionList
-            sub_action_list = ActionList(parent_widget=self.action, level=self.get_parent().level + 1)
-            sub_action_list.action_signal.size_changed.connect(self._adjust_ui)
-            sub_action_list.set_data("type", "include")
-            sub_action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
-            layout.addWidget(sub_action_list)
+            action_list = ActionList.load(self.action.args.action_list, self.get_parent(), self.get_parent().level + 1)
+            action_list.action_signal.size_changed.connect(self._adjust_ui)
+            action_list.action_signal.cancel_selection.connect(self.get_parent().clear_selection)
+            action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
+            self.setData(QtCore.Qt.ItemDataRole.UserRole, action_list)
+            layout.addWidget(action_list)
             self.setSizeHint(widget.size())
-            self.action.set_data("action_list", sub_action_list)
             self.get_parent().setItemWidget(self, widget)
+            
 
     # 根据子元素数量调整当前元素尺寸大小
     def _adjust_ui(self):
-        action_list = self.action.get_data("action_list")
+        action_list = self.data(QtCore.Qt.ItemDataRole.UserRole)
         total_height = 0
         for item in action_list.get_action_list_items(action_list):
             total_height += action_list.visualItemRect(item).height()
@@ -49,7 +52,7 @@ class ActionListItem(QListWidgetItem):
         self.setSizeHint(QtCore.QSize(action_list.width(), total_height + 60))
         self.get_widget().setFixedHeight(total_height + 60)
         # 发送元素大小更新的信号给父元素
-        self.action_signal.emit()
+        self.action_signal.size_changed_emit()
     
     def ActionListItem(self, parent):
         self._parent = parent

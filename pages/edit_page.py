@@ -32,9 +32,10 @@ class EditPage(QMainWindow, interface_ui):
         # 保存action的输出结果
         self.output_save_dict = output_save_dict
         self.send_to_ai_selection_text = send_to_ai_selection_text
+        self.all_action_list = []
         if not action_list:
             action_list = ActionList(parent_widget=self)
-        self.action_list = action_list
+        self.set_action_list(action_list)
         self.q_undo_stack = QUndoStack()
         redo_action = self.q_undo_stack.createRedoAction(self, "Redo")
         redo_action.setShortcut(QKeySequence.StandardKey.Redo)
@@ -44,6 +45,7 @@ class EditPage(QMainWindow, interface_ui):
         self.addAction(undo_action)
         self.setupUi(self)
         self.setup_up()
+        
 
     def closeEvent(self, event):
         self.page_closed.emit(self.func_name)
@@ -77,6 +79,13 @@ class EditPage(QMainWindow, interface_ui):
         # 设置居上对齐
         self.run_output_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.send_to_ai_selection.setCurrentText(self.send_to_ai_selection_text)
+
+    def set_action_list(self, action_list):
+        self.action_list = action_list
+        self.all_action_list = [action_list]
+
+    def add_action_list(self, action_list):
+        self.all_action_list.append(action_list)
 
     # 将返回结果发送到 ai
     def update_send_to_ai_selection(self):
@@ -139,7 +148,7 @@ class EditPage(QMainWindow, interface_ui):
                 output_save_dict=edit_page_json["output_save_dict"],
                 send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"]
                 )
-            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], edit_page=edit_page)
+            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], parent=edit_page)
             edit_page.action_list = action_list
             edit_page.update_runing_terminal()
             action_list.setParent(edit_page)
