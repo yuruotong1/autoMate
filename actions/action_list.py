@@ -40,12 +40,13 @@ class ActionList(QListWidget):
             action_list_items = []
         for action_list_item in action_list_items:
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
-        
+            action_list_item.render()
 
 
     def add_action_list_items(self, action_list_items):
         for action_list_item in action_list_items:
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
+            action_list_item.render()
 
     # 当 item 数量发生变化时，更新组件样式
     def adjust_ui(self):
@@ -261,7 +262,6 @@ class ActionList(QListWidget):
             # 当子元素数量发生变化时，调整父元素大小
             action_item.action_signal.size_changed.connect(self.adjust_ui)
             self.drop_down_action.set_parent(action_item)
-            # action_item.render()
             self.drop_down_action.config_page_show()
         # 在 actionList 内部拖动，行为调换顺序
         else:
@@ -277,6 +277,7 @@ class ActionList(QListWidget):
             if (self.the_drag_row != -1 and self.the_insert_row == self.the_drag_row + 1
                     and self.level == drag_action_item.action.action_level):
                 return
+            # todo 使用 action move command
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
         # 选中当前行
         self.clear_selection(QListWidget().currentIndex())
