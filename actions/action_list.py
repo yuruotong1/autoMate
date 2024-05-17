@@ -35,13 +35,15 @@ class ActionList(QListWidget):
         self.offset = 19
         self.init()
         self._parent = parent_widget
+        if isinstance(self._parent, ActionList):
+            self._parent.action_signal.cancel_selection_to_son.connect(lambda : self.clear_selection("son"))
         self.action_signal = ActionSignal()
         if not action_list_items:
             action_list_items = []
         for action_list_item in action_list_items:
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
             # action_list_item.render()
-
+        
 
     def add_action_list_items(self, action_list_items):
         for action_list_item in action_list_items:
@@ -304,12 +306,19 @@ class ActionList(QListWidget):
             return self.get_edit_page().output_save_dict[dict_key]
         return "执行成功！"
           
-
+    # son、father、both
     # 取消选中
-    def clear_selection(self):
+    def clear_selection(self, to="both"):
         self.setCurrentRow(-1)
         self.update()
-        self.action_signal.cancel_selection_emit()
+        if to == "son":
+            self.action_signal.cancel_selection_to_son_emit()
+        elif to == "father":
+            self.action_signal.cancel_selection_to_father_emit()
+        else:
+            self.action_signal.cancel_selection_to_son_emit()
+            self.action_signal.cancel_selection_to_father_emit()
+
         # def clear(action_list):
         #     action_list.setCurrentRow(-1)
         #     # 刷新

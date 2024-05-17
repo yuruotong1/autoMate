@@ -32,11 +32,14 @@ class ActionListItem(QListWidgetItem):
             widget.setFixedHeight(60)
             widget.setFixedWidth(self.get_parent().width() - 10)
             from actions.action_list import ActionList
-            action_list = ActionList.load(self.action.args.action_list, self.get_parent(), self.get_parent().level + 1)
-            action_list.action_signal.size_changed.connect(self._adjust_ui)
-            action_list.action_signal.cancel_selection.connect(self.get_parent().clear_selection)
+            if not isinstance(self.data(QtCore.Qt.ItemDataRole.UserRole), ActionList):
+                action_list = ActionList.load(self.action.args.action_list, self.get_parent(), self.get_parent().level + 1)
+                action_list.action_signal.size_changed.connect(self._adjust_ui)
+                action_list.action_signal.cancel_selection_to_father.connect(lambda : self.get_parent().clear_selection("father"))
+                self.setData(QtCore.Qt.ItemDataRole.UserRole, action_list)
+            else:
+                action_list = self.data(QtCore.Qt.ItemDataRole.UserRole)
             action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
-            self.setData(QtCore.Qt.ItemDataRole.UserRole, action_list)
             layout.addWidget(action_list)
             self.setSizeHint(widget.size())
             self.get_parent().setItemWidget(self, widget)
