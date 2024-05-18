@@ -24,7 +24,7 @@ class ActionBase(BaseModel):
     def __init__(self, output_save_name_from_drag: str = None, **data: Any):
         super().__init__(**data)
         # 为每个实例生成唯一的 UUID
-        self.uuid = uuid if uuid else str(uuid.uuid4())
+        self.uuid = str(uuid.uuid4())
         self._ui_name_and_line_edit = {}
         self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")

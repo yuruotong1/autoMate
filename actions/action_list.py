@@ -62,7 +62,7 @@ class ActionList(QListWidget):
     @classmethod
     def load(cls, actions_raw_data: dict, level=0):
         action_list_items = [ActionListItem.load(i) for i in actions_raw_data["action_list"]]
-        action_list = ActionList(action_list_items, level=level, widget_uuid=actions_raw_data["uuid"], parent_uuid=actions_raw_data["parent_uuid"])
+        action_list = ActionList(action_list_items, level=level, widget_uuid=actions_raw_data.get("uuid"), parent_uuid=actions_raw_data["parent_uuid"])
         for action_list_item in action_list_items:
             action_list_item.set_parent(action_list)
             action_list_item.render()

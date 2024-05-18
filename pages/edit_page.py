@@ -35,7 +35,7 @@ class EditPage(QMainWindow, interface_ui):
         self.output_save_dict = output_save_dict
         self.send_to_ai_selection_text = send_to_ai_selection_text
         if not action_list:
-            action_list = ActionList(widget_uuid=self.uuid)
+            action_list = ActionList(parent_uuid=self.uuid)
         self.action_list = action_list
         self.q_undo_stack = QUndoStack()
         redo_action = self.q_undo_stack.createRedoAction(self, "Redo")

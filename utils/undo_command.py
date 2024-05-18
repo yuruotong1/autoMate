@@ -20,8 +20,8 @@ class ActionListAddCommand(QUndoCommand):
         self.action_list.takeItem(self.row)
         from actions.action_list_item import ActionListItem
         action_list_item = ActionListItem.load(self.action_item.dump())
-        action_list_item.setData(QtCore.Qt.ItemDataRole.UserRole, self.action_item.data(QtCore.Qt.ItemDataRole.UserRole))
-        action_list_item.set_parent(self.action_list.get_parent())
+        # action_list_item.setData(QtCore.Qt.ItemDataRole.UserRole, self.action_item.data(QtCore.Qt.ItemDataRole.UserRole))
+        # action_list_item.set_parent(self.action_list.get_parent())
         self.action_item = action_list_item
         self.action_list.adjust_ui()
 

@@ -33,7 +33,7 @@ class ActionListItem(QListWidgetItem):
             widget.setFixedWidth(self.get_parent().width() - 10)
             from actions.action_list import ActionList
             if not isinstance(self.data(QtCore.Qt.ItemDataRole.UserRole), ActionList):
-                action_list = ActionList.load(self.action.args.action_list, self.get_parent().level + 1)
+                action_list = ActionList.load({"action_list": self.action.args.action_list, "parent_uuid": self.get_parent().uuid}, self.get_parent().level + 1)
                 action_list.action_signal.size_changed.connect(self._adjust_ui)
                 self.setData(QtCore.Qt.ItemDataRole.UserRole, action_list)
                 action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))
@@ -65,7 +65,7 @@ class ActionListItem(QListWidgetItem):
             action_model = ActionUtil.get_action_by_name(data.get("name"))
             assert isinstance(action_model, ActionBase.__class__)
             action = action_model.model_validate(data.get("data"))
-            action_item = ActionListItem(action, parent_uuid=data.get("parent_uuid"), uuid=data.get("uuid"))
+            action_item = ActionListItem(action, parent_uuid=data.get("parent_uuid"), widget_uuid=data.get("uuid"))
             return action_item
         else:
             raise ValueError("data must have a key named 'name'")
