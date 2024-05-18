@@ -5,10 +5,8 @@ import traceback
 
 import leancloud
 from PyQt6.QtWidgets import QApplication
-from actions import open_application_action
-
 from pages.chat_page import ChatPage
-from pages.edit_page import GlobalUtil, EditPage
+from pages.edit_page import EditPage
 from pages.func_list_page import FuncListPage
 from pages.login_page import LoginPage
 from utils.config import Config
@@ -40,14 +38,12 @@ class AutoMate:
             self.page = LoginPage()
             self.page.show()
 
-
 def excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
     print("catch exception:", tb)
 
 # 加载全局数据
 def load():
-    
     # 生成 config.yaml 文件 
     Config()
     EditPage.global_load()
@@ -56,11 +52,13 @@ def load():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    sys.excepthook = excepthook
-    app = QApplication(sys.argv)
-    load()
-    page = ChatPage()
-    page.show()
-    logging.error(sys.exit(app.exec()))
+    try:
+        sys.excepthook = excepthook
+        app = QApplication(sys.argv)
+        load()
+        page = ChatPage()
+        page.show()
+        print(sys.exit(app.exec()))
+    except Exception as e:
+        print(e)
     

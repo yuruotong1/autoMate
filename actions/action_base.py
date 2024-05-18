@@ -19,12 +19,12 @@ class ActionBase(BaseModel):
     action_pos: int = -1
     action_level: int = -1
     uuid: str = ""
+    parent_uuid: str = ""
     
     def __init__(self, output_save_name_from_drag: str = None, **data: Any):
         super().__init__(**data)
         # 为每个实例生成唯一的 UUID
-        if self.uuid == "":
-            self.uuid = str(uuid.uuid4())  
+        self.uuid = uuid if uuid else str(uuid.uuid4())
         self._ui_name_and_line_edit = {}
         self._output_edit = None
         self._config_ui = QtUtil.load_ui("action_config_page.ui")
@@ -37,11 +37,9 @@ class ActionBase(BaseModel):
     def set_output_save_name_from_drag(self, output_save_name_from_drag: str):
         self._output_save_name_from_drag = output_save_name_from_drag
 
-    def set_parent(self, parent):
-        self._parent = parent
     
     def get_parent(self):
-        return self._parent
+        return GlobalUtil.get_widget_by_uuid(self.parent_uuid)
 
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")

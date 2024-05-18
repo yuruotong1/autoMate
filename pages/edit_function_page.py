@@ -21,7 +21,7 @@ class FunctionListView(QListWidget):
             action = func(args={})
              #  向新位置增加元素
             action_item = ActionListItem(action)
-            action.set_parent(action_item)
+            action.parent_uuid = action_item.uuid
             action_item.setText(action.name)
             self.addItem(action_item)
 
@@ -29,7 +29,7 @@ class FunctionListView(QListWidget):
         item = self.itemAt(e.pos())
         if not isinstance(item, ActionListItem):
             return
-        item.set_parent(GlobalUtil.current_page.action_list)
+        # item.parent_uuid = GlobalUtil.current_page.action_list.uuid
         item.action.action_pos = GlobalUtil.current_page.action_list.count()
         # 打开配置页面
         item.action.config_page_show()
@@ -55,7 +55,6 @@ class FunctionListView(QListWidget):
             # 对原数据进行深拷贝
             byte_array = QByteArray((pickle.dumps(the_drag_item.text())))
             from actions.action_list import ActionList
-
             mime_data.setData(ActionList.MY_MIME_TYPE, byte_array)
             drag = QDrag(self)
             # 设置拖拽时的图标

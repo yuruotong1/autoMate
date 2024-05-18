@@ -1,6 +1,6 @@
 from actions.action_list_item import ActionListItem
 from actions.action_list import ActionList
-
+import uuid
 from pages.edit_function_page import FunctionListView
 from utils.global_util import GlobalUtil
 from utils.qt_util import QtUtil
@@ -18,8 +18,10 @@ class EditPage(QMainWindow, interface_ui):
     page_closed = pyqtSignal(str)
 
     
-    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无", send_to_ai_selection_text=""):
+    def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无", send_to_ai_selection_text="", widget_uuid=None):
         super().__init__()
+        GlobalUtil.all_widget.append(self)
+        self.uuid = widget_uuid if widget_uuid else str(uuid.uuid4())
         self.func_list_pos_column = func_list_pos_column
         self.func_list_pos_row = func_list_pos_row
         # 属于通用还是专属
@@ -32,10 +34,9 @@ class EditPage(QMainWindow, interface_ui):
         # 保存action的输出结果
         self.output_save_dict = output_save_dict
         self.send_to_ai_selection_text = send_to_ai_selection_text
-        self.all_action_list = []
         if not action_list:
-            action_list = ActionList(parent_widget=self)
-        self.set_action_list(action_list)
+            action_list = ActionList(widget_uuid=self.uuid)
+        self.action_list = action_list
         self.q_undo_stack = QUndoStack()
         redo_action = self.q_undo_stack.createRedoAction(self, "Redo")
         redo_action.setShortcut(QKeySequence.StandardKey.Redo)
@@ -45,6 +46,7 @@ class EditPage(QMainWindow, interface_ui):
         self.addAction(undo_action)
         self.setupUi(self)
         self.setup_up()
+        
         
 
     def closeEvent(self, event):
@@ -59,7 +61,8 @@ class EditPage(QMainWindow, interface_ui):
                 # 只保存结果名，不保存输出的结果值
                 "output_save_dict": {i: {i1: None for i1,_ in j.items()} for i,j  in self.output_save_dict.items()},
                 "action_list": self.action_list.dump(),
-                "send_to_ai_selection_text": self.send_to_ai_selection_text
+                "send_to_ai_selection_text": self.send_to_ai_selection_text,
+                "uuid": self.uuid
                 }
 
 
@@ -79,13 +82,6 @@ class EditPage(QMainWindow, interface_ui):
         # 设置居上对齐
         self.run_output_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.send_to_ai_selection.setCurrentText(self.send_to_ai_selection_text)
-
-    def set_action_list(self, action_list):
-        self.action_list = action_list
-        self.all_action_list = [action_list]
-
-    def add_action_list(self, action_list):
-        self.all_action_list.append(action_list)
 
     # 将返回结果发送到 ai
     def update_send_to_ai_selection(self):
@@ -146,17 +142,16 @@ class EditPage(QMainWindow, interface_ui):
                 action_list=None,
                 # 保存结果输出变量名，运行结果只有在运行时才会被保存
                 output_save_dict=edit_page_json["output_save_dict"],
-                send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"]
-                )
-            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], parent=edit_page)
+                send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"],
+                widget_uuid=edit_page_json["uuid"])
+            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], parent_uuid=edit_page_json["uuid"])  
             edit_page.action_list = action_list
             edit_page.update_runing_terminal()
-            action_list.setParent(edit_page)
-            action_list_items = [ActionListItem.load(i) for i in edit_page_json["action_list"]]
-            action_list.add_action_list_items(action_list_items)
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]
             GlobalUtil.edit_page_global.append(edit_page)
+            
+
 
 
     @staticmethod
