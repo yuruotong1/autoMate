@@ -276,21 +276,6 @@ class ActionList(QListWidget):
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
-    @classmethod
-    def iter_include_action_list(cls, action_list, action, iter_way="parent"):
-        action(action_list)
-        if iter_way == "son":
-            for i in range(action_list.count()):
-                item = action_list.item(i)
-                if item.type == "include":
-                    cls.iter_include_action_list(item.data(QtCore.Qt.ItemDataRole.UserRole), action, iter_way)
-        
-        elif iter_way == "parent":
-            # 取消选中父组件
-            if isinstance(action_list.get_parent(), ActionBase):
-                parent_action_list = action_list.get_parent()
-                cls.iter_include_action_list(parent_action_list, action, iter_way)
-
     def run(self):
         for index in range(self.count()):
             func = self.item(index)
@@ -300,7 +285,6 @@ class ActionList(QListWidget):
             return self.get_edit_page().output_save_dict[dict_key]
         return "执行成功！"
           
-    # son、father、both
     # 取消选中
     def clear_selection(self):
         for widget in GlobalUtil.all_widget:
