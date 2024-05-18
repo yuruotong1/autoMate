@@ -7,7 +7,7 @@ from utils.qt_util import QtUtil
 from PyQt6.QtWidgets import QMainWindow, QLabel
 from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QUndoStack, QKeySequence
-
+import json
 
 
 interface_ui = QtUtil.load_ui_type("edit_page.ui")
@@ -98,11 +98,15 @@ class EditPage(QMainWindow, interface_ui):
         return res
 
     def update_runing_terminal(self):
+        for i in reversed(range(self.run_output_layout.count())):
+            widgetToRemove = self.run_output_layout.itemAt(i).widget()
+            widgetToRemove.setParent(None)
+            widgetToRemove.deleteLater()
         i = 0
         for k, v in self.get_output_dict().items():
             self.run_output_layout.addWidget(QLabel(k), i, 0)
             self.run_output_layout.addWidget(QLabel(" : "), i, 1) 
-            self.run_output_layout.addWidget(QLabel(v), i, 2) 
+            self.run_output_layout.addWidget(QLabel(json.dumps(v)), i, 2) 
             i += 1       
 
     def __save_button_click(self):
@@ -146,7 +150,6 @@ class EditPage(QMainWindow, interface_ui):
                 widget_uuid=edit_page_json["uuid"])
             action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], parent_uuid=edit_page_json["uuid"])  
             edit_page.action_list = action_list
-            edit_page.update_runing_terminal()
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]
             GlobalUtil.edit_page_global.append(edit_page)

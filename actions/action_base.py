@@ -46,11 +46,10 @@ class ActionBase(BaseModel):
 
     def run_with_out_arg(self):
         res = self.run(**self.args.model_dump())
-        print(res)
         # 保存输出结果
         if self.output_save_name:
             self.get_edit_page().output_save_dict[self.uuid][self.output_save_name] = res
-            self.get_edit_page().update_send_to_ai_selection()
+            self.get_edit_page().update_runing_terminal()
         return res
 
     # 设置配置界面的布局
