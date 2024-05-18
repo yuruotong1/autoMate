@@ -258,7 +258,6 @@ class ActionList(QListWidget):
         # 在 actionList 内部拖动，行为调换顺序
         else:
             drag_action_item = ActionListItem.load(source_data)
-            drag_action_item.set_parent(self)
             drag_action_item.action_signal.size_changed.connect(self.adjust_ui)
             drag_action_item.action.set_output_save_name_from_drag(drag_action_item.action.output_save_name)
             drag_action_item.action.action_pos = self.the_insert_row
@@ -303,6 +302,9 @@ class ActionList(QListWidget):
           
     # son、father、both
     # 取消选中
-    def clear_selection(self, to="both"):
-        self.setCurrentRow(-1)
-        self.update()
+    def clear_selection(self):
+        for widget in GlobalUtil.all_widget:
+            if isinstance(widget, ActionList):
+                widget.setCurrentRow(-1)
+                widget.update()
+
