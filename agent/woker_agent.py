@@ -23,9 +23,9 @@ class WorkerAgent:
     def get_iter(question):
         llm = LLM_Util().llm()
         tools = ToolsUtil.get_tools()
-        example = """例子如下：案例1：```Thought: 我需要使用工具吗? 需要\nAction: 桌面路径\nAction Input: ""\nObservation: c:/path/develop```\n
-案例2：```Thought: 我需要使用工具吗? 需要\nAction: 打开应用\nAction Input: ""\nObservation: 打开成功```\n
-案例3：```Thought: 我需要使用工具吗? 不需要\nFinal Answer: 您的桌面上有以下文件```\n
+        example = """Thought: 我需要使用工具吗? 需要\nAction: 桌面路径\nAction Input: ""\nObservation: c:/path/develop\n\n
+Thought: 我需要使用工具吗? 需要\nAction: 打开应用\nAction Input: ""\nObservation: 打开成功\n\n
+Thought: 我需要使用工具吗? 不需要\nFinal Answer: 您的桌面上有以下文件\n
 """
         prompt = PromptTemplate(
             template="### TOOLS ###\n{tools}#######\n"
@@ -33,8 +33,7 @@ class WorkerAgent:
                      "Action:{tool_names}\n"
                      "Action Input:Action的输入，如果没有参数请设置为""\n"
                      "Observation:运行[ACTION]得到的结果\n\n"
-                     "当输出内容时，或者不需要使用工具，必须使用以下格式: \Thought: 我需要使用工具吗? 不需要######\n"
-                     "### FINAL ANSWER ###\n[你的回复]######\n"
+                     "当输出内容或者不需要使用工具，必须使用以下格式: Thought: 我需要使用工具吗? 不需要\nFinal Answer: [你的回复]######\n"
                      "### EXAMPLE ###\n{example}######\n"
                      "### PREVIOUS CONVERSATION HISTORY ###\n{chat_history}######\n"
                      "### NEW INPUT ###\n{input}######\n{agent_scratchpad}",
