@@ -1,3 +1,4 @@
+import traceback
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QPixmap
@@ -32,7 +33,7 @@ class WorkerThread(QThread):
                 content = content.replace("```", "")
                 self.finished_signal.emit(content)
         except Exception as e:
-            print(e)
+            traceback.print_exc(e)
 
 
 class ChatInput(QTextEdit):

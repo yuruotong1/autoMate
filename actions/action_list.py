@@ -64,7 +64,6 @@ class ActionList(QListWidget):
         action_list_items = [ActionListItem.load(i) for i in actions_raw_data["action_list"]]
         action_list = ActionList(action_list_items, level=level, widget_uuid=actions_raw_data.get("uuid"), parent_uuid=actions_raw_data["parent_uuid"])
         for action_list_item in action_list_items:
-            action_list_item.set_parent(action_list)
             action_list_item.render()
             action_list_item.action_signal.size_changed.connect(action_list.adjust_ui)
         return action_list
@@ -276,7 +275,8 @@ class ActionList(QListWidget):
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
-    def run(self):
+    def run(self, llm_input=""):
+        print("llm_input:", llm_input)
         for index in range(self.count()):
             func = self.item(index)
             func.action.run_with_out_arg()        # 将返回结果发送到 ai

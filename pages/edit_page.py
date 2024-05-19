@@ -52,18 +52,6 @@ class EditPage(QMainWindow, interface_ui):
     def closeEvent(self, event):
         self.page_closed.emit(self.func_name)
 
-    def dump(self):
-        return {"func_list_pos_column": self.func_list_pos_column,
-                "func_list_pos_row": self.func_list_pos_row,
-                "func_name": self.func_name,
-                "func_status": self.func_status,
-                "func_description": self.func_description,
-                # 只保存结果名，不保存输出的结果值
-                "output_save_dict": {i: {i1: None for i1,_ in j.items()} for i,j  in self.output_save_dict.items()},
-                "action_list": self.action_list.dump(),
-                "send_to_ai_selection_text": self.send_to_ai_selection_text,
-                "uuid": self.uuid
-                }
 
 
     def setup_up(self):
@@ -148,13 +136,24 @@ class EditPage(QMainWindow, interface_ui):
                 output_save_dict=edit_page_json["output_save_dict"],
                 send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"],
                 widget_uuid=edit_page_json["uuid"])
-            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"], parent_uuid=edit_page_json["uuid"])  
+            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"])  
             edit_page.action_list = action_list
             edit_page.func_name = edit_page_json["func_name"]
             edit_page.func_description = edit_page_json["func_description"]
             GlobalUtil.edit_page_global.append(edit_page)
             
-
+    def dump(self):
+        return {"func_list_pos_column": self.func_list_pos_column,
+                "func_list_pos_row": self.func_list_pos_row,
+                "func_name": self.func_name,
+                "func_status": self.func_status,
+                "func_description": self.func_description,
+                # 只保存结果名，不保存输出的结果值
+                "output_save_dict": {i: {i1: None for i1,_ in j.items()} for i,j  in self.output_save_dict.items()},
+                "action_list": self.action_list.dump(),
+                "send_to_ai_selection_text": self.send_to_ai_selection_text,
+                "uuid": self.uuid
+                }
 
 
     @staticmethod

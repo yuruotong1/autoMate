@@ -60,5 +60,5 @@ if __name__ == "__main__":
         page.show()
         print(sys.exit(app.exec()))
     except Exception as e:
-        print(e)
+        traceback.print_exc(e)
     
