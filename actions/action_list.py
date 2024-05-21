@@ -18,8 +18,6 @@ class ActionList(QListWidget):
     def __init__(self, action_list_items: List[ActionListItem] = None, level=0, parent_uuid="", widget_uuid="", *args, **kwargs):
         super().__init__(*args, **kwargs)
         GlobalUtil.all_widget.append(self)
-        # 设置列表项之间的间距为 3 像素
-        self.ITEM_MARGIN_LEFT = 3
         # 拖动结束时，生成新的 action
         self.drop_down_action = None
         self.setAcceptDrops(True)
@@ -90,10 +88,10 @@ class ActionList(QListWidget):
         self.setSpacing(1)
         self.setStyleSheet(
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: " + str(
-                self.ITEM_MARGIN_LEFT) + "px;}"
+            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;})"
-                                         "QListView::Item:selected{color:rgb(0, 0, 0);}")
+            "QListView::Item:selected{color:rgb(0, 0, 0);}"
+            )
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -141,7 +139,7 @@ class ActionList(QListWidget):
 
     def mouseReleaseEvent(self, e):
         # 鼠标release时才选中
-        index = self.indexAt(e.pos())
+        index = self.indexAt(e.pos())   
         self.clear_selection()
         self.setCurrentIndex(index)
 
@@ -269,14 +267,13 @@ class ActionList(QListWidget):
                 return
             # todo 使用 action move command
             self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
-        # 选中当前行
+        # 取消选中
         self.clear_selection()
-        self.setCurrentIndex(QListWidget().currentIndex())
+        # self.setCurrentRow(self.the_insert_row)
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
     def run(self, llm_input=""):
-        print("llm_input:", llm_input)
         for index in range(self.count()):
             func = self.item(index)
             func.action.run_with_out_arg()        # 将返回结果发送到 ai
@@ -291,4 +288,3 @@ class ActionList(QListWidget):
             if isinstance(widget, ActionList):
                 widget.setCurrentRow(-1)
                 widget.update()
-

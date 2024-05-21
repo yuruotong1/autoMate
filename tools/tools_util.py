@@ -1,7 +1,3 @@
-from tools.FindDesktopPath import FindDesktopPath
-from tools.ListAllFile import ListAllFile
-from tools.ListDesktopFiles import ListDesktopFiles
-from tools.OpenApplication import OpenApplicationAction
 from langchain.tools import StructuredTool
 from utils.global_util import GlobalUtil
 
@@ -20,5 +16,4 @@ class ToolsUtil:
             description=edit_page.func_description,
                 return_direct=True)
             action_tools.append(langchain_tools)
-        print(action_tools)
-        return [OpenApplicationAction(), FindDesktopPath(), ListAllFile(), ListDesktopFiles()] + action_tools
+        return action_tools

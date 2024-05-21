@@ -28,12 +28,12 @@ class StyledItemDelegate(QStyledItemDelegate):
         painter.setPen(Qt.PenStyle.NoPen)
         # 选中时的样式
         if option.state & QStyle.StateFlag.State_Selected:
+            print(rect.topLeft().x(), rect.topLeft().y(), rect.width(), rect.height())
             # 选中时，最左边会出现小块块
             painter.setBrush(QColor(0, 0, 255))
-            painter.drawRect(rect.topLeft().x() - 3, rect.topLeft().y(), 8, rect.height())
+            painter.drawRect(0, rect.topLeft().y(), 6, rect.height())
         # 开始拖拽
         if is_drag:
-
             if index.row() == drag_widget.the_highlighted_row:
                 painter.setBrush(QColor(66, 133, 244))
                 # 绘制矩形
