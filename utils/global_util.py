@@ -5,13 +5,18 @@ from utils.qt_util import QtUtil
 
 class GlobalUtil:
     current_page = None
-    all_widget = []
+    all_widget = {"edit_page": [], "action_list": [], "action_list_item": []}
     path = os.path.join(QtUtil.get_root_path(), "cache")
 
-
     @classmethod
-    def get_widget_by_uuid(cls, uuid: str):
-        for widget in cls.all_widget:
+    def init(cls):
+        cls.all_widget = {"edit_page": [], "action_list": [], "action_list_item": []}
+        cls.current_page = None
+
+    # type 分为 edit_page, action_list, action_list_item
+    @classmethod
+    def get_widget_by_uuid(cls, uuid: str, type: str):
+        for widget in cls.all_widget[type]:
             if widget.uuid == uuid:
                 return widget
         return None

@@ -17,7 +17,7 @@ class ActionList(QListWidget):
 
     def __init__(self, action_list_items: List[ActionListItem] = None, level=0, parent_uuid="", widget_uuid="", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        GlobalUtil.all_widget.append(self)
+        GlobalUtil.all_widget["action_list"].append(self)
         # 拖动结束时，生成新的 action
         self.drop_down_action = None
         self.setAcceptDrops(True)
@@ -74,14 +74,10 @@ class ActionList(QListWidget):
         return res
 
     def get_parent(self):
-        return GlobalUtil.get_widget_by_uuid(self.parent_uuid)
+        if self.level == 0:
+            return GlobalUtil.current_page
+        return GlobalUtil.get_widget_by_uuid(self.parent_uuid, "action_list")
     
-    def get_edit_page(self):
-        from pages.edit_page import EditPage
-        parent = self.get_parent()
-        while not isinstance(parent, EditPage):
-            parent = parent.get_parent()
-        return parent
 
     def init(self):
         # 设置列表项之间的间距为 1 像素
@@ -266,7 +262,7 @@ class ActionList(QListWidget):
                     and self.level == drag_action_item.action.action_level):
                 return
             # todo 使用 action move command
-            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
+            GlobalUtil.current_page.q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
         # 取消选中
         self.clear_selection()
         # self.setCurrentRow(self.the_insert_row)
@@ -277,9 +273,9 @@ class ActionList(QListWidget):
         for index in range(self.count()):
             func = self.item(index)
             func.action.run_with_out_arg()        # 将返回结果发送到 ai
-        dict_key = self.get_edit_page().send_to_ai_selection.currentText()
-        if dict_key in self.get_edit_page().output_save_dict:
-            return self.get_edit_page().output_save_dict[dict_key]
+        dict_key = GlobalUtil.current_page.send_to_ai_selection.currentText()
+        if dict_key in GlobalUtil.current_page.output_save_dict:
+            return GlobalUtil.current_page.output_save_dict[dict_key]
         return "执行成功！"
           
     # 取消选中

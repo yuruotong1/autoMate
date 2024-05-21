@@ -27,7 +27,6 @@ class StyledItemDelegate(QStyledItemDelegate):
         painter.setPen(Qt.PenStyle.NoPen)
         # 选中时的样式
         if option.state & QStyle.StateFlag.State_Selected:
-            print(rect.topLeft().x(), rect.topLeft().y(), rect.width(), rect.height())
             # 选中时，最左边会出现小块块
             painter.setBrush(QColor(0, 0, 255))
             painter.drawRect(0, rect.topLeft().y(), 6, rect.height())

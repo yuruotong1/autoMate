@@ -39,7 +39,7 @@ class ActionBase(BaseModel):
 
     
     def get_parent(self):
-        return GlobalUtil.get_widget_by_uuid(self.parent_uuid)
+        return GlobalUtil.get_widget_by_uuid(self.parent_uuid, "action_list_item")
 
     def run(self, *args, **kwargs):
         raise TypeError("Not realize run function")
@@ -48,8 +48,8 @@ class ActionBase(BaseModel):
         res = self.run(**self.args.model_dump())
         # 保存输出结果
         if self.output_save_name:
-            self.get_edit_page().output_save_dict[self.uuid][self.output_save_name] = res
-            self.get_edit_page().update_runing_terminal()
+            GlobalUtil.current_page.output_save_dict[self.uuid][self.output_save_name] = res
+            GlobalUtil.current_page.update_runing_terminal()
         return res
 
     # 设置配置界面的布局
@@ -89,7 +89,7 @@ class ActionBase(BaseModel):
                 # 为输出结果自动取名
                 i = 1
                  # 获取 editPage 页面的 output_save_dict
-                output_save_dict = self.get_edit_page().get_output_dict()
+                output_save_dict = GlobalUtil.current_page.get_output_dict()
                 # 找到一个不存在的名称
                 while True:
                     if output_save_name in output_save_dict.keys():
@@ -109,16 +109,6 @@ class ActionBase(BaseModel):
     def __cancel_button_clicked(self):
         self._config_ui.hide()
 
-    def get_edit_page(self):
-        parent = self.get_parent()
-        # loop 中运行 action list 时，构建的 action 没有 parent
-        if parent is None:
-            return GlobalUtil.current_page
-        from pages.edit_page import EditPage
-        while not isinstance(parent, EditPage):
-            parent = parent.get_parent()
-        return parent
-
     def get_action_list(self):
         return self.get_parent().get_parent()
     
@@ -134,9 +124,9 @@ class ActionBase(BaseModel):
         # 如果设置了output_save_name，向全局中插入该变量
         if self.output_save_name != "":
             self.output_save_name = self._output_edit.text()
-            self.get_edit_page().output_save_dict[self.uuid] = {}
-            self.get_edit_page().output_save_dict[self.uuid][self.output_save_name] = ""
-            self.get_edit_page().update_send_to_ai_selection()
+            GlobalUtil.current_page.output_save_dict[self.uuid] = {}
+            GlobalUtil.current_page.output_save_dict[self.uuid][self.output_save_name] = ""
+            GlobalUtil.current_page.update_send_to_ai_selection()
             
         # 判断 item 是否在 action_list 中
         def item_in_action_list():
@@ -148,7 +138,7 @@ class ActionBase(BaseModel):
         
         # 插入新的 action
         if not item_in_action_list():
-            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self.get_action_list(), self.action_pos, self.get_action_list_item()))
+            GlobalUtil.current_page.q_undo_stack.push(ActionListAddCommand(self.get_action_list(), self.action_pos, self.get_action_list_item()))
         self._config_ui.hide()
             
 

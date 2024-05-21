@@ -20,7 +20,7 @@ class EditPage(QMainWindow, interface_ui):
     
     def __init__(self, func_status, func_list_pos_row, func_list_pos_column, output_save_dict=None, action_list: ActionList = None, func_name="默认名称", func_description="无", send_to_ai_selection_text="", widget_uuid=None):
         super().__init__()
-        GlobalUtil.all_widget.append(self)
+        GlobalUtil.all_widget["edit_page"].append(self)
         self.uuid = widget_uuid if widget_uuid else str(uuid.uuid4())
         self.func_list_pos_column = func_list_pos_column
         self.func_list_pos_row = func_list_pos_row
@@ -50,7 +50,7 @@ class EditPage(QMainWindow, interface_ui):
 
     def closeEvent(self, event):
         # 清空当前页面数据
-        GlobalUtil.current_page = None
+        GlobalUtil.init()
         self.page_closed.emit(self.func_name)
 
     def setup_up(self):

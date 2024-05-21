@@ -10,7 +10,7 @@ from utils.global_util import GlobalUtil
 class ActionListItem(QListWidgetItem):
     def __init__(self, action: ActionBase, parent_uuid="", widget_uuid="", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        GlobalUtil.all_widget.append(self)
+        GlobalUtil.all_widget["action_list_item"].append(self)
         self.action = action
         self.type = self.action.action_type
         self.setText(action.name)
@@ -57,7 +57,7 @@ class ActionListItem(QListWidgetItem):
     
 
     def get_parent(self):
-        return GlobalUtil.get_widget_by_uuid(self.parent_uuid)
+        return GlobalUtil.get_widget_by_uuid(self.parent_uuid, "action_list")
 
     @staticmethod
     def load(data: dict):

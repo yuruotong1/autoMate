@@ -2,7 +2,7 @@ import time
 
 from pydantic import BaseModel, Field
 from actions.action_base import ActionBase
-
+from utils.global_util import GlobalUtil
 
 class LoopInput(BaseModel):
     # loop_number: int = Field(description="循环次数", title="循环次数", default=0)
@@ -21,11 +21,11 @@ class LoopAction(ActionBase):
 
     def run(self, stop_condition, loop_interval_time, action_list):
         while True:
-            if eval(stop_condition, {}, self.get_edit_page().get_output_dict()):
+            if eval(stop_condition, {}, GlobalUtil.current_page.get_output_dict()):
                 break
             for action_dict in action_list:
                 from actions.action_util import ActionUtil
                 action = ActionUtil.get_action_by_name(action_dict["name"]).model_validate(action_dict)
                 action.run_with_out_arg()
-            print(self.get_edit_page().get_output_dict())
+            print(GlobalUtil.current_page.get_output_dict())
             time.sleep(loop_interval_time)
