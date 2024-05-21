@@ -1,3 +1,4 @@
+import traceback
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QPixmap
@@ -20,16 +21,19 @@ class WorkerThread(QThread):
         self.chat_page = chat_page
 
     def run(self):
-        agent_iter = WorkerAgent().get_iter(self.text)
-        for step in agent_iter:
-            content = ""
-            if output := step.get("intermediate_step"):
-                action, value = output[0]
-                content = f"{action.tool} \n{value}"
-            elif step.get("output"):
-                content = step["output"]
-            content = content.replace("```", "")
-            self.finished_signal.emit(content)
+        try:
+            agent_iter = WorkerAgent().get_iter(self.text)
+            for step in agent_iter:
+                content = ""
+                if output := step.get("intermediate_step"):
+                    action, value = output[0]
+                    content = f"{action.tool} \n{value}"
+                elif step.get("output"):
+                    content = step["output"]
+                content = content.replace("```", "")
+                self.finished_signal.emit(content)
+        except Exception as e:
+            traceback.print_exc(e)
 
 
 class ChatInput(QTextEdit):

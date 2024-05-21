@@ -1,5 +1,6 @@
 import pickle
 from typing import List
+import uuid
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal
 from PyQt6.QtGui import QDrag
@@ -8,13 +9,15 @@ from actions.action_base import ActionBase
 from actions.action_list_item import ActionListItem
 from actions.action_signal import ActionSignal
 from pages.styled_item_delegate import StyledItemDelegate
+from utils.global_util import GlobalUtil
 from utils.undo_command import ActionListAddCommand
 
 class ActionList(QListWidget):
     MY_MIME_TYPE = "ActionListView/data_drag"
 
-    def __init__(self, action_list_items: List[ActionListItem] = None, parent_widget=None, level=0, *args, **kwargs):
+    def __init__(self, action_list_items: List[ActionListItem] = None, level=0, parent_uuid="", widget_uuid="", *args, **kwargs):
         super().__init__(*args, **kwargs)
+        GlobalUtil.all_widget.append(self)
         # 设置列表项之间的间距为 3 像素
         self.ITEM_MARGIN_LEFT = 3
         # 拖动结束时，生成新的 action
@@ -34,19 +37,16 @@ class ActionList(QListWidget):
         # 不到一半行高：offset() = 19 = 40 / 2 - 1，其中40是行高
         self.offset = 19
         self.init()
-        self._parent = parent_widget
+        self.parent_uuid = parent_uuid
+        self.uuid = widget_uuid if widget_uuid else str(uuid.uuid4())
         self.action_signal = ActionSignal()
         if not action_list_items:
             action_list_items = []
         for action_list_item in action_list_items:
-            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
-            # action_list_item.render()
-
-
-    def add_action_list_items(self, action_list_items):
-        for action_list_item in action_list_items:
-            self.get_edit_page().q_undo_stack.push(ActionListAddCommand(self, action_list_item.action.action_pos, action_list_item))
-            # action_list_item.render()
+            self.insertItem(action_list_item.action.action_pos, action_list_item)
+            action_list_item.render()
+        self.adjust_ui()
+        
 
     # 当 item 数量发生变化时，更新组件样式
     def adjust_ui(self):
@@ -60,27 +60,23 @@ class ActionList(QListWidget):
         self.action_signal.size_changed_emit()
 
     @classmethod
-    def load(cls, actions_raw_data: List[dict], parent, level=0):
-        action_list_items = [ActionListItem.load(i) for i in actions_raw_data]
-        action_list = ActionList(action_list_items, level=level, parent_widget=parent)
+    def load(cls, actions_raw_data: dict, level=0):
+        action_list_items = [ActionListItem.load(i) for i in actions_raw_data["action_list"]]
+        action_list = ActionList(action_list_items, level=level, widget_uuid=actions_raw_data.get("uuid"), parent_uuid=actions_raw_data["parent_uuid"])
         for action_list_item in action_list_items:
-            action_list_item.set_parent(action_list)
             action_list_item.render()
             action_list_item.action_signal.size_changed.connect(action_list.adjust_ui)
         return action_list
 
     def dump(self):
-        res = []
+        res = {"uuid": self.uuid, "action_list": [], "parent_uuid": self.parent_uuid}
         # 获取所有 items
         for i in self.get_action_list_items(self):
-            res.append(i.dump())
+            res["action_list"].append(i.dump())
         return res
 
-    def setParent(self, parent):
-        self._parent = parent
-
     def get_parent(self):
-        return self._parent
+        return GlobalUtil.get_widget_by_uuid(self.parent_uuid)
     
     def get_edit_page(self):
         from pages.edit_page import EditPage
@@ -253,15 +249,14 @@ class ActionList(QListWidget):
             self.drop_down_action = action(args={})
             self.drop_down_action.action_pos = self.the_insert_row
             # 向新位置增加元素
-            action_item = ActionListItem(self.drop_down_action, widget_parent=self)
+            action_item = ActionListItem(self.drop_down_action, parent_uuid=self.uuid)
             # 当子元素数量发生变化时，调整父元素大小
             action_item.action_signal.size_changed.connect(self.adjust_ui)
-            self.drop_down_action.set_parent(action_item)
+            self.drop_down_action.parent_uuid = action_item.uuid
             self.drop_down_action.config_page_show()
         # 在 actionList 内部拖动，行为调换顺序
         else:
             drag_action_item = ActionListItem.load(source_data)
-            drag_action_item.set_parent(self)
             drag_action_item.action_signal.size_changed.connect(self.adjust_ui)
             drag_action_item.action.set_output_save_name_from_drag(drag_action_item.action.output_save_name)
             drag_action_item.action.action_pos = self.the_insert_row
@@ -280,22 +275,8 @@ class ActionList(QListWidget):
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
-    @classmethod
-    def iter_include_action_list(cls, action_list, action, iter_way="parent"):
-        action(action_list)
-        if iter_way == "son":
-            for i in range(action_list.count()):
-                item = action_list.item(i)
-                if item.type == "include":
-                    cls.iter_include_action_list(item.data(QtCore.Qt.ItemDataRole.UserRole), action, iter_way)
-        
-        elif iter_way == "parent":
-            # 取消选中父组件
-            if isinstance(action_list.get_parent(), ActionBase):
-                parent_action_list = action_list.get_parent()
-                cls.iter_include_action_list(parent_action_list, action, iter_way)
-
-    def run(self):
+    def run(self, llm_input=""):
+        print("llm_input:", llm_input)
         for index in range(self.count()):
             func = self.item(index)
             func.action.run_with_out_arg()        # 将返回结果发送到 ai
@@ -304,18 +285,10 @@ class ActionList(QListWidget):
             return self.get_edit_page().output_save_dict[dict_key]
         return "执行成功！"
           
-
     # 取消选中
     def clear_selection(self):
-        self.setCurrentRow(-1)
-        self.update()
-        self.action_signal.cancel_selection_emit()
-        # def clear(action_list):
-        #     action_list.setCurrentRow(-1)
-        #     # 刷新
-        #     action_list.update()
-        # # 取消选中
-        # self.iter_include_action_list(self, clear, "parent")
-        # self.iter_include_action_list(self, clear, "son")
-        # # 选中当前行
-        # self.setCurrentIndex(index)
+        for widget in GlobalUtil.all_widget:
+            if isinstance(widget, ActionList):
+                widget.setCurrentRow(-1)
+                widget.update()
+
