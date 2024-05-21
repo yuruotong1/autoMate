@@ -46,6 +46,7 @@ def excepthook(exc_type, exc_value, exc_tb):
 def load():
     # 生成 config.yaml 文件 
     Config()
+    # todo 变为懒加载，只有点击时才加载
     EditPage.global_load()
 
 
