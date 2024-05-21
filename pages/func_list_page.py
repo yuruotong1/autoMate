@@ -11,16 +11,22 @@ class AddFuncButton(QToolButton):
         self.func_list_pos_row = func_list_pos_row
         self.func_list_pos_column = func_list_pos_column
         self.func_list_page = func_list_page
-        # self.setMouseTracking(True)
         self.refresh()
         self.setFixedSize(QSize(80, 80))
 
     def refresh(self):
-        self.edit_page = EditPage.get_edit_page_by_position(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
-        if self.edit_page:
+        edit_pages_jsons = GlobalUtil.read_from_local()
+        self.edit_page_json = None
+        for edit_page_json in edit_pages_jsons:
+            if self.func_status == edit_page_json["func_status"] and \
+            self.func_list_pos_row == edit_page_json["func_list_pos_row"] and \
+            self.func_list_pos_column == edit_page_json["func_list_pos_column"]:
+                self.edit_page_json = edit_page_json
+                break
+        if self.edit_page_json is not None:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             self.setIcon(QIcon(QtUtil.get_icon("功能.png")))
-            self.setText(self.edit_page.func_name)
+            self.setText(self.edit_page_json["func_name"])
         else:
             self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
             self.setIcon(QIcon(QtUtil.get_icon("添加.png")))
@@ -56,27 +62,27 @@ class AddFuncButton(QToolButton):
             confirm_dialog.setDefaultButton(QMessageBox.StandardButton.No)
             response = confirm_dialog.exec()
             if response == QMessageBox.StandardButton.Yes:
-                EditPage.delete_edite_page(self.edit_page)
+                # 删除本地文件
+                GlobalUtil.delete_local_by_position(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
                 self.refresh()
         
-
+    # 加载页面数据
     def signle_click_function(self):
         self.func_list_page.hide()
-        if not self.edit_page:
-            edit_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
-            GlobalUtil.current_page = edit_page
+        if self.edit_page_json is not None:
+            GlobalUtil.current_page = EditPage.load(self.edit_page_json)
         else:
-            GlobalUtil.current_page = self.edit_page
+            GlobalUtil.current_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
         # 接收信号
         GlobalUtil.current_page.page_closed.connect(lambda: self.func_list_page.show())
         GlobalUtil.current_page.show()
 
     def enterEvent(self, event):
-        if not self.edit_page:
+        if self.edit_page_json is None:
             self.opacity_effect.setOpacity(1)
 
     def leaveEvent(self, event):
-        if not self.edit_page:
+        if self.edit_page_json is None:
             self.opacity_effect.setOpacity(0)
 
 interface_ui = QtUtil.load_ui_type("func_list_page.ui")

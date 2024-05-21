@@ -46,13 +46,11 @@ class EditPage(QMainWindow, interface_ui):
         self.addAction(undo_action)
         self.setupUi(self)
         self.setup_up()
-        
-        
 
     def closeEvent(self, event):
+        # 清空当前页面数据
+        GlobalUtil.current_page = None
         self.page_closed.emit(self.func_name)
-
-
 
     def setup_up(self):
         self.func_name_edit.setText(self.func_name)
@@ -101,7 +99,6 @@ class EditPage(QMainWindow, interface_ui):
         self.func_name = self.func_name_edit.text()
         self.func_description = self.func_description_edit.text()
         self.send_to_ai_selection_text = self.send_to_ai_selection.currentText()
-        GlobalUtil.edit_page_global.append(self)
         GlobalUtil.save_to_local()
         self.close()
 
@@ -120,27 +117,25 @@ class EditPage(QMainWindow, interface_ui):
 
 
     @staticmethod
-    def global_load():
+    def load(edit_page_json):
         # 从本地缓存数据读取数据
-        edit_pages_json = GlobalUtil.read_from_local()
-        for edit_page_json in edit_pages_json:
-            from actions.action_list import ActionList
-            edit_page = EditPage(
-                func_status=edit_page_json["func_status"],
-                func_list_pos_row=edit_page_json["func_list_pos_row"],
-                func_list_pos_column=edit_page_json["func_list_pos_column"],
-                func_name = edit_page_json["func_name"],
-                func_description = edit_page_json["func_description"],
-                action_list=None,
-                # 保存结果输出变量名，运行结果只有在运行时才会被保存
-                output_save_dict=edit_page_json["output_save_dict"],
-                send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"],
-                widget_uuid=edit_page_json["uuid"])
-            action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"])  
-            edit_page.action_list = action_list
-            edit_page.func_name = edit_page_json["func_name"]
-            edit_page.func_description = edit_page_json["func_description"]
-            GlobalUtil.edit_page_global.append(edit_page)
+        from actions.action_list import ActionList
+        edit_page = EditPage(
+            func_status=edit_page_json["func_status"],
+            func_list_pos_row=edit_page_json["func_list_pos_row"],
+            func_list_pos_column=edit_page_json["func_list_pos_column"],
+            func_name = edit_page_json["func_name"],
+            func_description = edit_page_json["func_description"],
+            action_list=None,
+            # 保存结果输出变量名，运行结果只有在运行时才会被保存
+            output_save_dict=edit_page_json["output_save_dict"],
+            send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"],
+            widget_uuid=edit_page_json["uuid"])
+        action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"])  
+        edit_page.action_list = action_list
+        edit_page.func_name = edit_page_json["func_name"]
+        edit_page.func_description = edit_page_json["func_description"]
+        return edit_page
             
     def dump(self):
         return {"func_list_pos_column": self.func_list_pos_column,

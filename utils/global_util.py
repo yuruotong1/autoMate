@@ -4,7 +4,6 @@ from utils.qt_util import QtUtil
 
 
 class GlobalUtil:
-    edit_page_global = []
     current_page = None
     all_widget = []
     path = os.path.join(QtUtil.get_root_path(), "cache")
@@ -16,33 +15,46 @@ class GlobalUtil:
             if widget.uuid == uuid:
                 return widget
         return None
-
-    # @classmethod
-    # def delete_widget_by_uuid(cls, uuid: str):
-    #     for widget in cls.all_widget:
-    #         if widget.uuid == uuid:
-    #             cls.all_widget.remove(widget)
-    #             break
     
+    @classmethod
+    def delete_local_by_position(cls, func_status: str, func_list_pos_row: int, func_list_pos_column: int):
+        edit_pages_jsons = cls.read_from_local()
+        for edit_page_json in edit_pages_jsons:
+            if edit_page_json["func_status"] == func_status and\
+                edit_page_json["func_list_pos_row"] == func_list_pos_row and\
+                edit_page_json["func_list_pos_column"] == func_list_pos_column:
+                edit_pages_jsons.remove(edit_page_json)
+                break
+        with open(cls.path, "wb") as file:
+            pickle.dump({"edit_pages": edit_pages_jsons}, file)
+
     @classmethod
     def delete_widget(cls, widget):
         cls.all_widget.remove(widget)
 
     @classmethod
     def read_from_local(cls):
-       
         # 判断文件是否存在
         if not os.path.exists(cls.path):
             return []
 
         with open(cls.path, "rb") as file:
-            data = pickle.load(file).get("action_list_global")
+            data = pickle.load(file).get("edit_pages")
             if not data:
                 data = []
             return data
 
     @classmethod
     def save_to_local(cls):
+        edit_pages = cls.read_from_local()
+        found = False
+        for edit_page in edit_pages:
+            if edit_page["uuid"] == cls.current_page.uuid:
+                edit_page.update(cls.current_page.dump())
+                found = True
+                break
+        if not found:
+            edit_pages.append(cls.current_page.dump())
         with open(cls.path, "wb") as file:
-            edit_page_dump = [i.dump() for i in cls.edit_page_global]
-            pickle.dump({"action_list_global": edit_page_dump}, file)
+            pickle.dump({"edit_pages": edit_pages}, file)
+
