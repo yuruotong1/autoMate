@@ -46,6 +46,7 @@ class EditPage(QMainWindow, interface_ui):
         self.addAction(undo_action)
         self.setupUi(self)
         self.setup_up()
+        
 
     def closeEvent(self, event):
         # 清空当前页面数据
@@ -126,13 +127,11 @@ class EditPage(QMainWindow, interface_ui):
             func_list_pos_column=edit_page_json["func_list_pos_column"],
             func_name = edit_page_json["func_name"],
             func_description = edit_page_json["func_description"],
-            action_list=None,
+            action_list=ActionList.load(actions_raw_data=edit_page_json["action_list"]) ,
             # 保存结果输出变量名，运行结果只有在运行时才会被保存
             output_save_dict=edit_page_json["output_save_dict"],
             send_to_ai_selection_text=edit_page_json["send_to_ai_selection_text"],
             widget_uuid=edit_page_json["uuid"])
-        action_list = ActionList.load(actions_raw_data=edit_page_json["action_list"])  
-        edit_page.action_list = action_list
         edit_page.func_name = edit_page_json["func_name"]
         edit_page.func_description = edit_page_json["func_description"]
         return edit_page

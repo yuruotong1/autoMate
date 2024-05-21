@@ -42,15 +42,6 @@ def excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
     print("catch exception:", tb)
 
-# # 加载全局数据
-# def load():
-#     # 生成 config.yaml 文件 
-#     Config()
-#     # todo 变为懒加载，只有点击时才加载
-#     EditPage.global_load()
-
-
-
 
 if __name__ == "__main__":
     try:
@@ -59,7 +50,7 @@ if __name__ == "__main__":
         Config()
         page = ChatPage()
         page.show()
-        print(sys.exit(app.exec()))
+        sys.exit(app.exec())
     except Exception as e:
         traceback.print_exc(e)
     
