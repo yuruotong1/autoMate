@@ -1,14 +1,14 @@
 import pickle
 from typing import List
 import uuid
-from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal
+from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal, QEvent, QObject
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QApplication, QStyle, QMenu
 from actions.action_list_item import ActionListItem
 from actions.action_signal import ActionSignal
 from pages.styled_item_delegate import StyledItemDelegate
 from utils.global_util import GlobalUtil
-from utils.undo_command import ActionListAddCommand
+from utils.undo_command import ActionListAddCommand, ActionListDeleteCommand
 
 class ActionList(QListWidget):
     MY_MIME_TYPE = "ActionListView/data_drag"
@@ -84,11 +84,10 @@ class ActionList(QListWidget):
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
             "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;})"
-            "QListView::Item:selected{color:rgb(0, 0, 0);}"
-            )
+            "QListView::Item:selected{ :rgb(0, 0, 0);}")
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
     
     # 双击打开配置页面
     def mouseDoubleClickEvent(self, event):
@@ -97,8 +96,16 @@ class ActionList(QListWidget):
         item = self.itemAt(event.pos())
         item.action.config_page_show()
         event.accept()
-        
-        
+    
+    # def keyPressEvent(self, event):
+    #     if event.key() == Qt.Key.Key_Backspace:
+    #         # 获取当前选中的项
+    #         GlobalUtil.current_page.q_undo_stack.push(ActionListDeleteCommand(self, self.currentIndex().row()))
+    #         self.action_signal.size_changed_emit()
+    #     else:
+    #         super().keyPressEvent(event)
+
+    
     # 记录拖拽初始位置
     def mousePressEvent(self, e):
         super().mousePressEvent(e)
@@ -126,8 +133,8 @@ class ActionList(QListWidget):
     def right_menu_triggered(self, act):
         # 如果是删除，则从列表中删除该选择
         if act.text() == "删除":
-            self.opeartion_list.append({"type": "delete", "item": self.currentIndex().row(), "row": self.currentIndex().row()})
-            self.model().removeRow(self.currentIndex().row())
+            GlobalUtil.current_page.q_undo_stack.push(ActionListDeleteCommand(self, self.currentIndex().row()))
+            self.action_signal.size_changed_emit()
 
 
     @staticmethod
@@ -169,7 +176,7 @@ class ActionList(QListWidget):
                     the_remove_row = self.the_drag_row
                 # 组件内部拖动
                 else:
-                    # 元素向上拖动，会在上面新增一个，因此要删除的位置需要+1
+                    # 元素向上拖动，会在上面新增一个，要删除的位置需要+1
                     if self.the_insert_row < self.the_drag_row:
                         the_remove_row = self.the_drag_row + 1
                     # 元素向下拖动，会在下面新增一个，因此直接删除即可
@@ -284,3 +291,6 @@ class ActionList(QListWidget):
                 if widget.uuid != self.uuid:
                     widget.setCurrentRow(-1)
                 widget.update()
+
+ 
+ 

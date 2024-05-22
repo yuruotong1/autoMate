@@ -45,6 +45,7 @@ class ActionBase(BaseModel):
         raise TypeError("Not realize run function")
 
     def run_with_out_arg(self):
+        print("运行中...")
         res = self.run(**self.args.model_dump())
         # 保存输出结果
         if self.output_save_name:
@@ -104,6 +105,7 @@ class ActionBase(BaseModel):
             self._config_ui.output_config.addWidget(output_label)
             self._config_ui.output_config.addWidget(output_line_edit)
         else:
+            
             self._config_ui.output_config.addWidget(QLabel("当前行为不包含输出项"))
 
     def __cancel_button_clicked(self):
