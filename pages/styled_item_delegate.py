@@ -30,6 +30,7 @@ class StyledItemDelegate(QStyledItemDelegate):
             # 选中时，最左边会出现小块块
             painter.setBrush(QColor(0, 0, 255))
             painter.drawRect(0, rect.topLeft().y(), 6, rect.height())
+            
         # 开始拖拽
         if is_drag:
             if index.row() == drag_widget.the_highlighted_row:

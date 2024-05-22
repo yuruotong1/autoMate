@@ -2,7 +2,6 @@ import logging
 import os
 import sys
 import traceback
-
 import leancloud
 from PyQt6.QtWidgets import QApplication
 from pages.chat_page import ChatPage

@@ -15,3 +15,5 @@ cache
 /session
 
 *.spec
+
+agent/model

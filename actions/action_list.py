@@ -1,11 +1,9 @@
 import pickle
 from typing import List
 import uuid
-from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QMimeData, QByteArray, QPoint, pyqtSignal
 from PyQt6.QtGui import QDrag
 from PyQt6.QtWidgets import QListWidget, QApplication, QStyle, QMenu
-from actions.action_base import ActionBase
 from actions.action_list_item import ActionListItem
 from actions.action_signal import ActionSignal
 from pages.styled_item_delegate import StyledItemDelegate
@@ -98,6 +96,7 @@ class ActionList(QListWidget):
         # 获取双击的项
         item = self.itemAt(event.pos())
         item.action.config_page_show()
+        event.accept()
         
         
     # 记录拖拽初始位置
@@ -135,9 +134,13 @@ class ActionList(QListWidget):
 
     def mouseReleaseEvent(self, e):
         # 鼠标release时才选中
-        index = self.indexAt(e.pos())   
+        index = self.indexAt(e.pos())
+        # 取消其他 action_list 的选中
         self.clear_selection()
         self.setCurrentIndex(index)
+        e.accept()
+        print(self)
+
 
     def mouseMoveEvent(self, e):
         # 如果在历史事件中左键点击过
@@ -265,7 +268,6 @@ class ActionList(QListWidget):
             GlobalUtil.current_page.q_undo_stack.push(ActionListAddCommand(self, self.the_insert_row, drag_action_item))
         # 取消选中
         self.clear_selection()
-        # self.setCurrentRow(self.the_insert_row)
         e.setDropAction(Qt.DropAction.MoveAction)
         e.accept()
 
@@ -280,7 +282,8 @@ class ActionList(QListWidget):
           
     # 取消选中
     def clear_selection(self):
-        for widget in GlobalUtil.all_widget:
-            if isinstance(widget, ActionList):
+        for widget in GlobalUtil.all_widget["action_list"]:
+            if isinstance(widget, ActionList) and \
+                widget.uuid != self.uuid and \
+                widget.currentRow() != -1:
                 widget.setCurrentRow(-1)
-                widget.update()
