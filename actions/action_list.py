@@ -84,10 +84,13 @@ class ActionList(QListWidget):
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
             "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;})"
-            "QListView::Item:selected{ :rgb(0, 0, 0);}")
+            # 选中时为透明，否则会全白
+            "QListView::Item:selected{color:rgb(0, 0, 0);outline: none;}"
+            "QListView::Item:focus{color:rgb(0, 0, 0);outline: none;}"
+            )
         self.setItemDelegate(StyledItemDelegate())
         # 选中时不出现虚线框
-        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     
     # 双击打开配置页面
     def mouseDoubleClickEvent(self, event):
@@ -97,13 +100,13 @@ class ActionList(QListWidget):
         item.action.config_page_show()
         event.accept()
     
-    # def keyPressEvent(self, event):
-    #     if event.key() == Qt.Key.Key_Backspace:
-    #         # 获取当前选中的项
-    #         GlobalUtil.current_page.q_undo_stack.push(ActionListDeleteCommand(self, self.currentIndex().row()))
-    #         self.action_signal.size_changed_emit()
-    #     else:
-    #         super().keyPressEvent(event)
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Backspace:
+            # 获取当前选中的项
+            GlobalUtil.current_page.q_undo_stack.push(ActionListDeleteCommand(self, self.currentIndex().row()))
+            self.action_signal.size_changed_emit()
+        else:
+            super().keyPressEvent(event)
 
     
     # 记录拖拽初始位置

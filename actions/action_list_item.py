@@ -22,7 +22,7 @@ class ActionListItem(QListWidgetItem):
     def render(self):
         if self.type == "include":
             widget = QtWidgets.QWidget()
-            widget.setStyleSheet("background-color: white;")
+            widget.setStyleSheet("background-color: white;outline: none;")
             label = QtWidgets.QLabel()
             label.setGeometry(QtCore.QRect(5, 10, 54, 12))
             label.setText("循环")
@@ -42,7 +42,11 @@ class ActionListItem(QListWidgetItem):
             layout.addWidget(action_list)
             self.setSizeHint(widget.size())
             self.get_parent().setItemWidget(self, widget)
-            
+
+    def keyPressEvent(self, event):
+        print(event.key())
+        super().keyPressEvent(event)
+
     # 根据子元素数量调整当前元素尺寸大小
     def _adjust_ui(self):
         action_list = self.data(QtCore.Qt.ItemDataRole.UserRole)

@@ -9,6 +9,8 @@ from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtGui import QUndoStack, QKeySequence
 import json
 
+from utils.undo_command import ActionListDeleteCommand
+
 
 interface_ui = QtUtil.load_ui_type("edit_page.ui")
    
@@ -47,6 +49,16 @@ class EditPage(QMainWindow, interface_ui):
         self.setupUi(self)
         self.setup_up()
         
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Backspace:
+            # 删除选中的item
+            for action_list in GlobalUtil.all_widget["action_list"]:
+                if action_list.currentRow() != -1:
+                    self.q_undo_stack.push(ActionListDeleteCommand(action_list, action_list.currentRow()))
+                    break
+        else:
+            # 将其他事件向下传递
+            super().keyPressEvent(event)
 
     def closeEvent(self, event):
         # 清空当前页面数据
