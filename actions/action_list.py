@@ -114,6 +114,13 @@ class ActionList(QListWidget):
         # 记录左键点击位置
         elif e.button() == Qt.MouseButton.LeftButton:
             self.start_pos = e.pos()
+            # 鼠标release时才选中
+            index = self.indexAt(e.pos())
+            # 取消其他 action_list 的选中
+            self.clear_selection()
+            self.setCurrentIndex(index)
+            e.accept()
+
             
         
     def right_menu_triggered(self, act):
@@ -130,17 +137,7 @@ class ActionList(QListWidget):
         for i in range(action_list.count()):
             res.append(action_list.item(i))
         return res
-
-
-    def mouseReleaseEvent(self, e):
-        # 鼠标release时才选中
-        index = self.indexAt(e.pos())
-        # 取消其他 action_list 的选中
-        self.clear_selection()
-        self.setCurrentIndex(index)
-        e.accept()
-        print(self)
-
+        
 
     def mouseMoveEvent(self, e):
         # 如果在历史事件中左键点击过
@@ -283,7 +280,7 @@ class ActionList(QListWidget):
     # 取消选中
     def clear_selection(self):
         for widget in GlobalUtil.all_widget["action_list"]:
-            if isinstance(widget, ActionList) and \
-                widget.uuid != self.uuid and \
-                widget.currentRow() != -1:
-                widget.setCurrentRow(-1)
+            if isinstance(widget, ActionList) and widget.currentRow() != -1:
+                if widget.uuid != self.uuid:
+                    widget.setCurrentRow(-1)
+                widget.update()
