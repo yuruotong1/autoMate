@@ -16,7 +16,7 @@ class GlobalUtil:
     # type 分为 edit_page, action_list, action_list_item
     @classmethod
     def get_widget_by_uuid(cls, uuid: str, type: str):
-        return cls.all_widget[type][uuid]
+        return cls.all_widget[type].get(uuid)
     
     @classmethod
     def delete_local_by_position(cls, func_status: str, func_list_pos_row: int, func_list_pos_column: int):

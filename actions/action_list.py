@@ -39,6 +39,7 @@ class ActionList(QListWidget):
             action_list_items = []
         for action_list_item in action_list_items:
             self.insertItem(action_list_item.action.action_pos, action_list_item)
+
         self.adjust_ui()
         GlobalUtil.all_widget["action_list"][self.uuid] = self
 
