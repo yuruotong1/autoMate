@@ -15,7 +15,6 @@ class ActionList(QListWidget):
 
     def __init__(self, action_list_items: List[ActionListItem] = None, level=0, parent_uuid="", widget_uuid="", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        GlobalUtil.all_widget["action_list"].append(self)
         # 拖动结束时，生成新的 action
         self.drop_down_action = None
         self.setAcceptDrops(True)
@@ -40,8 +39,9 @@ class ActionList(QListWidget):
             action_list_items = []
         for action_list_item in action_list_items:
             self.insertItem(action_list_item.action.action_pos, action_list_item)
-            action_list_item.render()
         self.adjust_ui()
+        GlobalUtil.all_widget["action_list"][self.uuid] = self
+
         
 
     # 当 item 数量发生变化时，更新组件样式

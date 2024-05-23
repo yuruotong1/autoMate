@@ -10,13 +10,14 @@ from utils.global_util import GlobalUtil
 class ActionListItem(QListWidgetItem):
     def __init__(self, action: ActionBase, parent_uuid="", widget_uuid="", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        GlobalUtil.all_widget["action_list_item"].append(self)
         self.action = action
         self.type = self.action.action_type
         self.setText(action.name)
         self.action_signal = ActionSignal()
         self.uuid = widget_uuid if widget_uuid else str(uuid.uuid4())
         self.parent_uuid = parent_uuid
+        GlobalUtil.all_widget["action_list_item"][self.uuid] = self
+
 
     # 当父元素是包含类型的组件，减少当前元素的宽度让其能够被包含    
     def render(self):
@@ -32,6 +33,7 @@ class ActionListItem(QListWidgetItem):
             widget.setFixedHeight(60)
             widget.setFixedWidth(self.get_parent().width() - 10)
             from actions.action_list import ActionList
+            # 如果子元素不是 action_list 则加载
             if not isinstance(self.data(QtCore.Qt.ItemDataRole.UserRole), ActionList):
                 action_list = ActionList.load({"action_list": self.action.args.action_list, "parent_uuid": self.get_parent().uuid}, self.get_parent().level + 1)
                 action_list.action_signal.size_changed.connect(self._adjust_ui)

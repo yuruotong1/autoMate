@@ -73,6 +73,10 @@ class AddFuncButton(QToolButton):
             GlobalUtil.current_page = EditPage.load(self.edit_page_json)
         else:
             GlobalUtil.current_page = EditPage(self.func_status, self.func_list_pos_row, self.func_list_pos_column)
+        # 渲染数据
+        for item in GlobalUtil.all_widget["action_list_item"].values():
+            if item.parent_uuid:
+                item.render()
         # 接收信号
         GlobalUtil.current_page.page_closed.connect(lambda: self.func_list_page.show())
         GlobalUtil.current_page.show()

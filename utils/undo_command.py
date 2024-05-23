@@ -1,4 +1,7 @@
 from PyQt6.QtGui import QUndoCommand
+from PyQt6 import QtCore
+
+from utils.global_util import GlobalUtil
 class ActionListAddCommand(QUndoCommand):
     def __init__(self, action_list, row, action_item):
         super().__init__()
@@ -16,7 +19,12 @@ class ActionListAddCommand(QUndoCommand):
        
 
     def undo(self):
+        self.action_list = GlobalUtil.all_widget["action_list"][self.action_list.uuid]
         self.action_list.takeItem(self.row)
+        if self.action_item.type == "include":
+            # GlobalUtil.all_widget["action_list"].remove(self.action_item.data(QtCore.Qt.ItemDataRole.UserRole))
+            del GlobalUtil.all_widget["action_list"][self.action_item.data(QtCore.Qt.ItemDataRole.UserRole).uuid]
+        del GlobalUtil.all_widget["action_list_item"][self.action_item.uuid]
         from actions.action_list_item import ActionListItem
         # 重新加载，避免被 pyqt GC
         action_list_item = ActionListItem.load(self.action_item.dump())
@@ -38,6 +46,9 @@ class ActionListDeleteCommand(QUndoCommand):
         from actions.action_list_item import ActionListItem
         # 重新加载，避免被 pyqt GC
         self.delete_action_list_item = ActionListItem.load(self.action_list.item(self.row).dump())
+        if self.delete_action_list_item.type == "include":
+            del GlobalUtil.all_widget["action_list"][self.action_list.item(self.row).data(QtCore.Qt.ItemDataRole.UserRole).uuid]
+        del GlobalUtil.all_widget["action_list_item"][self.delete_action_list_item.uuid]
         self.action_list.takeItem(self.row)
         self.action_list.adjust_ui()
         
@@ -48,4 +59,3 @@ class ActionListDeleteCommand(QUndoCommand):
         self.delete_action_list_item.render()
         self.action_list.adjust_ui()
     
-
