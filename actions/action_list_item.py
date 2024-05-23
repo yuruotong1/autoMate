@@ -35,7 +35,7 @@ class ActionListItem(QListWidgetItem):
             from actions.action_list import ActionList
             # 如果子元素不是 action_list 则加载
             if not isinstance(self.data(QtCore.Qt.ItemDataRole.UserRole), ActionList):
-                action_list = ActionList.load({"action_list": self.action.args.action_list, "parent_uuid": self.get_parent().uuid}, self.get_parent().level + 1)
+                action_list = ActionList.load({"action_list": self.action.args.action_list, "parent_uuid": self.uuid}, self.get_parent().level + 1)
                 action_list.action_signal.size_changed.connect(self._adjust_ui)
                 self.setData(QtCore.Qt.ItemDataRole.UserRole, action_list)
                 action_list.setGeometry(QtCore.QRect(20, 30, widget.width() - 20, 20))

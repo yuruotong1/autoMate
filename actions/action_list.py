@@ -75,7 +75,7 @@ class ActionList(QListWidget):
     def get_parent(self):
         if self.level == 0:
             return GlobalUtil.current_page
-        return GlobalUtil.get_widget_by_uuid(self.parent_uuid, "action_list")
+        return GlobalUtil.get_widget_by_uuid(self.parent_uuid, "action_list_item")
     
 
     def init(self):
