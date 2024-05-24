@@ -1,8 +1,9 @@
 import traceback
-from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+import typing
+from PyQt6 import QtGui, QtWidgets, QtCore
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QEvent
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView
+from PyQt6.QtWidgets import QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget
 
 from agent.woker_agent import WorkerAgent
 from pages.bse_page import BasePage
@@ -11,6 +12,39 @@ from pages.func_list_page import FuncListPage
 from utils.config import Config
 from utils.qt_util import QtUtil
 
+class ActionList(QListWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setVisible(False)
+
+    def mousePressEvent(self, event):
+        super(QListWidget, self).mousePressEvent(event)
+        print(event)
+        if event.button() == Qt.LeftButton:
+            pos = self.mapToGlobal(event.pos())
+            if not self.rect().contains(pos):
+                self.setVisible(False)
+        event.accept()
+
+class ChatList(QListWidget):
+    def __init__(self, parent=None, chat_page=None):
+        super().__init__(parent)
+        self.chat_page = chat_page
+        self.setGeometry(QtCore.QRect(40, 0, 561, 571))
+        self.setObjectName("chat_list")
+        # 设置 QListWidget 的背景为透明
+        self.setStyleSheet("""background: transparent;border: none;""")
+        # 设置 QListWidget 的选择模式为 NoSelection
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        # 设置 QListWidget 的焦点策略为 NoFocus
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        # 隐藏垂直滚动条
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # 隐藏水平滚动条
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+    def mousePressEvent(self, event):
+        self.chat_page.action_list.setVisible(False)
 
 class WorkerThread(QThread):
     finished_signal = pyqtSignal(str)
@@ -38,9 +72,12 @@ class WorkerThread(QThread):
 
 class ChatInput(QTextEdit):
     def __init__(self, parent=None, chat_page=None):
+        super().__init__(parent)
         self.worker_thread = None
         self.chat_page = chat_page
-        super().__init__(parent)
+        self.textChanged.connect(self.on_text_changed)
+        self.previous_text = ""
+        self.setFixedWidth(560)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
@@ -55,49 +92,65 @@ class ChatInput(QTextEdit):
         else:
             super().keyPressEvent(event)
 
+    def on_text_changed(self):
+        current_text = self.toPlainText()
+        # 当输入中文不选择具体的文字时，也会进入到这里
+        if self.previous_text == current_text:
+            return
+        
+        if current_text == "/":
+            self.chat_page.action_list.setVisible(True)
+        elif current_text.startswith("/") and self.chat_page.action_list.isVisible():
+            current_text_without_slash = current_text[1:]
+            self.chat_page.action_list.addItem(current_text_without_slash)
+        self.previous_text = current_text
 
-class ChatPage(BasePage):
+    def event(self, event):
+        if event.type() == QEvent.Type.WindowActivate:
+            self.setFocus()
+            return True
+        # Return the object and event.
+        return super().event(event)
+
+interface_ui = QtUtil.load_ui_type("chat_page.ui")
+class ChatPage(QMainWindow, interface_ui):
     def __init__(self):
         super().__init__()
+        self.setupUi(self)
         self.setting_page = None
+        self.action_list = None
+        self.setup_up()
+        self.new_conversation(
+            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，有什么要求可以随时吩咐！",
+            "system"
+        )
 
     def setup_up(self):
-        self.ui = QtUtil.load_ui("chat_page.ui")
-        self.ui.text_edit = ChatInput()
-        chat_input = ChatInput(parent=self.ui.centralwidget, chat_page=self)
+        # self = QtUtil.load_ui("chat_page.ui")
+        chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
         chat_input.setGeometry(QtCore.QRect(40, 580, 601, 51))
         chat_input.setStyleSheet("border-radius: 30px")
         chat_input.setObjectName("chat_input")
-        self.new_conversation(
-            "<b>你好，欢迎来到智子 🎉</b>\n\n智子是一个让普通人成为超级个体的Agent开发平台，只要你有想法，都可以用智子快速、低门槛搭建专属于你的 Agent！",
-            "system"
-        )
-        # 设置 QListWidget 的背景为透明
-        self.ui.chat_list.setStyleSheet("""background: transparent;border: none;""")
-        # 设置 QListWidget 的选择模式为 NoSelection
-        self.ui.chat_list.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-        # 设置 QListWidget 的焦点策略为 NoFocus
-
-        self.ui.chat_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        # 垂直滚动条滑动时才显示，否则隐藏
-        self.ui.chat_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        # 隐藏水平滚动条
-        self.ui.chat_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        # self.ui.select_action.clicked.connect(self.select_action_clicked)
-        setting_action = self.ui.setting_action
+        chat_input.setPlaceholderText("请输入“/”，选择运行的指令")
+        self.action_list = ActionList(parent=self.centralwidget)
+        self.action_list.setGeometry(QtCore.QRect(40, 390, 251, 181))
+        self.action_list.setStyleSheet("border: none;")
+        self.action_list.setObjectName("action_list")
+       
+        self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
+        # self.select_action.clicked.connect(self.select_action_clicked)
+        setting_action = self.setting_action
         setting_action.triggered.connect(self.open_setting_page)
         # 添加按钮点击事件，打开添加对话框
-        self.ui.add_action.clicked.connect(self.open_add_dialog)
-        self.func_list_page = FuncListPage(parent_widget=self.ui)
+        # self.add_action.clicked.connect(self.open_add_dialog)
 
-    def open_add_dialog(self):
-        self.func_list_page.show()
-        self.ui.hide()
 
     def open_setting_page(self):
         self.setting_page = ConfigPage()
         self.setting_page.show()
 
+    def mousePressEvent(self, event):
+        self.action_list.setVisible(False)
 
     def new_conversation(self, text, role):
         text = text.replace("\n", "<br>")
@@ -146,8 +199,8 @@ class ChatPage(BasePage):
         text_edit.document().documentLayout().documentSizeChanged.connect(
             lambda: self.update_size(widget, item, text_edit))
         # 将 item 添加到 QListWidget
-        self.ui.chat_list.insertItem(self.ui.chat_list.count(), item)
-        self.ui.chat_list.setItemWidget(item, widget)
+        self.chat_list.insertItem(self.chat_list.count(), item)
+        self.chat_list.setItemWidget(item, widget)
 
     @staticmethod
     def update_size(widget, item, text_edit):

@@ -17,42 +17,22 @@
    <string notr="true">QTextEdit {border-radius: 10px;}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListWidget" name="chat_list">
+   <!-- <widget class="QListWidget" name="chat_list">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>40</x>
       <y>0</y>
       <width>561</width>
-      <height>541</height>
+      <height>571</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QTextEdit" name="chat_input">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>580</y>
-      <width>601</width>
-      <height>51</height>
-     </rect>
+    <property name="acceptDrops">
+     <bool>true</bool>
     </property>
-    <property name="styleSheet">
-     <string notr="true">border-radius: 30px</string>
+    <property name="toolTip">
+     <string/>
     </property>
-   </widget>
-   <widget class="QPushButton" name="add_action">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>550</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>工作流</string>
-    </property>
-   </widget>
+   </widget> -->
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

@@ -20,6 +20,7 @@ pyautogui = "^0.9.54"
 langchainhub = "^0.1.15"
 pyinstaller = "^6.5.0"
 pygments = "^2.17.2"
+python-docx = "^1.1.2"
 
 
 [build-system]

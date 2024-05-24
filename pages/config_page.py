@@ -1,7 +1,6 @@
 from utils.config import Config
 from utils.qt_util import QtUtil
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QWidget, QGridLayout, QSpacerItem, QSizePolicy
-from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QWidget, QGridLayout, QSpacerItem, QSizePolicy
 
 interface_ui = QtUtil.load_ui_type("config_page.ui")
    
