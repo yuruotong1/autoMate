@@ -36,13 +36,23 @@ class ActionList(QListWidget):
         self.chat_page = chat_page
         self.setVisible(False)
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
-        actions = ActionUtil.get_funcs()
         self.setSpacing(3)
-        for i in range(len(actions)):
-            action = actions[i]
-            item = ActionItems(action(args={}), chat_page=self.chat_page)
-            self.insertItem(i, item)
-            self.setItemWidget(item, item.label)
+
+    def filter_action(self, text):
+        self.clear()
+        actions = [i(args={}) for i in ActionUtil.get_funcs()]
+        for action in actions:
+            if text=="" or text in action.name:
+                item = ActionItems(action, chat_page=self.chat_page)
+                self.addItem(item)
+                self.setItemWidget(item, item.label)
+        if self.count()==0:
+            label = QLabel("<h2>没找到可用的行为</h2><br><p style='color:gray;'>欢迎进群提需求，我们将火速更新！</p>")
+            item = QListWidgetItem()
+            self.addItem(item)
+            self.setItemWidget(item, label)
+            item.setSizeHint(label.sizeHint())
+       
 
     def mousePressEvent(self, event):
         super(QListWidget, self).mousePressEvent(event)
@@ -127,12 +137,12 @@ class ChatInput(QTextEdit):
         # 当输入中文不选择具体的文字时，也会进入到这里
         if self.previous_text == current_text:
             return
-        
         if current_text == "/":
             self.chat_page.action_list.set_visibility(True)
+            self.chat_page.action_list.filter_action("")
         elif current_text.startswith("/") and self.chat_page.action_list.isVisible():
             current_text_without_slash = current_text[1:]
-            self.chat_page.action_list.addItem(current_text_without_slash)
+            self.chat_page.action_list.filter_action(current_text_without_slash)
         self.previous_text = current_text
     
     def mousePressEvent(self, event):
