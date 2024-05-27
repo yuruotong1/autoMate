@@ -1,30 +1,42 @@
 import traceback
-import typing
-from PyQt6 import QtGui, QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QEvent
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget
-
+from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
-from pages.bse_page import BasePage
 from pages.config_page import ConfigPage
-from pages.func_list_page import FuncListPage
-from utils.config import Config
 from utils.qt_util import QtUtil
+
+class ActionItems(QListWidgetItem):
+    def __init__(self, action):
+        super().__init__()
+        self.action = action
+        self.setText(action.name + "：" + action.description)
+
 
 class ActionList(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setVisible(False)
+        self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        actions = ActionUtil.get_funcs()
+        for i in range(len(actions)):
+            action = actions[i]
+            item = ActionItems(action(args={}))
+            self.insertItem(i, item)
 
     def mousePressEvent(self, event):
         super(QListWidget, self).mousePressEvent(event)
-        print(event)
-        if event.button() == Qt.LeftButton:
-            pos = self.mapToGlobal(event.pos())
-            if not self.rect().contains(pos):
-                self.setVisible(False)
+        # 获取双击的项
+        item = self.itemAt(event.pos())
+        if item:
+            item.action.config_page_show()
         event.accept()
+    
+    def set_visibility(self, visible: bool):
+        self.setVisible(visible)
+        
 
 class ChatList(QListWidget):
     def __init__(self, parent=None, chat_page=None):
@@ -44,7 +56,7 @@ class ChatList(QListWidget):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     def mousePressEvent(self, event):
-        self.chat_page.action_list.setVisible(False)
+        self.chat_page.action_list.set_visibility(False)
 
 class WorkerThread(QThread):
     finished_signal = pyqtSignal(str)
@@ -99,7 +111,7 @@ class ChatInput(QTextEdit):
             return
         
         if current_text == "/":
-            self.chat_page.action_list.setVisible(True)
+            self.chat_page.action_list.set_visibility(True)
         elif current_text.startswith("/") and self.chat_page.action_list.isVisible():
             current_text_without_slash = current_text[1:]
             self.chat_page.action_list.addItem(current_text_without_slash)
@@ -132,13 +144,12 @@ class ChatPage(QMainWindow, interface_ui):
         chat_input.setStyleSheet("border-radius: 30px")
         chat_input.setObjectName("chat_input")
         chat_input.setPlaceholderText("请输入“/”，选择运行的指令")
+        
+        self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
         self.action_list = ActionList(parent=self.centralwidget)
         self.action_list.setGeometry(QtCore.QRect(40, 390, 251, 181))
         self.action_list.setStyleSheet("border: none;")
         self.action_list.setObjectName("action_list")
-       
-        self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
-        # self.select_action.clicked.connect(self.select_action_clicked)
         setting_action = self.setting_action
         setting_action.triggered.connect(self.open_setting_page)
         # 添加按钮点击事件，打开添加对话框
