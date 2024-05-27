@@ -9,27 +9,38 @@ from pages.config_page import ConfigPage
 from utils.qt_util import QtUtil
 
 class ActionItems(QListWidgetItem):
-    def __init__(self, action):
+    def __init__(self, action, chat_page):
         super().__init__()
         self.action = action
+        self.chat_page = chat_page
+        self.action.get_signal().finish_run_signal.connect(self.save_output)
+        self.action.get_signal().start_run_signal.connect(self.start_run)
         # 创建一个 QLabel 作为列表项的小部件
         self.label = QLabel()
         text = f"<p style='font-size:15px;color:blue;margin-bottom:0;'>{self.action.name}</p><p style='font-size:11px;color:gray;margin-top:0;'>{self.action.description}</p>"
         self.label.setText(text)
         self.setSizeHint(self.label.sizeHint())
+    
+    def save_output(self, res):
+        self.chat_page.new_conversation(f"执行成功，执行结果：{str(res)}", "system")
 
+    def start_run(self):
+        self.chat_page.action_list.set_visibility(False)
+        self.chat_page.chat_input.clear()
+        self.chat_page.new_conversation(f"执行{self.action.name}动作中：\n执行动作描述：{self.action.description}\n执行参数：{self.action.args}", "system")
 
 
 class ActionList(QListWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, chat_page=None):
         super().__init__(parent)
+        self.chat_page = chat_page
         self.setVisible(False)
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         actions = ActionUtil.get_funcs()
         self.setSpacing(3)
         for i in range(len(actions)):
             action = actions[i]
-            item = ActionItems(action(args={}))
+            item = ActionItems(action(args={}), chat_page=self.chat_page)
             self.insertItem(i, item)
             self.setItemWidget(item, item.label)
 
@@ -150,14 +161,14 @@ class ChatPage(QMainWindow, interface_ui):
 
     def setup_up(self):
         # self = QtUtil.load_ui("chat_page.ui")
-        chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
-        chat_input.setGeometry(QtCore.QRect(40, 580, 601, 51))
-        chat_input.setStyleSheet("border-radius: 30px")
-        chat_input.setObjectName("chat_input")
-        chat_input.setPlaceholderText("请输入“/”，选择运行的指令")
+        self.chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
+        self.chat_input.setGeometry(QtCore.QRect(40, 580, 601, 51))
+        self.chat_input.setStyleSheet("border-radius: 30px")
+        self.chat_input.setObjectName("chat_input")
+        self.chat_input.setPlaceholderText("请输入“/”，选择运行的指令")
         
         self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
-        self.action_list = ActionList(parent=self.centralwidget)
+        self.action_list = ActionList(parent=self.centralwidget, chat_page=self)
         self.action_list.setGeometry(QtCore.QRect(40, 390, 251, 181))
         self.action_list.setStyleSheet("border: none;")
         self.action_list.setObjectName("action_list")

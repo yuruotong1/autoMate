@@ -83,7 +83,7 @@ class ActionList(QListWidget):
         self.setSpacing(1)
         self.setStyleSheet(
             "QListView{background:rgb(220,220,220); border:0px; margin:0px 0px 0px 0px;}"
-            "QListView::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
+            "QListViewf::Item{height:40px; border:0px; background:rgb(255,255,255);margin-left: 3px;}"
             # "QListView::Item:hover{color:rgba(40, 40, 200, 255); padding-left:14px;})"
             # 选中时为透明，否则会全白
             "QListView::Item:selected{color:rgb(0, 0, 0);outline: none;}"
