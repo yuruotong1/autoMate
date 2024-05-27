@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSp
 from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
 from pages.config_page import ConfigPage
+from pages.plugin_page import PluginPage
 from utils.qt_util import QtUtil
 from utils.window_util import WindowUtil
 
@@ -191,9 +192,15 @@ class ChatPage(QMainWindow, interface_ui):
         self.action_list.setObjectName("action_list")
         setting_action = self.setting_action
         setting_action.triggered.connect(self.open_setting_page)
+        self.plugin = self.plugin
+        self.plugin.triggered.connect(self.open_plugin_page)
         # 添加按钮点击事件，打开添加对话框
         # self.add_action.clicked.connect(self.open_add_dialog)
 
+
+    def open_plugin_page(self):
+        self.plugin_page = PluginPage()
+        self.plugin_page.show()
 
     def open_setting_page(self):
         self.setting_page = ConfigPage()
