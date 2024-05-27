@@ -12,7 +12,12 @@ class ActionItems(QListWidgetItem):
     def __init__(self, action):
         super().__init__()
         self.action = action
-        self.setText(action.name + "：" + action.description)
+        # 创建一个 QLabel 作为列表项的小部件
+        self.label = QLabel()
+        text = f"<p style='font-size:15px;color:blue;margin-bottom:0;'>{self.action.name}</p><p style='font-size:11px;color:gray;margin-top:0;'>{self.action.description}</p>"
+        self.label.setText(text)
+        self.setSizeHint(self.label.sizeHint())
+
 
 
 class ActionList(QListWidget):
@@ -21,10 +26,12 @@ class ActionList(QListWidget):
         self.setVisible(False)
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         actions = ActionUtil.get_funcs()
+        self.setSpacing(3)
         for i in range(len(actions)):
             action = actions[i]
             item = ActionItems(action(args={}))
             self.insertItem(i, item)
+            self.setItemWidget(item, item.label)
 
     def mousePressEvent(self, event):
         super(QListWidget, self).mousePressEvent(event)
@@ -116,7 +123,11 @@ class ChatInput(QTextEdit):
             current_text_without_slash = current_text[1:]
             self.chat_page.action_list.addItem(current_text_without_slash)
         self.previous_text = current_text
+    
+    def mousePressEvent(self, event):
+        self.chat_page.action_list.set_visibility(False)
 
+    # 窗口激活时，将输入框的焦点设置到这里
     def event(self, event):
         if event.type() == QEvent.Type.WindowActivate:
             self.setFocus()
