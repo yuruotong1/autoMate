@@ -7,6 +7,7 @@ from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
 from pages.config_page import ConfigPage
 from utils.qt_util import QtUtil
+from utils.window_util import WindowUtil
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -137,9 +138,14 @@ class ChatInput(QTextEdit):
         # 当输入中文不选择具体的文字时，也会进入到这里
         if self.previous_text == current_text:
             return
+        # 当输入"/"时，显示action_list
         if current_text == "/":
             self.chat_page.action_list.set_visibility(True)
             self.chat_page.action_list.filter_action("")
+        # 当删除/时，隐藏action_list
+        elif "/" not in current_text and self.chat_page.action_list.isVisible():
+            self.chat_page.action_list.set_visibility(False)
+        # 当输入"/"并且追加内容时，会对list内容进行过滤
         elif current_text.startswith("/") and self.chat_page.action_list.isVisible():
             current_text_without_slash = current_text[1:]
             self.chat_page.action_list.filter_action(current_text_without_slash)
@@ -153,7 +159,6 @@ class ChatInput(QTextEdit):
         if event.type() == QEvent.Type.WindowActivate:
             self.setFocus()
             return True
-        # Return the object and event.
         return super().event(event)
 
 interface_ui = QtUtil.load_ui_type("chat_page.ui")
@@ -168,6 +173,8 @@ class ChatPage(QMainWindow, interface_ui):
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，有什么要求可以随时吩咐！",
             "system"
         )
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowStaysOnTopHint)
+
 
     def setup_up(self):
         # self = QtUtil.load_ui("chat_page.ui")
