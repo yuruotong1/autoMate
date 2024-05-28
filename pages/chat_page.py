@@ -181,12 +181,10 @@ class ChatPage(QMainWindow, interface_ui):
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
             "system"
         )
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
     def event(self, event):
         if event.type() == QEvent.Type.WindowDeactivate:
-            print("窗口失去焦点")
-            self.hide()
+            self.showMinimized()
         return super().event(event)
 
 
@@ -204,7 +202,7 @@ class ChatPage(QMainWindow, interface_ui):
         self.trayIcon = QSystemTrayIcon(self)  # 创建一个系统托盘图标对象
         self.trayIcon.setIcon(QIcon(QtUtil.get_icon("logo.ico")))  # 设置托盘图标为指定的图片文件
         self.trayIcon.show()  # 显示托盘图标
-        self.trayIcon.setToolTip('双击显示窗口')
+        self.trayIcon.setToolTip('任意位置按下鼠标中键显示窗口')
          # 由于我们创建的是无边框的工具窗口，所以这里设置一个托盘的激活功能
         self.trayIcon.activated.connect(self.onTrayIconActivated)  # 当托盘图标被激活时，调用onTrayIconActivated函数
         # 添加右键菜单  
@@ -215,15 +213,15 @@ class ChatPage(QMainWindow, interface_ui):
         # 将上下文菜单与托盘图标关联起来
         self.trayIcon.setContextMenu(self.contextMenu)
 
-        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        # self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         # 监听鼠标中键，然后启动窗口
         self.global_keyboard_listen = GlobalKeyboardListen()
         self.global_keyboard_listen.mouse_middle_signal.connect(self.show_window)
         self.global_keyboard_listen.start()
 
     def show_window(self):
-        self.show()
-        self.activateWindow()
+        self.showNormal()
+
         
     def onTrayIconActivated(self, reason):  # 当托盘图标被激活时，这个函数会被调用
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:  # 如果激活原因是双击托盘图标
