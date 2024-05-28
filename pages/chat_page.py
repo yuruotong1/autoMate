@@ -7,7 +7,9 @@ from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
+from utils.global_keyboard_listen import GlobalKeyboardListen
 from utils.qt_util import QtUtil
+from utils.window_util import WindowUtil
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -165,7 +167,6 @@ class ChatInput(QTextEdit):
     def event(self, event):
         if event.type() == QEvent.Type.WindowActivate:
             # 当窗口激活时，智子根据上下文推送合适的工具
-            
             self.setFocus()
             return True
         return super().event(event)
@@ -195,35 +196,40 @@ class ChatPage(QMainWindow, interface_ui):
         setting_action.triggered.connect(self.open_setting_page)
         self.plugin = self.plugin
         self.plugin.triggered.connect(self.open_plugin_page)
-        # 添加按钮点击事件，打开添加对话框
-        # self.add_action.clicked.connect(self.open_add_dialog)
+ 
 
         # 设置托盘 
         self.trayIcon = QSystemTrayIcon(self)  # 创建一个系统托盘图标对象
         # self.trayIcon.setIcon(self.windowIcon())  # 设置托盘图标为应用程序的窗口图标
         self.trayIcon.setIcon(QIcon(QtUtil.get_icon("logo.ico")))  # 设置托盘图标为指定的图片文件
         self.trayIcon.show()  # 显示托盘图标
-        self.trayIcon.setToolTip('系统托盘测试\n双击显示窗口')
+        self.trayIcon.setToolTip('双击显示窗口')
         self.setWindowFlags(Qt.WindowType.Tool)  # 设置Qt.Tool标志：隐藏任务栏图标，这里需要先设置！！！
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)  # 设置无边框
          # 由于我们创建的是无边框的工具窗口，所以这里设置一个托盘的激活功能
         self.trayIcon.activated.connect(self.onTrayIconActivated)  # 当托盘图标被激活时，调用onTrayIconActivated函数
         # 添加右键菜单  
         self.contextMenu = QMenu(self)  # 创建自定义的上下文菜单
-        self.contextMenu.addAction("显示窗口", self.showWindow)  # 添加动作：显示窗口  
+        self.contextMenu.addAction("显示窗口", lambda: self.show_window(WindowUtil.get_window_title()))  # 添加动作：显示窗口  
         self.contextMenu.addSeparator()  # 添加分线  
         self.contextMenu.addAction("退出", self.close)  # 添加动作：关闭程序
         # 将上下文菜单与托盘图标关联起来
         self.trayIcon.setContextMenu(self.contextMenu)
 
-    def showWindow(self):
-        self.show()  # 显示窗口 
+        # 监听鼠标中键，然后启动窗口
+        self.global_keyboard_listen = GlobalKeyboardListen()
+        self.global_keyboard_listen.mouse_middle_signal.connect(self.show_window)
+        self.global_keyboard_listen.start()
+
+    def show_window(self, current_window_title):
+        print(current_window_title)
+        self.showNormal()  # 显示窗口的正常模式
+        self.activateWindow()  # 激活窗口，使其获取焦点
 
         
     def onTrayIconActivated(self, reason):  # 当托盘图标被激活时，这个函数会被调用
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:  # 如果激活原因是双击托盘图标
-            self.showNormal()  # 显示窗口的正常模式
-            self.activateWindow()  # 激活窗口，使其获取焦点
+            self.show_window(WindowUtil.get_window_title())
 
     def open_plugin_page(self):
         self.plugin_page = PluginPage()
@@ -248,7 +254,7 @@ class ChatPage(QMainWindow, interface_ui):
         else:
             role_pic = QtUtil.get_icon("vip.png")
             role_name = "VIP用户"
-        # 创建 QPixmap 对象并加���图片
+        # 创建 QPixmap 对象并加图片
         pixmap = QPixmap(role_pic)
         pixmap = pixmap.scaled(30, 30, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
         # 创建 QLabel 对象并设置其 pixmap

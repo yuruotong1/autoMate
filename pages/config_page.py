@@ -69,4 +69,4 @@ class ConfigPage(QMainWindow, interface_ui):
         self.close()
 
     def cancel_btn(self):
-        self.close()
+        self.hide()
