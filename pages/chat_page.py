@@ -1,13 +1,12 @@
 import traceback
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QEvent
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget
+from PyQt6.QtCore import QThread, pyqtSignal, QEvent, Qt
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu
 from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
 from pages.config_page import ConfigPage
 from utils.qt_util import QtUtil
-from utils.window_util import WindowUtil
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -38,6 +37,9 @@ class ActionList(QListWidget):
         self.setVisible(False)
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self.setSpacing(3)
+        self.setGeometry(QtCore.QRect(40, 390, 251, 181))
+        self.setStyleSheet("border: none;")
+        self.setObjectName("action_list")
 
     def filter_action(self, text):
         self.clear()
@@ -71,7 +73,7 @@ class ChatList(QListWidget):
     def __init__(self, parent=None, chat_page=None):
         super().__init__(parent)
         self.chat_page = chat_page
-        self.setGeometry(QtCore.QRect(40, 0, 561, 571))
+        self.setGeometry(QtCore.QRect(40, 0, 561, 400))
         self.setObjectName("chat_list")
         # 设置 QListWidget 的背景为透明
         self.setStyleSheet("""background: transparent;border: none;""")
@@ -119,6 +121,10 @@ class ChatInput(QTextEdit):
         self.textChanged.connect(self.on_text_changed)
         self.previous_text = ""
         self.setFixedWidth(560)
+        self.setGeometry(QtCore.QRect(40, 580, 600, 50))
+        self.setStyleSheet("border-radius: 30px")
+        self.setObjectName("chat_input")
+        self.setPlaceholderText("请输入“/”，选择运行的指令")
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
@@ -154,9 +160,11 @@ class ChatInput(QTextEdit):
     def mousePressEvent(self, event):
         self.chat_page.action_list.set_visibility(False)
 
-    # 窗口激活时，将输入框的焦点设置到这里
+    # 窗口激活时，���输入框的焦点设置到这里
     def event(self, event):
         if event.type() == QEvent.Type.WindowActivate:
+            # 当窗口激活时，智子根据上下文推送合适的工具
+            
             self.setFocus()
             return True
         return super().event(event)
@@ -170,7 +178,7 @@ class ChatPage(QMainWindow, interface_ui):
         self.action_list = None
         self.setup_up()
         self.new_conversation(
-            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，有什么要求可以随时吩咐！",
+            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
             "system"
         )
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowType.WindowStaysOnTopHint)
@@ -179,21 +187,38 @@ class ChatPage(QMainWindow, interface_ui):
     def setup_up(self):
         # self = QtUtil.load_ui("chat_page.ui")
         self.chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
-        self.chat_input.setGeometry(QtCore.QRect(40, 580, 601, 51))
-        self.chat_input.setStyleSheet("border-radius: 30px")
-        self.chat_input.setObjectName("chat_input")
-        self.chat_input.setPlaceholderText("请输入“/”，选择运行的指令")
-        
         self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
         self.action_list = ActionList(parent=self.centralwidget, chat_page=self)
-        self.action_list.setGeometry(QtCore.QRect(40, 390, 251, 181))
-        self.action_list.setStyleSheet("border: none;")
-        self.action_list.setObjectName("action_list")
+
         setting_action = self.setting_action
         setting_action.triggered.connect(self.open_setting_page)
-        # 添加按钮点击事件，打开添加对话框
-        # self.add_action.clicked.connect(self.open_add_dialog)
 
+        # 设置托盘 
+        self.trayIcon = QSystemTrayIcon(self)  # 创建一个系统托盘图标对象
+        # self.trayIcon.setIcon(self.windowIcon())  # 设置托盘图标为应用程序的窗口图标
+        self.trayIcon.setIcon(QIcon(QtUtil.get_icon("logo.ico")))  # 设置托盘图标为指定的图片文件
+        self.trayIcon.show()  # 显示托盘图标
+        self.trayIcon.setToolTip('系统托盘测试\n双击显示窗口')
+        self.setWindowFlags(Qt.WindowType.Tool)  # 设置Qt.Tool标志：隐藏任务栏图标，这里需要先设置！！！
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)  # 设置无边框
+         # 由于我们创建的是无边框的工具窗口，所以这里设置一个托盘的激活功能
+        self.trayIcon.activated.connect(self.onTrayIconActivated)  # 当托盘图标被激活时，调用onTrayIconActivated函数
+        # 添加右键菜单  
+        self.contextMenu = QMenu(self)  # 创建自定义的上下文菜单
+        self.contextMenu.addAction("显示窗口", self.showWindow)  # 添加动作：显示窗口  
+        self.contextMenu.addSeparator()  # 添加分线  
+        self.contextMenu.addAction("退出", self.close)  # 添加动作：关闭程序
+        # 将上下文菜单与托盘图标关联起来
+        self.trayIcon.setContextMenu(self.contextMenu)
+
+    def showWindow(self):
+        self.show()  # 显示窗口 
+
+        
+    def onTrayIconActivated(self, reason):  # 当托盘图标被激活时，这个函数会被调用
+        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:  # 如果激活原因是双击托盘图标
+            self.showNormal()  # 显示窗口的正常模式
+            self.activateWindow()  # 激活窗口，使其获取焦点
 
     def open_setting_page(self):
         self.setting_page = ConfigPage()
@@ -214,7 +239,7 @@ class ChatPage(QMainWindow, interface_ui):
         else:
             role_pic = QtUtil.get_icon("vip.png")
             role_name = "VIP用户"
-        # 创建 QPixmap 对象并加载图片
+        # 创建 QPixmap 对象并加���图片
         pixmap = QPixmap(role_pic)
         pixmap = pixmap.scaled(30, 30, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
         # 创建 QLabel 对象并设置其 pixmap
