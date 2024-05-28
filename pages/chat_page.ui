@@ -17,22 +17,6 @@
    <string notr="true">QTextEdit {border-radius: 10px;}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <!-- <widget class="QListWidget" name="chat_list">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>0</y>
-      <width>561</width>
-      <height>571</height>
-     </rect>
-    </property>
-    <property name="acceptDrops">
-     <bool>true</bool>
-    </property>
-    <property name="toolTip">
-     <string/>
-    </property>
-   </widget> -->
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -48,6 +32,7 @@
      <string>文件</string>
     </property>
     <addaction name="setting_action"/>
+    <addaction name="plugin"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="file_menu"/>
@@ -58,7 +43,13 @@
     <string>设置</string>
    </property>
   </action>
- </widget>
- <resources/>
- <connections/>
+ <widget class="QStatusBar" name="statusbar"/>
+  <action name="plugin">
+   <property name="text">
+    <string>插件</string>
+   </property>
+  </action>
+</widget>
+<resources/>
+<connections/>
 </ui>

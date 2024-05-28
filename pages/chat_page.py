@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QLi
 from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
 from pages.config_page import ConfigPage
+from pages.plugin_page import PluginPage
 from utils.qt_util import QtUtil
 
 class ActionItems(QListWidgetItem):
@@ -160,7 +161,7 @@ class ChatInput(QTextEdit):
     def mousePressEvent(self, event):
         self.chat_page.action_list.set_visibility(False)
 
-    # 窗口激活时，���输入框的焦点设置到这里
+    # 窗口激活时，输入框的焦点设置到这里
     def event(self, event):
         if event.type() == QEvent.Type.WindowActivate:
             # 当窗口激活时，智子根据上下文推送合适的工具
@@ -192,6 +193,10 @@ class ChatPage(QMainWindow, interface_ui):
 
         setting_action = self.setting_action
         setting_action.triggered.connect(self.open_setting_page)
+        self.plugin = self.plugin
+        self.plugin.triggered.connect(self.open_plugin_page)
+        # 添加按钮点击事件，打开添加对话框
+        # self.add_action.clicked.connect(self.open_add_dialog)
 
         # 设置托盘 
         self.trayIcon = QSystemTrayIcon(self)  # 创建一个系统托盘图标对象
@@ -219,6 +224,10 @@ class ChatPage(QMainWindow, interface_ui):
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:  # 如果激活原因是双击托盘图标
             self.showNormal()  # 显示窗口的正常模式
             self.activateWindow()  # 激活窗口，使其获取焦点
+
+    def open_plugin_page(self):
+        self.plugin_page = PluginPage()
+        self.plugin_page.show()
 
     def open_setting_page(self):
         self.setting_page = ConfigPage()
