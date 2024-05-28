@@ -46,7 +46,6 @@ class ActionListItem(QListWidgetItem):
             self.get_parent().setItemWidget(self, widget)
 
     def keyPressEvent(self, event):
-        print(event.key())
         super().keyPressEvent(event)
 
     # 根据子元素数量调整当前元素尺寸大小

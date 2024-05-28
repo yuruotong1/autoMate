@@ -15,8 +15,7 @@ class AutoMate:
     def main(self):
         Config()
         self.page = ChatPage()
-
-        self.page.show_window(WindowUtil.get_window_title())
+        self.page.show_window()
        
 
 
