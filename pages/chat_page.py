@@ -182,12 +182,6 @@ class ChatPage(QMainWindow, interface_ui):
             "system"
         )
 
-    def event(self, event):
-        if event.type() == QEvent.Type.WindowDeactivate:
-            self.showMinimized()
-        return super().event(event)
-
-
     def setup_up(self):
         self.chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
         self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
@@ -220,10 +214,12 @@ class ChatPage(QMainWindow, interface_ui):
         self.global_keyboard_listen.start()
 
     def show_window(self):
+        self.showMinimized()
         self.showNormal()
-
+        self.activateWindow()
         
     def onTrayIconActivated(self, reason):  # 当托盘图标被激活时，这个函数会被调用
+
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:  # 如果激活原因是双击托盘图标
             self.show_window()
 

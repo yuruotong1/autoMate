@@ -1,16 +1,26 @@
 
 from utils.config import Config
-
+from litellm import completion
 
 class LLM_Util:
     def __init__(self):
         super().__init__()
         self.config = Config()
-        self.api_key = self.config.get_config_from_component("openai", "api_key")
-        self.base_url = self.config.get_config_from_component("openai", "api_url")
-        self.open_ai_model = self.config.get_config_from_component("openai", "model")
+        self.api_key = self.config.get_config_from_component("llm", "api_key")
+        self.base_url = self.config.get_config_from_component("llm", "api_url")
+        self.model = self.config.get_config_from_component("llm", "model")
 
     def llm(self):
         from langchain_openai import ChatOpenAI
-        return ChatOpenAI(temperature=0, model_name=self.open_ai_model, openai_api_key=self.api_key,
+        return ChatOpenAI(temperature=0, model_name=self.model, openai_api_key=self.api_key,
                           openai_api_base=self.base_url)
+
+
+    def invoke(self, message):
+        messages = [{ "content": message, "role": "user"}]
+        if self.base_url == "openai":
+            response = completion(model=self.model, api_key=self.api_key, messages=messages)
+        else:
+            response = completion(model=self.model, base_url=self.url, api_key=self.key, messages=messages)
+
+        return response.choices[0].message.content

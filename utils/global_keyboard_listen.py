@@ -13,6 +13,9 @@ class GlobalKeyboardListen(QThread):
             if button == mouse.Button.middle:
                 if pressed:
                     self.mouse_middle_signal.emit()
+                    print("鼠标中键按下")
+                    return True
         # 创建鼠标监听器
+
         with mouse.Listener(on_click=on_click) as mouse_listener:
-            mouse_listener.join() 
+            mouse_listener.join()
