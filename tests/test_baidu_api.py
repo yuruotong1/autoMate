@@ -1,16 +1,12 @@
-from selenium.webdriver.common.by import By
+from interpreter import interpreter
 
-from utils.selenium_util import SeleniumUtil
-
-
-class TestBaiduApi:
+class OpenInterpreter:
     def test_api(self):
-        selenium = SeleniumUtil()
-        selenium.get_url("https://www.baidu.com/s?wd=搜索引擎 api 汇总")
-        result_elements = selenium.get_xpath_elements("//*[@class='result c-container xpath-log new-pmd']")
-        for result_element in result_elements:
-            title = result_element.find_element(By.XPATH, ".//h3").text
-            url = result_element.find_element(By.XPATH, ".//h3/a").get_attribute("href")
-            short_description = result_element.find_element(By.XPATH, ".//*/span[@class='content-right_8Zs40']").text
-            print(result_element)
+        interpreter.chat("最新的新闻")
+        
+if __name__ == "__main__":
+    interpreter.llm.api_key = "sk-i6ClcJAogigoWxI9271b80E978374e8dAbC1167d3b6d8eA3" # LiteLLM, which we use to talk to LM Studio, requires this
+    interpreter.llm.api_base = "https://api.fast-tunnel.one/v1" # Point this at any OpenAI compatible server
+    OpenInterpreter().test_api()
+
 

@@ -9,6 +9,7 @@ from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
 from utils.global_keyboard_listen import GlobalKeyboardListen
 from utils.qt_util import QtUtil
+from utils.window_util import WindowUtil
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -220,6 +221,7 @@ class ChatPage(QMainWindow, interface_ui):
         self.global_keyboard_listen.start()
 
     def show_window(self):
+        print(WindowUtil.get_window_title())
         self.showNormal()
 
         

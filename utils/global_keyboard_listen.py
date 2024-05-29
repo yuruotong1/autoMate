@@ -1,8 +1,6 @@
 from pynput import mouse
 from PyQt6.QtCore import pyqtSignal, QThread
 
-from utils.window_util import WindowUtil
-
 class GlobalKeyboardListen(QThread):
     mouse_middle_signal = pyqtSignal()
     def __init__(self):
