@@ -20,6 +20,6 @@ class LLM_Util:
         if self.base_url == "":
             response = completion(model=self.model, api_key=self.api_key, messages=messages)
         else:
-            response = completion(model=self.model, base_url=self.base_url, api_key=self.key, messages=messages)
+            response = completion(model=self.model, base_url=self.base_url, api_key=self.api_key, messages=messages)
 
         return response.choices[0].message.content

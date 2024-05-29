@@ -101,16 +101,8 @@ class WorkerThread(QThread):
 
     def run(self):
         try:
-            agent_iter = WorkerAgent().get_iter(self.text)
-            for step in agent_iter:
-                content = ""
-                if output := step.get("intermediate_step"):
-                    action, value = output[0]
-                    content = f"{action.tool} \n{value}"
-                elif step.get("output"):
-                    content = step["output"]
-                content = content.replace("```", "")
-                self.finished_signal.emit(content)
+            content = WorkerAgent().run(self.text)
+            self.finished_signal.emit(content)
         except Exception as e:
             traceback.print_exc(e)
 

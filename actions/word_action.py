@@ -1,4 +1,4 @@
-from action_util import action, ActionBase
+from actions.action_base import action, ActionBase
 class WordAction(ActionBase):
     actions_description = "word基本操作"
     def __init__(self):
