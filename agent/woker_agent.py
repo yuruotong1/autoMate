@@ -44,3 +44,6 @@ Thought: 我需要使用工具吗? 不需要\nFinal Answer: 您的桌面上有�
         agent = create_react_agent(llm=llm, tools=tools, prompt=prompt)
         agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
         return agent_executor.iter({"input": question})
+
+    def run(self, question):
+        

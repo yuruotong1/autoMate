@@ -5,11 +5,11 @@ base:
       数据存储位置: local
 
 components:
-  openai:
-    description: 用于配置openai相关信息
+  llm:
+    description: 用于配置大模型相关信息
     config:
       api_key: 请输入api_key
-      api_url: https://api.openai.com/v1/
+      api_url: ""
       model: gpt-4-1106-preview
   
   browser: 
