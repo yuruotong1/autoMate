@@ -15,12 +15,11 @@ class LLM_Util:
         return ChatOpenAI(temperature=0, model_name=self.model, openai_api_key=self.api_key,
                           openai_api_base=self.base_url)
 
-
-    def invoke(self, message):
-        messages = [{ "content": message, "role": "user"}]
-        if self.base_url == "openai":
+    # messages = [{ "content": message, "role": "user"}]
+    def invoke(self, messages):
+        if self.base_url == "":
             response = completion(model=self.model, api_key=self.api_key, messages=messages)
         else:
-            response = completion(model=self.model, base_url=self.url, api_key=self.key, messages=messages)
+            response = completion(model=self.model, base_url=self.base_url, api_key=self.key, messages=messages)
 
         return response.choices[0].message.content

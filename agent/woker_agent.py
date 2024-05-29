@@ -1,7 +1,8 @@
 from langchain import hub
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain_core.prompts import PromptTemplate, ChatMessagePromptTemplate
-
+from actions.action_util import ActionUtil
+from system_prompt import system_prompt
 from tools.tools_util import ToolsUtil
 from utils.llm_util import LLM_Util
 
@@ -46,4 +47,9 @@ Thought: 我需要使用工具吗? 不需要\nFinal Answer: 您的桌面上有�
         return agent_executor.iter({"input": question})
 
     def run(self, question):
-        
+        action_descriptions = ""
+        for action in ActionUtil.get_actions():
+            action_descriptions += action.package_actions_description() + "\n"
+        messages = [{"content": system_prompt.substitute(python_code=action_descriptions), "role": "system"}]
+        messages.append({"content": question, "role": "user"})
+        LLM_Util().invoke(messages)
