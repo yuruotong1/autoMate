@@ -11,13 +11,14 @@ class WorkerAgent:
             action_descriptions += action.package_actions_description() + "\n"
         self.messages = [{"content": system_prompt.substitute(python_code=action_descriptions), "role": "system"}]
 
-
     def run(self, question):
         self.messages.append({"content": question, "role": "user"})
         res = LLM_Util().invoke(self.messages)
         # self.messages.append({"content": res, "role": "assistant"})
-        print(res)
-        return res["tool_calls"]
+        return res
+        
+
+
 
 
 
