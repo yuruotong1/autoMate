@@ -24,6 +24,7 @@ python-docx = "^1.1.2"
 global-hotkeys = "^0.1.7"
 pynput = "^1.7.7"
 litellm = "^1.38.12"
+open-interpreter = "^0.2.5"
 
 
 [build-system]

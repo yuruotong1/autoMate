@@ -1,5 +1,5 @@
 from actions.action_util import ActionUtil
-from agent.system_prompt import system_prompt
+from agent.prompt import system_prompt
 from utils.llm_util import LLM_Util
 
 
@@ -15,7 +15,9 @@ class WorkerAgent:
     def run(self, question):
         self.messages.append({"content": question, "role": "user"})
         res = LLM_Util().invoke(self.messages)
-        self.messages.append({"content": res, "role": "assistant"})
-        return res
+        # self.messages.append({"content": res, "role": "assistant"})
+        print(res)
+        return res["tool_calls"]
+
 
 

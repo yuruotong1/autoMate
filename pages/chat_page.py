@@ -93,7 +93,7 @@ class ChatList(QListWidget):
         self.chat_page.action_list.set_visibility(False)
 
 class WorkerThread(QThread):
-    finished_signal = pyqtSignal(str)
+    finished_signal = pyqtSignal(object)
 
     def __init__(self, text):
         QThread.__init__(self)
