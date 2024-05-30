@@ -79,7 +79,7 @@ class ChatList(QListWidget):
     def __init__(self, parent=None, chat_page=None):
         super().__init__(parent)
         self.chat_page = chat_page
-        self.setGeometry(QtCore.QRect(40, 0, 561, 400))
+        self.setGeometry(QtCore.QRect(40, 0, 561, 550))
         self.setObjectName("chat_list")
         # 设置 QListWidget 的背景为透明
         self.setStyleSheet("""background: transparent;border: none;""")
@@ -98,13 +98,15 @@ class ChatList(QListWidget):
 class WorkerThread(QThread):
     finished_signal = pyqtSignal(object)
 
-    def __init__(self, text):
+    def __init__(self, text, agent):
         QThread.__init__(self)
         self.text = text
+        self.agent = agent
 
     def run(self):
+
         try:
-            content = WorkerAgent().run(self.text)
+            content = self.agent.run(self.text)
             self.finished_signal.emit(content)
         except Exception as e:
             traceback.print_exc(e)
@@ -126,9 +128,10 @@ class ChatInput(QTextEdit):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
             self.chat_page.new_conversation(f"{self.toPlainText()}", "user")
-            self.worker_thread = WorkerThread(self.toPlainText())
+            self.worker_thread = WorkerThread(self.toPlainText(), self.chat_page.agent)
             # 清空输入框
             self.clear()
+
             # 连接线程的 finished 信号到槽函数，增加对话UI
             self.worker_thread.finished_signal.connect(self.render_llm_response)
             self.worker_thread.start()
@@ -185,6 +188,7 @@ class ChatPage(QMainWindow, interface_ui):
         self.setupUi(self)
         self.setting_page = None
         self.action_list = None
+        self.agent = WorkerAgent()
         self.setup_up()
         self.new_conversation(
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",

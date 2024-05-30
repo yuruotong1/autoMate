@@ -15,6 +15,6 @@ class LLM_Util:
     # messages = [{ "content": message, "role": "user"}]
     def invoke(self, messages):
         response = completion(model=self.model, base_url=self.base_url, api_key=self.api_key,
-                               messages=messages, tools=tools, tool_choice={"type": "function", "function": {"name": "execute"}})
+                               messages=messages)
 
         return response.json()["choices"][0]["message"]

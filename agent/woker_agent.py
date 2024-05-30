@@ -14,8 +14,11 @@ class WorkerAgent:
     def run(self, question):
         self.messages.append({"content": question, "role": "user"})
         res = LLM_Util().invoke(self.messages)
+        self.messages.append({"content": res["content"], "role": "assistant"})
+        print(self.messages)
         # self.messages.append({"content": res, "role": "assistant"})
         return res
+
         
 
 
