@@ -1,15 +1,18 @@
+import json
 import traceback
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import QThread, pyqtSignal, QEvent, Qt
 from PyQt6.QtGui import QPixmap, QIcon
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu
+from pygments import highlight
 from actions.action_util import ActionUtil
 from agent.woker_agent import WorkerAgent
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
 from utils.global_keyboard_listen import GlobalKeyboardListen
 from utils.qt_util import QtUtil
-from utils.window_util import WindowUtil
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter  
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -93,7 +96,7 @@ class ChatList(QListWidget):
         self.chat_page.action_list.set_visibility(False)
 
 class WorkerThread(QThread):
-    finished_signal = pyqtSignal(str)
+    finished_signal = pyqtSignal(object)
 
     def __init__(self, text):
         QThread.__init__(self)
@@ -127,11 +130,24 @@ class ChatInput(QTextEdit):
             # 清空输入框
             self.clear()
             # 连接线程的 finished 信号到槽函数，增加对话UI
-            self.worker_thread.finished_signal.connect(lambda res: self.chat_page.new_conversation(f"{res}", "system"))
+            self.worker_thread.finished_signal.connect(self.render_llm_response)
             self.worker_thread.start()
             event.accept()
+
         else:
             super().keyPressEvent(event)
+
+    def render_llm_response(self, llm_res):
+        text = ""
+        if llm_res.get("tool_calls"):
+            print(llm_res.get("tool_calls"))
+            raw_arguments = llm_res["tool_calls"][0]["function"]["arguments"]
+            arguments = json.loads(raw_arguments)
+            self.chat_page.new_conversation(arguments["code"], "system", type="code")
+        elif llm_res.get("content"):
+            text = llm_res["content"]
+            self.chat_page.new_conversation(text, "system", type="text")
+
 
     def on_text_changed(self):
         current_text = self.toPlainText()
@@ -226,9 +242,9 @@ class ChatPage(QMainWindow, interface_ui):
 
     def mousePressEvent(self, event):
         self.action_list.setVisible(False)
-
-    def new_conversation(self, text, role):
-        text = text.replace("\n", "<br>")
+    
+    # type 为 text 时，显示文本，为 code 时，显示代码
+    def new_conversation(self, text, role,  type="text"):
         widget = QtWidgets.QWidget()
         widget.setGeometry(QtCore.QRect(110, 100, 160, 80))
         v_box = QtWidgets.QVBoxLayout(widget)
@@ -238,7 +254,7 @@ class ChatPage(QMainWindow, interface_ui):
             role_name = "智子"
         else:
             role_pic = QtUtil.get_icon("vip.png")
-            role_name = "VIP用户"
+            role_name = "我"
         # 创建 QPixmap 对象并加图片
         pixmap = QPixmap(role_pic)
         pixmap = pixmap.scaled(30, 30, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
@@ -267,7 +283,11 @@ class ChatPage(QMainWindow, interface_ui):
                    background-color: white;
                    border-radius: 10px;
                """)
-        text_edit.setHtml(text)
+        if type == "code":
+            text = highlight(text, PythonLexer(), HtmlFormatter())  
+            text_edit.setHtml(text)
+        else:
+            text_edit.setHtml(text)
         v_box.addWidget(text_edit)
         item = QListWidgetItem()
         # 连接文档大小改变的信号

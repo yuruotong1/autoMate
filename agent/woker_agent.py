@@ -1,5 +1,5 @@
 from actions.action_util import ActionUtil
-from agent.system_prompt import system_prompt
+from agent.prompt import system_prompt
 from utils.llm_util import LLM_Util
 
 
@@ -11,11 +11,14 @@ class WorkerAgent:
             action_descriptions += action.package_actions_description() + "\n"
         self.messages = [{"content": system_prompt.substitute(python_code=action_descriptions), "role": "system"}]
 
-
     def run(self, question):
         self.messages.append({"content": question, "role": "user"})
         res = LLM_Util().invoke(self.messages)
-        self.messages.append({"content": res, "role": "assistant"})
+        # self.messages.append({"content": res, "role": "assistant"})
         return res
+        
+
+
+
 
 
