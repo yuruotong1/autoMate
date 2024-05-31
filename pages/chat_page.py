@@ -6,9 +6,11 @@ from PyQt6.QtGui import QPixmap, QIcon
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu
 from pygments import highlight
 from actions.action_util import ActionUtil
-from agent.woker_agent import WorkerAgent
+from agent.require_alignment_agent import RequireAlignmentAgent
+from agent.programmer_agent import ProgrammerAgent
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
+
 from utils.global_keyboard_listen import GlobalKeyboardListen
 from utils.qt_util import QtUtil
 from pygments.lexers import PythonLexer
@@ -95,24 +97,45 @@ class ChatList(QListWidget):
     def mousePressEvent(self, event):
         self.chat_page.action_list.set_visibility(False)
 
-class WorkerThread(QThread):
+class RequireAligenmentThread(QThread):
     finished_signal = pyqtSignal(object)
 
-    def __init__(self, text, agent):
+    def __init__(self, text, require_alignment_agent, programmer_agent):
         QThread.__init__(self)
         self.text = text
-        self.agent = agent
+        self.programmer_agent = programmer_agent
+        self.require_alignment_agent = require_alignment_agent
+
+
 
     def run(self):
-
         try:
-            content = self.agent.run(self.text)
+            content = self.require_alignment_agent.run(self.text)
+            self.finished_signal.emit({"text": content, "type": "text"})
+        except Exception as e:
+
+            traceback.print_exc(e)
+
+class ProgrammerThread(QThread):
+    finished_signal = pyqtSignal(object)
+
+    def __init__(self, text, programmer_agent):
+        QThread.__init__(self)
+        self.text = text
+        self.programmer_agent = programmer_agent
+
+    def run(self):
+        try:
+            content = self.programmer_agent.run(self.text)
             self.finished_signal.emit(content)
+            print(content)
         except Exception as e:
             traceback.print_exc(e)
 
 
 class ChatInput(QTextEdit):
+
+
     def __init__(self, parent=None, chat_page=None):
         super().__init__(parent)
         self.worker_thread = None
@@ -128,28 +151,29 @@ class ChatInput(QTextEdit):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
             self.chat_page.new_conversation(f"{self.toPlainText()}", "user")
-            self.worker_thread = WorkerThread(self.toPlainText(), self.chat_page.agent)
+            self.require_alignment_thread = RequireAligenmentThread(self.toPlainText(), self.chat_page.require_alignment_agent, self.chat_page.programmer_agent)
             # 清空输入框
             self.clear()
-
             # 连接线程的 finished 信号到槽函数，增加对话UI
-            self.worker_thread.finished_signal.connect(self.render_llm_response)
-            self.worker_thread.start()
+            self.require_alignment_thread.finished_signal.connect(self.render_llm_response)
+            self.require_alignment_thread.start()
             event.accept()
+
 
         else:
             super().keyPressEvent(event)
 
     def render_llm_response(self, llm_res):
-        text = ""
-        if llm_res.get("tool_calls"):
-            print(llm_res.get("tool_calls"))
-            raw_arguments = llm_res["tool_calls"][0]["function"]["arguments"]
-            arguments = json.loads(raw_arguments)
-            self.chat_page.new_conversation(arguments["code"], "system", type="code")
-        elif llm_res.get("content"):
-            text = llm_res["content"]
-            self.chat_page.new_conversation(text, "system", type="text")
+        print(llm_res)
+        self.chat_page.new_conversation(**llm_res)
+        if "[自动化方案]" in llm_res["text"]:
+            content = llm_res["text"].split("[自动化方案]")[1]
+            self.chat_page.new_conversation(text="我会按照上述方案生成自动化代码，请稍等。", type="text")
+            self.programmer_thread = ProgrammerThread(content, self.chat_page.programmer_agent)
+            self.programmer_thread.finished_signal.connect(lambda x:  self.chat_page.new_conversation(text=x, type="code"))
+            self.programmer_thread.start()
+
+
 
 
     def on_text_changed(self):
@@ -188,7 +212,8 @@ class ChatPage(QMainWindow, interface_ui):
         self.setupUi(self)
         self.setting_page = None
         self.action_list = None
-        self.agent = WorkerAgent()
+        self.programmer_agent = ProgrammerAgent()
+        self.require_alignment_agent = RequireAlignmentAgent()
         self.setup_up()
         self.new_conversation(
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
@@ -248,7 +273,7 @@ class ChatPage(QMainWindow, interface_ui):
         self.action_list.setVisible(False)
     
     # type 为 text 时，显示文本，为 code 时，显示代码
-    def new_conversation(self, text, role,  type="text"):
+    def new_conversation(self, text, role="system",  type="text"):
         widget = QtWidgets.QWidget()
         widget.setGeometry(QtCore.QRect(110, 100, 160, 80))
         v_box = QtWidgets.QVBoxLayout(widget)
