@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTextEdit
-from PyQt6.QtCore import QRect, pyqtSignal
+from PyQt6.QtCore import QRect
 from PyQt6.QtGui import QFont, QColor, QPainter, QTextFormat
 from PyQt6.QtWidgets import QWidget, QPlainTextEdit, QTextEdit
 from PyQt6 import QtGui, QtCore
@@ -81,7 +81,6 @@ class QCodeEditor(QPlainTextEdit):
                  syntax_high_lighter=None, *args):
         """
         Parameters
-
         ----------
         display_line_numbers : bool
             switch on/off the presence of the lines number bar
@@ -91,9 +90,11 @@ class QCodeEditor(QPlainTextEdit):
             should be inherited from QSyntaxHighlighter
 
         """
-        super(QCodeEditor, self).__init__(*args)
-        self.setFont(QFont("Microsoft YaHei UI Light", 12))
+        super(QCodeEditor, self).__init__()
+
+        self.setFont(QFont("Microsoft YaHei UI Light", 11))
         self.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+
         self.DISPLAY_LINE_NUMBERS = display_line_numbers
 
         if display_line_numbers:
@@ -119,7 +120,7 @@ class QCodeEditor(QPlainTextEdit):
             cr = self.contentsRect()
             rec = QRect(cr.left(), cr.top(), self.number_bar.get_width(), cr.height())
             self.number_bar.setGeometry(rec)
-        
+
         QPlainTextEdit.resizeEvent(self, *e)
 
     # 获取代码

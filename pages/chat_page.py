@@ -1,20 +1,17 @@
 import json
 import traceback
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import QThread, pyqtSignal, QEvent, Qt
+from PyQt6.QtCore import QThread, pyqtSignal, Qt
 from PyQt6.QtGui import QPixmap, QIcon
-from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu
-from pygments import highlight
+from PyQt6.QtWidgets import QPushButton, QApplication, QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu, QPushButton
 from actions.action_util import ActionUtil
 from agent.require_alignment_agent import RequireAlignmentAgent
 from agent.programmer_agent import ProgrammerAgent
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
-
+from pages.python_code_edit import PythonHighlighter, QCodeEditor
 from utils.global_keyboard_listen import GlobalKeyboardListen
-from utils.qt_util import QtUtil
-from pygments.lexers import PythonLexer
-from pygments.formatters import HtmlFormatter  
+from utils.qt_util import QtUtil  
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -219,8 +216,15 @@ class ChatPage(QMainWindow, interface_ui):
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
             "system"
         )
+        self.new_conversation(
+            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
+            "system",
+            type="code"
+        )
+
 
     def setup_up(self):
+
         self.chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
         self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
         self.action_list = ActionList(parent=self.centralwidget, chat_page=self)
@@ -303,33 +307,60 @@ class ChatPage(QMainWindow, interface_ui):
         h_box.setStretch(0, 1)
         h_box.setStretch(1, 1)
         h_box.setStretch(2, 10)
-        # 创建 QTextEdit 对象并设置其文本
-        text_edit = QTextEdit(parent=widget)
-        text_edit.setReadOnly(True)
         v_box.addLayout(h_box)
-        # 设置 QTextEdit 的背景为白色，边角为椭圆
+        item = QListWidgetItem()
+        # 创建 QTextEdit 对象并设置其文本
+        if type == "code":
+            text_edit = QCodeEditor(display_line_numbers=True,
+                                    highlight_current_line=True,
+                                    syntax_high_lighter=PythonHighlighter,
+                                    )
+            text = text.strip('```python').rstrip('```')
+            text_edit.setPlainText(text)
+            # 设置 widget、v_box 和 item 的大小
+            v_box.addWidget(text_edit)
+            item.setSizeHint(widget.size())
+            run_button_h_box= QtWidgets.QHBoxLayout()
+            spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+            run_button_h_box.addItem(spacer)
+            run_button_h_box.setStretch(0, 6)
+            save_button = QPushButton("保存")
+            save_button.setStyleSheet("background-color: grey; color: white;")
+            run_button_h_box.addWidget(save_button)
+            run_button_h_box.setStretch(1, 2)
+            run_button = QPushButton("执行")
+            run_button.setStyleSheet("background-color: green; color: white;")
+            run_button_h_box.addWidget(run_button)
+            run_button_h_box.setStretch(2, 2)
+            v_box.addLayout(run_button_h_box)
+            # # 获取 QTextEdit 的文档的大小
+            doc_size = text_edit.document().size().toSize()
+            widget.setFixedHeight(doc_size.height()*50 + 100)
+
+        else:
+            text_edit = QTextEdit()
+            text_edit.setReadOnly(True)
+            text_edit.setHtml(f"<p style='font-size:10pt;'>{text}</p>")
+            def update_size(widget, item, text_edit):
+                # 获取 QTextEdit 的文档的大小
+                doc_size = text_edit.document().size().toSize()
+                # 设置 widget、v_box 和 item 的大小
+                widget.setFixedHeight(doc_size.height() + 55)
+                item.setSizeHint(widget.size())
+            text_edit.document().documentLayout().documentSizeChanged.connect(lambda: update_size(widget, item, text_edit))
+            v_box.addWidget(text_edit)
+        # # 设置 QTextEdit 的背景为白色，边角为椭圆
         text_edit.setStyleSheet("""
                    background-color: white;
                    border-radius: 10px;
                """)
-        if type == "code":
-            text = highlight(text, PythonLexer(), HtmlFormatter())  
-            text_edit.setHtml(text)
-        else:
-            text_edit.setHtml(text)
-        v_box.addWidget(text_edit)
-        item = QListWidgetItem()
-        # 连接文档大小改变的信号
-        text_edit.document().documentLayout().documentSizeChanged.connect(
-            lambda: self.update_size(widget, item, text_edit))
-        # 将 item 添加到 QListWidget
+        text_edit.document().setDocumentMargin(10)        # 将 item 添加到 QListWidget
         self.chat_list.insertItem(self.chat_list.count(), item)
         self.chat_list.setItemWidget(item, widget)
+        self.chat_list.scrollToBottom()
 
-    @staticmethod
-    def update_size(widget, item, text_edit):
-        # 获取 QTextEdit 的文档的大小
-        doc_size = text_edit.document().size().toSize()
-        # 设置 widget、v_box 和 item 的大小
-        widget.setFixedHeight(doc_size.height() + 60)
-        item.setSizeHint(widget.size())
+
+        
+
+
+
