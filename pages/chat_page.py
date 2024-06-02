@@ -10,6 +10,7 @@ from agent.programmer_agent import ProgrammerAgent
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
 from pages.python_code_edit import PythonHighlighter, QCodeEditor
+from pages.python_execute import PythonExecute
 from utils.global_keyboard_listen import GlobalKeyboardListen
 from utils.qt_util import QtUtil  
 
@@ -167,10 +168,13 @@ class ChatInput(QTextEdit):
             content = llm_res["text"].split("[自动化方案]")[1]
             self.chat_page.new_conversation(text="我会按照上述方案生成自动化代码，请稍等。", type="text")
             self.programmer_thread = ProgrammerThread(content, self.chat_page.programmer_agent)
-            self.programmer_thread.finished_signal.connect(lambda x:  self.chat_page.new_conversation(text=x, type="code"))
+            self.programmer_thread.finished_signal.connect(self.code_finish)
             self.programmer_thread.start()
 
 
+    def code_finish(self, code):
+        self.chat_page.delete_last_conversation()
+        self.chat_page.new_conversation(text=code, type="code")
 
 
     def on_text_changed(self):
@@ -216,11 +220,7 @@ class ChatPage(QMainWindow, interface_ui):
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
             "system"
         )
-        self.new_conversation(
-            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
-            "system",
-            type="code"
-        )
+
 
 
     def setup_up(self):
@@ -328,15 +328,17 @@ class ChatPage(QMainWindow, interface_ui):
             save_button.setStyleSheet("background-color: grey; color: white;")
             run_button_h_box.addWidget(save_button)
             run_button_h_box.setStretch(1, 2)
-            run_button = QPushButton("执行")
+            run_button = QPushButton("运行")
+            run_button.clicked.connect(lambda:self.run_button_clicked(text_edit.toPlainText()))
             run_button.setStyleSheet("background-color: green; color: white;")
             run_button_h_box.addWidget(run_button)
             run_button_h_box.setStretch(2, 2)
             v_box.addLayout(run_button_h_box)
             # # 获取 QTextEdit 的文档的大小
             doc_size = text_edit.document().size().toSize()
-            widget.setFixedHeight(doc_size.height()*50 + 100)
-
+            print(doc_size.height())
+            widget.setFixedHeight(doc_size.height()*25 + 20)
+            item.setSizeHint(widget.size())
         else:
             text_edit = QTextEdit()
             text_edit.setReadOnly(True)
@@ -360,6 +362,14 @@ class ChatPage(QMainWindow, interface_ui):
         self.chat_list.scrollToBottom()
 
 
+    def delete_last_conversation(self):
+        self.chat_list.takeItem(self.chat_list.count()-1)
+
+    def run_button_clicked(self, text):
+        self.new_conversation("执行代码中...")
+        res = PythonExecute().run(text)
+        self.delete_last_conversation()
+        self.new_conversation(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>", "system")
         
 
 
