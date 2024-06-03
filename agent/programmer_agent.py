@@ -14,7 +14,10 @@ class ProgrammerAgent:
 
     def run(self, question):
         self.messages.append({"content": question, "role": "user"})
-        yield from LLM_Util().invoke(self.messages)     
+        res = ""
+        for text in LLM_Util().invoke(self.messages):
+            res += text
+        return res
         
 
 

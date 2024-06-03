@@ -8,7 +8,6 @@ from agent.require_alignment_agent import RequireAlignmentAgent
 from pages.chat_list import ChatList
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
-from pages.python_execute import PythonExecute
 from self_utils.global_keyboard_listen import GlobalKeyboardListen
 from self_utils.qt_util import QtUtil  
 
@@ -223,15 +222,8 @@ class ChatPage(QMainWindow, interface_ui):
     def mousePressEvent(self, event):
         self.action_list.setVisible(False)
 
-    def delete_last_conversation(self):
-        self.chat_list.takeItem(self.chat_list.count()-1)
 
-    def run_button_clicked(self, text):
-        self.chat_list.new_response("执行代码中...")
-        res = PythonExecute().run(text)
-        self.chat_list.new_response(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>", "system")
-        self.delete_last_conversation()
-        self.chat_list.new_response(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>", "system")
+    
         
 
 

@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QTextEdit, QPushButton, QLabel,QAbstractItemView, QL
 from PyQt6.QtGui import QPixmap
 from PyQt6 import QtGui, QtCore, QtWidgets
 from agent.programmer_agent import ProgrammerAgent
+from pages.python_execute import PythonExecute
 from self_utils.qt_util import QtUtil
 from pages.python_code_edit import PythonHighlighter, QCodeEditor
 
@@ -76,12 +77,12 @@ class ChatList(QListWidget):
         # save_button = QPushButton("保存")
         # save_button.setStyleSheet("background-color: grey; color: white;")
         # run_button_h_box.addWidget(save_button)
-        run_button_h_box.setStretch(1, 2)
+        # run_button_h_box.setStretch(1, 2)
         run_button = QPushButton("运行")
         run_button.clicked.connect(lambda:self.run_button_clicked(self.text_edit.toPlainText()))
         run_button.setStyleSheet("background-color: green; color: white;")
         run_button_h_box.addWidget(run_button)
-        run_button_h_box.setStretch(2, 2)
+        run_button_h_box.setStretch(2, 4)
         conversation_box.addLayout(run_button_h_box)
         def update_size(widget, item):
             # 获取 QTextEdit 的文档的大小
@@ -90,12 +91,17 @@ class ChatList(QListWidget):
             conversation_item.setSizeHint(conversation_widget.size()) # # 设置 QTextEdit 的背景为白色，边角为椭圆
         self.text_edit.document().documentLayout().documentSizeChanged.connect(lambda: update_size(conversation_widget, conversation_item))
        
-       
+    
+    def run_button_clicked(self, text):
+        self.new_response("执行代码中...")
+        res = PythonExecute().run(text)
+        self.takeItem(self.count()-1)
+        self.new_response(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>")
 
     def _text_response_render(self, text, conversation_widget, conversation_box, conversation_item):
         self.text_edit = QTextEdit()
         self.text_edit.setReadOnly(True)
-        self.text_edit.setHtml(f"<p style='font-size:10pt;'>{text}</p>")
+        self.text_edit.setHtml(text)
         def update_size(widget, item):
             # 获取 QTextEdit 的文档的大小
             doc_size = self.text_edit.document().size().toSize()
@@ -106,16 +112,25 @@ class ChatList(QListWidget):
         conversation_box.addWidget(self.text_edit)
       
 
-    def new_response(self, text, role="system"):
+    def new_response(self, text, type="text", role="system"):
         conversation_widget = QtWidgets.QWidget()
         conversation_widget.setGeometry(QtCore.QRect(110, 100, 160, 80))
         conversation_box = QtWidgets.QVBoxLayout(conversation_widget)
         conversation_box.addLayout(self._sender_render(role))
         conversation_item = QListWidgetItem()
-        self._text_response_render(text, conversation_widget, conversation_box, conversation_item)
-        self.text_edit.setStyleSheet("""
+        if type=="text":
+            self._text_response_render(text, conversation_widget, conversation_box, conversation_item)
+            self.text_edit.setStyleSheet("""
+                background-color: white;
+                border-radius: 10px;
+                font-size:14px;
+            """)
+        elif type=="code":
+            self._code_response_render(text, conversation_widget, conversation_box, conversation_item)
+            self.text_edit.setStyleSheet("""
                    background-color: white;
                    border-radius: 10px;
+                   font-size:16px;
                """)
         self.text_edit.document().setDocumentMargin(10)        # 将 item 添加到 QListWidget
         self.insertItem(self.count(), conversation_item)
@@ -123,19 +138,17 @@ class ChatList(QListWidget):
         self.scrollToBottom()
 
     
-    def stream_response(self, stream, type="text"):
+    def stream_response(self, stream):
         conversation_widget = QtWidgets.QWidget()
         conversation_widget.setGeometry(QtCore.QRect(110, 100, 160, 80))
         conversation_box = QtWidgets.QVBoxLayout(conversation_widget)
         conversation_box.addLayout(self._sender_render("system"))
         conversation_item = QListWidgetItem()
-        if type=="code":
-            self._code_response_render("我在思考中...", conversation_widget, conversation_box, conversation_item)
-        elif type=="text":
-            self._text_response_render("我在思考中...", conversation_widget, conversation_box, conversation_item)
+        self._text_response_render("我在思考中...", conversation_widget, conversation_box, conversation_item)
         self.text_edit.setStyleSheet("""
                    background-color: white;
                    border-radius: 10px;
+                   font-size:14px;
                """)
         self.text_edit.document().setDocumentMargin(10)        # 将 item 添加到 QListWidget
         self.insertItem(self.count(), conversation_item)
@@ -144,9 +157,15 @@ class ChatList(QListWidget):
         self.stream_thread = StreamOutput(stream, self.programmer_agent)
         self.first_call = True
         self.stream_thread.stream_signal.connect(self.append_text)
-        self.stream_thread.code_stream_signal.connect(lambda x: self.stream_response(x, type="code"))
+        self.stream_thread.code_generate_before_signal.connect(lambda : self.new_response("我将根据以上用例生成代码，思考中..."))
+        self.stream_thread.code_generate_after_signal.connect(self.code_generate_after)
         self.stream_thread.start()
-        
+    
+
+    def code_generate_after(self, code):
+        self.takeItem(self.count()-1)
+        self.new_response(code, type="code")
+
     def append_text(self, text):
         if self.first_call:
             self.text_edit.setPlainText("")
@@ -157,7 +176,8 @@ class ChatList(QListWidget):
 
 class StreamOutput(QThread):
     stream_signal = pyqtSignal(str)
-    code_stream_signal = pyqtSignal(object)
+    code_generate_before_signal = pyqtSignal()
+    code_generate_after_signal = pyqtSignal(str)
     def __init__(self, stream, programmer_agent):
         QThread.__init__(self)
         self.stream = stream
@@ -168,9 +188,9 @@ class StreamOutput(QThread):
         for text in self.stream:
             response += text
             self.stream_signal.emit(text)
-            
         if "[自动化方案]" in response:
+            self.code_generate_before_signal.emit()
             content = response.split("[自动化方案]")[1]
-            content_stream = self.programmer_agent.run(content)
-            self.code_stream_signal.emit(content_stream)
+            code = self.programmer_agent.run(content)
+            self.code_generate_after_signal.emit(code)
             
