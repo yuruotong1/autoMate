@@ -1,18 +1,16 @@
-import json
 import traceback
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtCore
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
-from PyQt6.QtGui import QPixmap, QIcon
-from PyQt6.QtWidgets import QPushButton, QApplication, QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu, QPushButton
+from PyQt6.QtGui import  QIcon
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QMainWindow, QLabel, QTextEdit, QListWidgetItem, QSpacerItem, QSizePolicy, QAbstractItemView, QListWidget, QMenu, QPushButton
 from actions.action_util import ActionUtil
 from agent.require_alignment_agent import RequireAlignmentAgent
-from agent.programmer_agent import ProgrammerAgent
+from pages.chat_list import ChatList
 from pages.config_page import ConfigPage
 from pages.plugin_page import PluginPage
-from pages.python_code_edit import PythonHighlighter, QCodeEditor
 from pages.python_execute import PythonExecute
-from utils.global_keyboard_listen import GlobalKeyboardListen
-from utils.qt_util import QtUtil  
+from self_utils.global_keyboard_listen import GlobalKeyboardListen
+from self_utils.qt_util import QtUtil  
 
 class ActionItems(QListWidgetItem):
     def __init__(self, action, chat_page):
@@ -28,12 +26,12 @@ class ActionItems(QListWidgetItem):
         self.setSizeHint(self.label.sizeHint())
     
     def save_output(self, res):
-        self.chat_page.new_conversation(f"执行成功，执行结果：{str(res)}", "system")
+        self.chat_page.chat_list.new_response(f"执行成功，执行结果：{str(res)}", "system")
 
     def start_run(self):
         self.chat_page.action_list.set_visibility(False)
         self.chat_page.chat_input.clear()
-        self.chat_page.new_conversation(f"执行{self.action.name}动作中：\n执行动作描述：{self.action.description}\n执行参数：{self.action.args}", "system")
+        self.chat_page.chat_list.new_response(f"执行{self.action.name}动作中：\n执行动作描述：{self.action.description}\n执行参数：{self.action.args}", "system")
 
 
 class ActionList(QListWidget):
@@ -75,60 +73,25 @@ class ActionList(QListWidget):
         self.setVisible(visible)
         
 
-class ChatList(QListWidget):
-    def __init__(self, parent=None, chat_page=None):
-        super().__init__(parent)
-        self.chat_page = chat_page
-        self.setGeometry(QtCore.QRect(40, 0, 561, 550))
-        self.setObjectName("chat_list")
-        # 设置 QListWidget 的背景为透明
-        self.setStyleSheet("""background: transparent;border: none;""")
-        # 设置 QListWidget 的选择模式为 NoSelection
-        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-        # 设置 QListWidget 的焦点策略为 NoFocus
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        # 隐藏垂直滚动条
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        # 隐藏水平滚动条
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-    def mousePressEvent(self, event):
-        self.chat_page.action_list.set_visibility(False)
-
 class RequireAligenmentThread(QThread):
     finished_signal = pyqtSignal(object)
 
-    def __init__(self, text, require_alignment_agent, programmer_agent):
+    def __init__(self, text, require_alignment_agent):
         QThread.__init__(self)
         self.text = text
-        self.programmer_agent = programmer_agent
         self.require_alignment_agent = require_alignment_agent
 
 
 
     def run(self):
         try:
-            content = self.require_alignment_agent.run(self.text)
-            self.finished_signal.emit({"text": content, "type": "text"})
+            content_stream = self.require_alignment_agent.run(self.text)
+            self.finished_signal.emit(content_stream)
         except Exception as e:
 
             traceback.print_exc(e)
 
-class ProgrammerThread(QThread):
-    finished_signal = pyqtSignal(object)
 
-    def __init__(self, text, programmer_agent):
-        QThread.__init__(self)
-        self.text = text
-        self.programmer_agent = programmer_agent
-
-    def run(self):
-        try:
-            content = self.programmer_agent.run(self.text)
-            self.finished_signal.emit(content)
-            print(content)
-        except Exception as e:
-            traceback.print_exc(e)
 
 
 class ChatInput(QTextEdit):
@@ -148,28 +111,16 @@ class ChatInput(QTextEdit):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
-            self.chat_page.new_conversation(f"{self.toPlainText()}", "user")
-            self.require_alignment_thread = RequireAligenmentThread(self.toPlainText(), self.chat_page.require_alignment_agent, self.chat_page.programmer_agent)
+            self.chat_page.chat_list.new_response(f"{self.toPlainText()}", role="user")
+            self.require_alignment_thread = RequireAligenmentThread(self.toPlainText(), self.chat_page.require_alignment_agent)
             # 清空输入框
             self.clear()
             # 连接线程的 finished 信号到槽函数，增加对话UI
-            self.require_alignment_thread.finished_signal.connect(self.render_llm_response)
+            self.require_alignment_thread.finished_signal.connect(lambda x: self.chat_page.chat_list.stream_response(x))
             self.require_alignment_thread.start()
             event.accept()
-
-
         else:
             super().keyPressEvent(event)
-
-    def render_llm_response(self, llm_res):
-        print(llm_res)
-        self.chat_page.new_conversation(**llm_res)
-        if "[自动化方案]" in llm_res["text"]:
-            content = llm_res["text"].split("[自动化方案]")[1]
-            self.chat_page.new_conversation(text="我会按照上述方案生成自动化代码，请稍等。", type="text")
-            self.programmer_thread = ProgrammerThread(content, self.chat_page.programmer_agent)
-            self.programmer_thread.finished_signal.connect(self.code_finish)
-            self.programmer_thread.start()
 
 
     def code_finish(self, code):
@@ -213,18 +164,14 @@ class ChatPage(QMainWindow, interface_ui):
         self.setupUi(self)
         self.setting_page = None
         self.action_list = None
-        self.programmer_agent = ProgrammerAgent()
         self.require_alignment_agent = RequireAlignmentAgent()
         self.setup_up()
-        self.new_conversation(
-            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！",
-            "system"
+        self.chat_list.new_response(
+            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！"
         )
 
 
-
     def setup_up(self):
-
         self.chat_input = ChatInput(parent=self.centralwidget, chat_page=self)
         self.chat_list = ChatList(parent=self.centralwidget, chat_page=self)
         self.action_list = ActionList(parent=self.centralwidget, chat_page=self)
@@ -275,101 +222,16 @@ class ChatPage(QMainWindow, interface_ui):
 
     def mousePressEvent(self, event):
         self.action_list.setVisible(False)
-    
-    # type 为 text 时，显示文本，为 code 时，显示代码
-    def new_conversation(self, text, role="system",  type="text"):
-        widget = QtWidgets.QWidget()
-        widget.setGeometry(QtCore.QRect(110, 100, 160, 80))
-        v_box = QtWidgets.QVBoxLayout(widget)
-        h_box = QtWidgets.QHBoxLayout()
-        if role == "system":
-            role_pic = QtUtil.get_icon("logo.png")
-            role_name = "智子"
-        else:
-            role_pic = QtUtil.get_icon("vip.png")
-            role_name = "我"
-        # 创建 QPixmap 对象并加图片
-        pixmap = QPixmap(role_pic)
-        pixmap = pixmap.scaled(30, 30, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
-        # 创建 QLabel 对象并设置其 pixmap
-        image_label = QLabel()
-        image_label.setPixmap(pixmap)
-        # 将 QLabel 对象添加到布局中
-        h_box.addWidget(image_label)
-        label = QLabel()
-        label.setText(role_name)
-        # 将 QLabel 对象添加到布局中
-        h_box.addWidget(label)
-        # 占位符
-        spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        h_box.addItem(spacer)
-        # 设置每个子元素所占的比例
-        h_box.setStretch(0, 1)
-        h_box.setStretch(1, 1)
-        h_box.setStretch(2, 10)
-        v_box.addLayout(h_box)
-        item = QListWidgetItem()
-        # 创建 QTextEdit 对象并设置其文本
-        if type == "code":
-            text_edit = QCodeEditor(display_line_numbers=True,
-                                    highlight_current_line=True,
-                                    syntax_high_lighter=PythonHighlighter,
-                                    )
-            text = text.strip('```python').rstrip('```')
-            text_edit.setPlainText(text)
-            # 设置 widget、v_box 和 item 的大小
-            v_box.addWidget(text_edit)
-            item.setSizeHint(widget.size())
-            run_button_h_box= QtWidgets.QHBoxLayout()
-            spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-            run_button_h_box.addItem(spacer)
-            run_button_h_box.setStretch(0, 6)
-            save_button = QPushButton("保存")
-            save_button.setStyleSheet("background-color: grey; color: white;")
-            run_button_h_box.addWidget(save_button)
-            run_button_h_box.setStretch(1, 2)
-            run_button = QPushButton("运行")
-            run_button.clicked.connect(lambda:self.run_button_clicked(text_edit.toPlainText()))
-            run_button.setStyleSheet("background-color: green; color: white;")
-            run_button_h_box.addWidget(run_button)
-            run_button_h_box.setStretch(2, 2)
-            v_box.addLayout(run_button_h_box)
-            # # 获取 QTextEdit 的文档的大小
-            doc_size = text_edit.document().size().toSize()
-            print(doc_size.height())
-            widget.setFixedHeight(doc_size.height()*25 + 20)
-            item.setSizeHint(widget.size())
-        else:
-            text_edit = QTextEdit()
-            text_edit.setReadOnly(True)
-            text_edit.setHtml(f"<p style='font-size:10pt;'>{text}</p>")
-            def update_size(widget, item, text_edit):
-                # 获取 QTextEdit 的文档的大小
-                doc_size = text_edit.document().size().toSize()
-                # 设置 widget、v_box 和 item 的大小
-                widget.setFixedHeight(doc_size.height() + 55)
-                item.setSizeHint(widget.size())
-            text_edit.document().documentLayout().documentSizeChanged.connect(lambda: update_size(widget, item, text_edit))
-            v_box.addWidget(text_edit)
-        # # 设置 QTextEdit 的背景为白色，边角为椭圆
-        text_edit.setStyleSheet("""
-                   background-color: white;
-                   border-radius: 10px;
-               """)
-        text_edit.document().setDocumentMargin(10)        # 将 item 添加到 QListWidget
-        self.chat_list.insertItem(self.chat_list.count(), item)
-        self.chat_list.setItemWidget(item, widget)
-        self.chat_list.scrollToBottom()
-
 
     def delete_last_conversation(self):
         self.chat_list.takeItem(self.chat_list.count()-1)
 
     def run_button_clicked(self, text):
-        self.new_conversation("执行代码中...")
+        self.chat_list.new_response("执行代码中...")
         res = PythonExecute().run(text)
+        self.chat_list.new_response(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>", "system")
         self.delete_last_conversation()
-        self.new_conversation(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>", "system")
+        self.chat_list.new_response(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>", "system")
         
 
 

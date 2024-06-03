@@ -1,6 +1,6 @@
 from actions.action_util import ActionUtil
 from agent.prompt import programmer_prompt
-from utils.llm_util import LLM_Util
+from self_utils.llm_util import LLM_Util
 
 
 class ProgrammerAgent:
@@ -10,13 +10,11 @@ class ProgrammerAgent:
             action = action_class()
             action_descriptions += action.package_actions_description() + "\n"
         self.messages = [{"content": programmer_prompt.substitute(python_code=action_descriptions), "role": "system"}]
+        self.content = ""
 
     def run(self, question):
         self.messages.append({"content": question, "role": "user"})
-        res = LLM_Util().invoke(self.messages)
-        self.messages.append({"content": res["content"], "role": "assistant"})
-        return res["content"]
-
+        yield from LLM_Util().invoke(self.messages)     
         
 
 

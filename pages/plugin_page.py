@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6 import QtWidgets
-from utils.qt_util import QtUtil
+from self_utils.qt_util import QtUtil
 
 interface_ui = QtUtil.load_ui_type("plugin_page.ui")
 class PluginPage(QMainWindow, interface_ui):

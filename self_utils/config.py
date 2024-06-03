@@ -3,7 +3,7 @@ import shutil
 
 import yaml
 
-from utils.qt_util import QtUtil
+from self_utils.qt_util import QtUtil
 
 
 class Config:

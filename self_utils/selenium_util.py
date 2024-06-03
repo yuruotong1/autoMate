@@ -6,7 +6,7 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.service import Service as EdgeService
 from selenium.webdriver.chrome.service import Service as ChromeService
 
-from utils.config import Config
+from self_utils.config import Config
 
 
 class SeleniumUtil:

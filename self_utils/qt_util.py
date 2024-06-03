@@ -8,7 +8,8 @@ from PyQt6.uic import loadUiType
 class QtUtil:
     @classmethod
     def get_root_path(cls):
-        project_root_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+        # project_root_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+        project_root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
         return project_root_path
         
 

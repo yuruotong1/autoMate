@@ -1,13 +1,29 @@
-from typing import ClassVar
 
-from pydantic import BaseModel
+import sys
+import unittest
+import sys
+from self_utils.llm_util import LLM_Util
+
+class TestBaseModel(unittest.TestCase):
+    def test_model(self):
+        llm = LLM_Util()
+        r = llm.invoke([{"content": "你好，我是谁", "role": "user"}])
+        for i in r:
+            print(i)
+            # print(i.choices[0].delta.content or "", end="")
 
 
-class TmpBaseModel(BaseModel):
-    name: ClassVar[str] = "abc"
-    description: str = "hello"
+    def test_yiled(self):
+        def a():
+            for i in range(10):
+                yield i
+        def d():
+            res = a()
+            print("res: ", res)
+            yield from res
+            print("res: ", res)
+
+        for i in d():
+            print(i)
 
 
-def test_model():
-    t = TmpBaseModel(description="ddd")
-    print(t.dict)

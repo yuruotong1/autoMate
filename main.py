@@ -3,8 +3,7 @@ import sys
 import traceback
 from PyQt6.QtWidgets import QApplication
 from pages.chat_page import ChatPage
-from utils.config import Config
-from utils.window_util import WindowUtil
+from self_utils.config import Config
 
 
 # 设置日志
