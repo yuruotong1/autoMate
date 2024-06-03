@@ -168,6 +168,36 @@ class ChatPage(QMainWindow, interface_ui):
         self.chat_list.new_response(
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！"
         )
+        self.chat_list.new_response(
+            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！"
+        )
+
+#         self.chat_list.new_response("""
+# import os  # 导入os库以进行操作系统相关操作
+
+# # [步骤1] 获取当前操作系统用户的主目录路径
+# home_path = os.path.expanduser('~')
+
+# # [步骤2] 在用户主目录路径中定位到桌面路径
+# if os.name == 'nt':  # Windows系统
+#     desktop_path = os.path.join(home_path, 'Desktop')
+# else:  # macOS或Linux系统
+#     desktop_path = os.path.join(home_path, 'Desktop')
+
+# # [步骤3] 在桌面路径中查找文件名为“a.txt”的文件
+# file_path = os.path.join(desktop_path, 'a.txt')
+
+# # [步骤4] 打开找到的“a.txt”文件
+# try:
+#     with open(file_path, 'r') as file:  # 使用with语句安全打开文件
+#         # [步骤5] 读取文件“a.txt”的内容，并将其展示给用户
+#         content = file.read()  # 读取文件内容
+#         print(content)  # 打印读取的内容
+# except FileNotFoundError:
+#     print("文件未找到，请确保文件a.txt在桌面上。")
+# except Exception as e:
+#     print(f"打开文件时遇到错误: {e}")
+#                           """, type="code")
 
 
     def setup_up(self):

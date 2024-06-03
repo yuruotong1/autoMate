@@ -1,6 +1,6 @@
 import traceback
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from PyQt6.QtWidgets import QTextEdit, QPushButton, QLabel,QAbstractItemView, QListWidget, QSpacerItem, QSizePolicy, QListWidgetItem
+from PyQt6.QtWidgets import QApplication, QTextEdit, QPushButton, QLabel,QAbstractItemView, QListWidget, QSpacerItem, QSizePolicy, QListWidgetItem
 from PyQt6.QtGui import QPixmap
 from PyQt6 import QtGui, QtCore, QtWidgets
 from agent.programmer_agent import ProgrammerAgent
@@ -65,6 +65,11 @@ class ChatList(QListWidget):
                             highlight_current_line=True,
                             syntax_high_lighter=PythonHighlighter,
                             )
+        self.text_edit.setStyleSheet("""
+                background-color: white;
+                border-radius: 10px;
+                font-size:16px;
+            """)
         text = text.strip('```python').rstrip('```')
         self.text_edit.setPlainText(text)
         # 设置 widget、v_box 和 item 的大小
@@ -82,21 +87,25 @@ class ChatList(QListWidget):
         run_button.clicked.connect(lambda:self.run_button_clicked(self.text_edit.toPlainText()))
         run_button.setStyleSheet("background-color: green; color: white;")
         run_button_h_box.addWidget(run_button)
-        run_button_h_box.setStretch(2, 4)
+        run_button_h_box.setStretch(1, 4)
         conversation_box.addLayout(run_button_h_box)
-        def update_size(widget, item):
-            # 获取 QTextEdit 的文档的大小
-            doc_size = self.text_edit.document().size().toSize()
-            conversation_widget.setFixedHeight(doc_size.height()*25 + 20)
-            conversation_item.setSizeHint(conversation_widget.size()) # # 设置 QTextEdit 的背景为白色，边角为椭圆
-        self.text_edit.document().documentLayout().documentSizeChanged.connect(lambda: update_size(conversation_widget, conversation_item))
+         # 获取 QTextEdit 的文档的大小
+        doc_size = self.text_edit.document().size().toSize()
+        conversation_widget.setFixedHeight(doc_size.height()*25 + 20)
+        conversation_item.setSizeHint(conversation_widget.size()) # # 设置 QTextEdit 的背景为白色，边角为椭圆
+        # 获取 QTextEdit 的文档的大小
+        doc_size = self.text_edit.document().size().toSize()
+        print("doc_size", doc_size)
+        conversation_widget.setFixedHeight(doc_size.height()*25 + 20)
+        conversation_item.setSizeHint(conversation_widget.size())
        
     
     def run_button_clicked(self, text):
         self.new_response("执行代码中...")
         res = PythonExecute().run(text)
         self.takeItem(self.count()-1)
-        self.new_response(f"<p style='color:green;font-size:14px;'>代码执行完成，执行结果</p><br><code>{res}</code>")
+        self.new_response(f"<p style='color:green;'>代码执行完成，执行结果</p><br><code>{res}</code>")
+        
 
     def _text_response_render(self, text, conversation_widget, conversation_box, conversation_item):
         self.text_edit = QTextEdit()
@@ -105,9 +114,15 @@ class ChatList(QListWidget):
         def update_size(widget, item):
             # 获取 QTextEdit 的文档的大小
             doc_size = self.text_edit.document().size().toSize()
+            print("doc_size", doc_size.height())
             # 设置 widget、v_box 和 item 的大小
             widget.setFixedHeight(doc_size.height() + 55)
             item.setSizeHint(widget.size())
+        self.text_edit.setStyleSheet("""
+            background-color: white;
+            border-radius: 10px;
+            font-size:14px;
+        """)
         self.text_edit.document().documentLayout().documentSizeChanged.connect(lambda: update_size(conversation_widget, conversation_item))
         conversation_box.addWidget(self.text_edit)
       
@@ -118,24 +133,15 @@ class ChatList(QListWidget):
         conversation_box = QtWidgets.QVBoxLayout(conversation_widget)
         conversation_box.addLayout(self._sender_render(role))
         conversation_item = QListWidgetItem()
-        if type=="text":
-            self._text_response_render(text, conversation_widget, conversation_box, conversation_item)
-            self.text_edit.setStyleSheet("""
-                background-color: white;
-                border-radius: 10px;
-                font-size:14px;
-            """)
-        elif type=="code":
-            self._code_response_render(text, conversation_widget, conversation_box, conversation_item)
-            self.text_edit.setStyleSheet("""
-                   background-color: white;
-                   border-radius: 10px;
-                   font-size:16px;
-               """)
-        self.text_edit.document().setDocumentMargin(10)        # 将 item 添加到 QListWidget
         self.insertItem(self.count(), conversation_item)
         self.setItemWidget(conversation_item, conversation_widget)
+        if type=="text":
+            self._text_response_render(text, conversation_widget, conversation_box, conversation_item)
+        elif type=="code":
+            self._code_response_render(text, conversation_widget, conversation_box, conversation_item)
+        self.text_edit.document().setDocumentMargin(10)        # 将 item 添加到 QListWidget
         self.scrollToBottom()
+        
 
     
     def stream_response(self, stream):
