@@ -4,6 +4,7 @@ export default function Search(): JSX.Element {
         <section className="bg-slate-200 p-3 rounded-lg">
             <input className="w-full outline-none text-2xl text-slate-600 bg-slate-200" />
         </section>
+        <section className="text-center text-slate-600 text-xs mt-2">autoMate</section>
     </div>
   )
 }
