@@ -10,7 +10,7 @@
 <div align="center">
 
 
-📚[更全更新的文档地址](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec?from=from_copylink)
+📚[文档地址](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec?from=from_copylink)
 
 </div>
 各产品优势对比如下。
@@ -19,27 +19,16 @@
 
 ## 功能介绍
 
-如果你是第一次运行，需要修改配置文件添加 openai 的信息，autoMate 左上角点击文件-->点击components-->配置 openai 相关信息：
+autoMate 可以生成自动化代码帮助用户减少复性劳动，他做了三件事：
 
-![alt text](./source/github/config.png)
+1. 了解、分析用户需求，将需求转换为人人都能看懂的用例；
+2. 将用例转换成可执行的代码；
+3. 运行代码并调试，解决异常问题。
 
-### 随时与AI进行沟通
+使用 autoMate，你可以：
 
-打开界面就能直接与智子进行沟通，任何问题都可以交流。
-
-![alt text](./source/github/chat.png)
-
-### 通过拖拽搭建工作流
-通过界面拖拽就把让智子完成自动化操作。
-
-- 步骤1：点击工作流；
-- 步骤2：在弹出的面板中选择一空白区域，点击创建能力；
-- 步骤3：在弹出的编辑器中拖拽组件完成动作流编排；
-- 步骤4：填写合适的标题和描述，让智子知道它的作用。
-
-![alt text](./source/github/workflow.png)
-
-现在智子已经得到了加强！保存后返回到聊天页面，再次输入问题，被加强后的智子就会利用工作流完成定制化任务！
+- 随时与AI进行沟通：打开界面就能直接与智子进行沟通，任何问题都可以交流；
+- 自动化自成代码：沟通过程中，智子会跟您对齐自动化需求，生成可执行的代码。
 
 
 ## 感谢以下人员提交的宝贵代码！
