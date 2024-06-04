@@ -2,3 +2,18 @@ body{
     // @apply bg-slate-50;
 }
 
+
+// 可以拖动
+.drag{
+    -webkit-app-region: drag;
+}
+
+// 不可以拖动的组件
+.no-drag,
+input,
+select,
+textarea,
+option{
+    -webkit-app-region: none;
+}
+
