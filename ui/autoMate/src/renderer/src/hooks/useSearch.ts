@@ -9,7 +9,7 @@ export default()=>{
       setData(
         codes.filter((code) => 
           code.content.toLowerCase().includes(e.target.value.toLowerCase() || '@@@@@@')
-        )
+        ).slice(0, 8)
       )
     }
     return {search, handleSearch}
