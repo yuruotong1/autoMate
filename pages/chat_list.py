@@ -95,7 +95,6 @@ class ChatList(QListWidget):
         conversation_item.setSizeHint(conversation_widget.size()) # # 设置 QTextEdit 的背景为白色，边角为椭圆
         # 获取 QTextEdit 的文档的大小
         doc_size = self.text_edit.document().size().toSize()
-        print("doc_size", doc_size)
         conversation_widget.setFixedHeight(doc_size.height()*25 + 20)
         conversation_item.setSizeHint(conversation_widget.size())
        

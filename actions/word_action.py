@@ -10,20 +10,4 @@ class WordAction(ActionBase):
     
     @action(description="批量修改表格中的内容，将表格的行和列修改为新内容")
     def tmp(self, tmp: object):
-        print("tmp")
-
-
-    
-
-if __name__ == "__main__":
-    word_action = WordAction()
-    # print(word_action.get_action_description("change_content_for_table"))
-    # print(word_action.get_actions())
-    print(word_action.package_actions_description())
-    # word_action.change_content_for_table("", 1, 1, 1, 1, "")
-
-
-
-
-
-
+        return True

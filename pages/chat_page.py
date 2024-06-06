@@ -168,9 +168,6 @@ class ChatPage(QMainWindow, interface_ui):
         self.chat_list.new_response(
             "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！"
         )
-        self.chat_list.new_response(
-            "<b>你好，我叫智子，你的智能Agent助手！</b><br><br>你可以输入“/”搜索行为，或者可有什么要求可以随时吩咐！"
-        )
 
 #         self.chat_list.new_response("""
 # import os  # 导入os库以进行操作系统相关操作
