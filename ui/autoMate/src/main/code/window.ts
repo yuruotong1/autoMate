@@ -2,7 +2,7 @@
 import { BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import icon from '../../../resources/icon.png?asset'
-import * as ipc from  './ipc'
+import * as ipc from  '../ipc'
 import { join } from 'path'
 
 export function createWindow(): void {  // Create the browser window.
