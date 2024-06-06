@@ -22,13 +22,20 @@ export default()=>{
             })
             break
         case 'Enter': {
-            const content = data.find((item)=>item.id == id)?.content
-            if (content) console.log(content)
+            select(id)
             break
         }
        }
        // 将 data 和 currentIndex 变化时，重新定义该函数，currentIndex会更新为最新值
     }, [data, id])
+
+    function select(id: Number){
+        const content = data.find((item)=>item.id == id)?.content
+        if (content) navigator.clipboard.writeText(content)
+        if (content) console.log(content)
+        window.api.hideWindow()
+    }
+
     useEffect(() => {
         document.addEventListener('keydown', handleKeyEvent)
         // 如果 data 发生变化，先前的事件监听器会被移除，然后再添加新的监听器，以确保使用最新的 data
@@ -39,6 +46,6 @@ export default()=>{
     }, [handleKeyEvent])
     // 当输入数据变化时，将当前索引重置为0
     useEffect(() =>  setId(0), [data])
-    return {data, id}
+    return {data, id, select}
 }
 
