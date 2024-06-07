@@ -2,10 +2,9 @@
 import { BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import icon from '../../../resources/icon.png?asset'
-import * as ipc from  '../ipc'
 import { join } from 'path'
 
-export function createWindow(): void {  // Create the browser window.
+export function createWindow(): BrowserWindow {  // Create the browser window.
     const mainWindow = new BrowserWindow({
       width: 600,
       height: 350,
@@ -20,7 +19,6 @@ export function createWindow(): void {  // Create the browser window.
         sandbox: false
       }
     })
-    ipc.registerIpc(mainWindow)
   
     mainWindow.webContents.openDevTools()
     mainWindow.on('ready-to-show', () => {
@@ -39,5 +37,7 @@ export function createWindow(): void {  // Create the browser window.
     } else {
       mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
     }
+
+    return mainWindow
   }
   

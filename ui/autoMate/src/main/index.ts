@@ -1,11 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { createWindow } from './code/window'
-
+import "./code"
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
