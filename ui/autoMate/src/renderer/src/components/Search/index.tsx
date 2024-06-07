@@ -1,8 +1,8 @@
+import { useStore } from "@renderer/store/useStore"
 import useSearch from "@renderer/hooks/useSearch"
-
-
 export default function Search(): JSX.Element {
-  const {search, handleSearch} = useSearch()
+  const search = useStore((state)=>state.search)
+  const {handleSearch} = useSearch()
   return (
     <div className="bg-slate-50 p-3 rounded-lg drag" >
         <section className="bg-slate-200 p-3 rounded-lg">

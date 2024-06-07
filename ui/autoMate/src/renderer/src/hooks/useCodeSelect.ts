@@ -1,7 +1,9 @@
-import useCode from "@renderer/hooks/useCode"
+import {useStore} from "@renderer/store/useStore"
 import { useCallback, useEffect, useState } from "react"
 export default()=>{
-    const {data, setData} = useCode()
+    const data = useStore((state)=>state.data) 
+    const setData = useStore((state)=>state.setData)
+    const setSearch = useStore((state)=>state.setSearch)
     const [id, setId] = useState(0)
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
        // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
@@ -33,6 +35,7 @@ export default()=>{
     async function select(id: Number){
         const content = data.find((item)=>item.id == id)?.content
         setData([])
+        setSearch('')
         if (content) await navigator.clipboard.writeText(content)
         window.api.hideWindow()
     }
