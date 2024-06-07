@@ -1,7 +1,7 @@
 import useCode from "@renderer/hooks/useCode"
 import { useCallback, useEffect, useState } from "react"
 export default()=>{
-    const {data} = useCode()
+    const {data, setData} = useCode()
     const [id, setId] = useState(0)
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
        // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
@@ -29,10 +29,11 @@ export default()=>{
        // 将 data 和 currentIndex 变化时，重新定义该函数，currentIndex会更新为最新值
     }, [data, id])
 
-    function select(id: Number){
+    // 选中代码块
+    async function select(id: Number){
         const content = data.find((item)=>item.id == id)?.content
-        if (content) navigator.clipboard.writeText(content)
-        if (content) console.log(content)
+        setData([])
+        if (content) await navigator.clipboard.writeText(content)
         window.api.hideWindow()
     }
 
