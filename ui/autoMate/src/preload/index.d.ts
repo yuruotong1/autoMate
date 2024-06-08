@@ -4,7 +4,8 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: {
-      hideWindow: () => void
+      hideWindow: () => void,
+      shortCut: (type: 'search', shortCut: string) => Promise<boolean>
     }
   }
 }

@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import { createWindow } from './window'
 import * as ipc from './ipc'
-import { registerShortCut } from './shortcut'
+import { registerShortCut } from './shortCut'
 
 
 app.whenReady().then(() => {

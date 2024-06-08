@@ -5,8 +5,10 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   hideWindow: () =>{
     ipcRenderer.send("hideWindow")
+  },
+  shortCut: (type: 'search', shortCut: string) => {
+    return ipcRenderer.invoke("shortCut", type, shortCut)
   }
-
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
