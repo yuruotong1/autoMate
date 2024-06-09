@@ -1,4 +1,5 @@
 import { useStore } from "@renderer/store/useStore"
+import { Alert } from "antd"
 import { useEffect } from "react"
 
 function Error(){
@@ -9,7 +10,10 @@ function Error(){
        return () => clearTimeout(id)
     }, [error])
     if (!error) return <></>
-    return <><div className="bg-red-600 text-white">{error}</div></>
+    return (<main className="absolute top-0 z-10  w-full">
+        <Alert message={error} type="error" showIcon />
+        </main>)  
+
 }
 
 export default Error

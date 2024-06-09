@@ -1,6 +1,7 @@
 import { useStore } from "@renderer/store/useStore"
 import useSearch from "@renderer/hooks/useSearch"
 import { SettingOne } from "@icon-park/react"
+import { Input } from "antd"
 export default function Search(): JSX.Element {
   const search = useStore((state)=>state.search)
   const {handleSearch} = useSearch()
@@ -17,10 +18,17 @@ export default function Search(): JSX.Element {
                 console.log("点击了设置")
                 alert("设置")}}
             />
-            <input 
+            <Input 
+            placeholder="请输入内容" 
             value={search}
             onChange={handleSearch}
-            className="w-full outline-none text-2xl text-slate-600 bg-slate-200" />
+            autoFocus
+            />
+            {/* <input 
+            value={search}
+            onChange={handleSearch}
+            className="w-full outline-none text-2xl text-slate-600 bg-slate-200" 
+            autoFocus/> */}
         </section>
         <section className="text-center text-slate-600 text-xs mt-2">autoMate</section>
     </div>

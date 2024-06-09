@@ -10,9 +10,11 @@ function App(): JSX.Element {
   shortCut.register("search", "CommandOrControl+n")
   return (
     <CodeProvider>
+      <main className="relative">
       <Error/>
       <Search />
       <Result />
+      </main>
     </CodeProvider>
   )
 }
