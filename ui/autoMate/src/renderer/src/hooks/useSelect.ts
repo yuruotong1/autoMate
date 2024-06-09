@@ -1,35 +1,34 @@
 import {useStore} from "@renderer/store/useStore"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect } from "react"
 export default()=>{
     const data = useStore((state)=>state.data) 
     const setData = useStore((state)=>state.setData)
     const setSearch = useStore((state)=>state.setSearch)
-    const [id, setId] = useState(0)
+    const selectId = useStore((state)=>state.selectId)
+    const setSelectId = useStore((state)=>state.setSelectId)
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
        // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
        if (data.length === 0) return
        switch(e.key){
-        case 'ArrowUp':
-            setId((id)=>{
-                // 找到当前id的索引
-                const index = data.findIndex((item)=>item.id === id)
-                return data[index - 1]?.id || data[data.length - 1].id
-            })
+        case 'ArrowUp': {
+            // 找到当前id的索引
+            const index = data.findIndex((item)=>item.id === selectId)
+            setSelectId(data[index - 1]?.id || data[data.length - 1].id)
             break
-        case 'ArrowDown':
-            setId((id)=>{
-                // 找到当前id的索引
-                const index = data.findIndex((item)=>item.id === id)
-                return data[index + 1]?.id || data[0].id
-            })
+        }
+        case 'ArrowDown':{
+            // 找到当前id的索引
+            const index = data.findIndex((item)=>item.id === selectId)
+            setSelectId(data[index + 1]?.id || data[0].id)
             break
+        }
         case 'Enter': {
-            select(id)
+            select(selectId)
             break
         }
        }
        // 将 data 和 currentIndex 变化时，重新定义该函数，currentIndex会更新为最新值
-    }, [data, id])
+    }, [data, selectId])
 
     // 选中代码块
     async function select(id: Number){
@@ -49,7 +48,7 @@ export default()=>{
         }
     }, [handleKeyEvent])
     // 当输入数据变化时，将当前索引重置为0
-    useEffect(() =>  setId(0), [data])
-    return {data, id, select}
+    useEffect(() =>  setSelectId(data[0]?.id || 0), [data])
+    return {data, selectId, select}
 }
 

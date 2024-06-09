@@ -6,7 +6,9 @@ interface StateProps{
     search: string,
     setSearch: (search: string) => void,
     error: string,
-    setError: (error: string) => void
+    setError: (error: string) => void,
+    selectId: number,
+    setSelectId: (selectId: number) => void
 }
 export const useStore = create<StateProps>((set) => ({
     data: [],
@@ -14,6 +16,8 @@ export const useStore = create<StateProps>((set) => ({
     search: "",
     setSearch: (search) => set({search}),
     error: "",
-    setError: (error) => set({error})
+    setError: (error) => set({error}),
+    selectId: 0,
+    setSelectId: (selectId) => set({selectId})
   }))
 
