@@ -1,5 +1,5 @@
 
-import useCodeSelect from '@renderer/hooks/useCodeSelect'
+import useCodeSelect from '@renderer/hooks/useSelect'
 import styles from './styles.module.scss'
 export default function Result() {
     const {data, id, select} = useCodeSelect()
