@@ -2,11 +2,21 @@ import { useStore } from "@renderer/store/useStore"
 import useSearch from "@renderer/hooks/useSearch"
 import { SettingOne } from "@icon-park/react"
 import { Input } from "antd"
+import { useEffect, useRef } from "react"
 export default function Search(): JSX.Element {
   const search = useStore((state)=>state.search)
   const {handleSearch} = useSearch()
+  const mainRef = useRef<HTMLDivElement | null>(null)
+  useEffect(()=>{
+    mainRef.current?.addEventListener('mouseover', (_e: MouseEvent)=>{
+      window.api.setIgnoreMouseEvents(false)
+    })
+    mainRef.current?.addEventListener('mouseout', (_e: MouseEvent)=>{
+      window.api.setIgnoreMouseEvents(true, {forward: true})
+    })
+  },[])
   return (
-    <div className="bg-slate-50 p-3 rounded-lg drag" >
+    <main className="bg-slate-50 p-3 rounded-lg drag"  ref={mainRef}>
         <section className="bg-slate-200 p-3 rounded-lg flex items-center gap-1 nodrag">
             <SettingOne 
               theme="outline"
@@ -31,6 +41,6 @@ export default function Search(): JSX.Element {
             autoFocus/> */}
         </section>
         <section className="text-center text-slate-600 text-xs mt-2">autoMate</section>
-    </div>
+    </main>
   )
 }
