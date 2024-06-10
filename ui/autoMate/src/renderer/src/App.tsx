@@ -3,21 +3,15 @@ import Search from "./components/Search"
 import { CodeProvider } from "./context/CodeContext"
 import useShortCut from "./hooks/useShortCut"
 import Error from "./components/Error"
-import { useEffect, useRef } from "react"
+import { MutableRefObject, RefObject, useEffect, useRef } from "react"
+import useIgnoreMouseEvents from "./hooks/useIgnoreMouseEvents"
 
 
 function App(): JSX.Element {
   const mainRef = useRef<HTMLDivElement>(null)
+  const {setIgnoreMouseEvents} = useIgnoreMouseEvents()
   useEffect(()=>{
-    mainRef.current?.addEventListener('mouseover', ()=>{
-      window.api.setIgnoreMouseEvents(false)
-    })
-
-    document.body.addEventListener('mouseover', (e: MouseEvent)=>{
-      if (e.target === document.body) {
-        window.api.setIgnoreMouseEvents(true, {forward: true})
-      }
-    })
+    setIgnoreMouseEvents(mainRef as MutableRefObject<HTMLDivElement>)
   }, [])
   const shortCut = useShortCut()
   shortCut.register("search", "CommandOrControl+n")
@@ -33,3 +27,7 @@ function App(): JSX.Element {
 }
 
 export default App
+function setIgnoreMouseEvents(mainRef: RefObject<HTMLDivElement>) {
+  throw new Error("Function not implemented.")
+}
+
