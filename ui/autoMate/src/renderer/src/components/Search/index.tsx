@@ -15,8 +15,9 @@ export default function Search(): JSX.Element {
               strokeWidth={4}
               className="cursor-pointer"
               onClick={()=>{
-                window.api.openConfigWindow()
-              }}
+                alert("设置")
+                console.log("点击了设置")
+                window.api.openConfigWindow()}}
             />
             <Input 
             placeholder="请输入内容" 

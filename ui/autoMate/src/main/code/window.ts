@@ -21,7 +21,7 @@ export function createWindow(): BrowserWindow {  // Create the browser window.
       }
     })
   
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
     win.on('ready-to-show', () => {
       win.show()
     })
