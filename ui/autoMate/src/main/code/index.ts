@@ -6,10 +6,10 @@ import ignoreMouseEvents from './ignoreMouseEvents'
 
 
 app.whenReady().then(() => {
-  const window = createWindow()
-  ipc.registerIpc(window)
-  registerShortCut(window)
-  ignoreMouseEvents(window)
+  const win = createWindow()
+  ipc.registerIpc(win)
+  registerShortCut(win)
+  ignoreMouseEvents(win) 
 })
 
 

@@ -6,12 +6,12 @@ import { join } from 'path'
 
 export function createWindow(): BrowserWindow {  // Create the browser window.
     const win = new BrowserWindow({
-      width: 500,
-      height: 350,
+      width: 800,
+      height: 500,
       center: true,
       show: false,
-      frame: false,
-      transparent: true,
+      // frame: false,
+      // transparent: true,
       // alwaysOnTop: true,
       autoHideMenuBar: true,
       ...(process.platform === 'linux' ? { icon } : {}),
@@ -21,7 +21,7 @@ export function createWindow(): BrowserWindow {  // Create the browser window.
       }
     })
   
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
     win.on('ready-to-show', () => {
       win.show()
     })
