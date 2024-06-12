@@ -12,6 +12,8 @@ function Home(): JSX.Element {
   const {setIgnoreMouseEvents} = useIgnoreMouseEvents()
   useEffect(()=>{
     setIgnoreMouseEvents(mainRef as MutableRefObject<HTMLDivElement>)
+    //为开发方便，临时代码
+    window.api.openConfigWindow()
   }, [])
   const shortCut = useShortCut()
   shortCut.register("search", "CommandOrControl+n")
