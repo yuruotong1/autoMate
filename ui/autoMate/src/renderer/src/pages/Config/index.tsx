@@ -1,12 +1,8 @@
-import styles from "./styles.module.scss"
+import { Outlet } from "react-router-dom"
 export default function Config(){
     return (
-      <main className={styles.container}>
-        <div> </div>
-        <div> </div>
-        <div className={styles.category}> </div>
-        <div className={styles.nav}> </div>
-        <div className={styles.content}> </div>
+      <main>
+      <Outlet />
       </main>
     )
   }

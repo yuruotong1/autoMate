@@ -25,7 +25,7 @@
         }
         &.nav {
             grid-area: nav;
-            @apply border-r;
+            @apply border-r border-t;
         }
     }
 }
