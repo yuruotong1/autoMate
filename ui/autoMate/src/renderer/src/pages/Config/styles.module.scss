@@ -1,0 +1,31 @@
+.container{
+    @apply bg-white w-screen h-screen;
+    display: grid;
+    grid-template:
+    ' . . ' 30px
+    'category content' auto
+    // 第三行的高度是50像素、第一列宽度为100像素、第二列占据剩余空间
+    'nav content' 50px /100px 1fr;
+
+    div {
+        &:nth-child(1) {
+            @apply border-r;
+        }
+        &:nth-child(1), 
+        &:nth-child(2) {
+            -webkit-app-region: drag;
+        }
+        &.category {
+            grid-area: category;
+            @apply border-r;
+        }
+        &.content {
+            grid-area: content;
+            @apply bg-yellow-100;
+        }
+        &.nav {
+            grid-area: nav;
+            @apply border-r;
+        }
+    }
+}
