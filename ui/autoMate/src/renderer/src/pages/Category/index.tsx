@@ -1,4 +1,4 @@
-import { Link, Outlet, useLoaderData } from "react-router-dom"
+import { Link, NavLink, Outlet, useLoaderData } from "react-router-dom"
 import "./category.scss"
 import { Add, DatabaseConfig } from "@icon-park/react"
 
@@ -8,7 +8,11 @@ export const Category = () => {
     <main className="category-page">
         <div className="categories">
             {categories.map((category) => (
-                <Link to={`/config/category/contentList/${category.id}`} key={category.id} className="item" >{category.name}</Link>
+                <NavLink 
+                to={`/config/category/contentList/${category.id}`} 
+                key={category.id} 
+                className={({isActive}) => (isActive ? 'active' : '')}
+                >{category.name}</NavLink>
             ))}
         </div>
 
