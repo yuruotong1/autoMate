@@ -1,9 +1,16 @@
-import { Link, NavLink, Outlet, useLoaderData } from "react-router-dom"
+import { Link, NavLink, Outlet, useLoaderData, useNavigate } from "react-router-dom"
 import "./category.scss"
 import { Add, DatabaseConfig } from "@icon-park/react"
+import { useEffect } from "react"
 
 export const Category = () => {
     const categories = useLoaderData() as CategoryType[]
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (categories) {
+            navigate(`/config/category/contentList/${categories[0].id}`)
+        }
+    }, [categories])
     return (
     <main className="category-page">
         <div className="categories">

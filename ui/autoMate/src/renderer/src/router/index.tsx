@@ -4,6 +4,9 @@ import { createHashRouter } from "react-router-dom";
 import {Category} from "@renderer/pages/Category";
 import { ContentList } from "@renderer/pages/ContentList";
 import CategoryLoader from "@renderer/pages/Category/CategoryLoader";
+import ContentListLoader from "@renderer/pages/ContentList/ContentListLoader";
+import ContentLoader from "@renderer/pages/Content/ContentLoader";
+import { Content } from "@renderer/pages/Content/Content";
 
 const router = createHashRouter([
   {
@@ -22,7 +25,15 @@ const router = createHashRouter([
         children: [
           {
             path: "contentList/:cid",
-            element: <ContentList />
+            loader: ContentListLoader,
+            element: <ContentList />,
+            children: [
+              {
+                path: "content/:id",
+                loader: ContentLoader,
+                element: <Content />
+              }
+            ]
           }
         ]
       }

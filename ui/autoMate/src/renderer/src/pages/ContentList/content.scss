@@ -3,8 +3,11 @@
     display: grid;
     grid-template: "list content" auto / 150px auto;
     .list{
-        @apply bg-slate-50 border-r;
+        @apply bg-slate-50 border-r overflow-y-auto;
         grid-area: list;
+        a {
+            @apply block truncate py-1 px-1 cursor-pointer;
+        }
     }
     .content{
         grid-area: content;

@@ -24,3 +24,9 @@ CREATE TABLE IF NOT EXISTS contents (
 //     const name = Random.title(5, 10)
 //     db.exec(`insert into categories (name, created_at) values('${name}', datetime())`)
 // }
+
+// for (let i = 1; i < 20; i++) {
+//     const title = Random.title(5, 10)
+//     const content = Random.paragraph(5, 10)
+//     db.exec(`insert into contents (title, content, category_id, created_at) values('${title}', '${content}', ${i}, datetime())`)
+// }
