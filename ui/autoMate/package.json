@@ -25,11 +25,13 @@
     "@electron-toolkit/utils": "^3.0.0",
     "@icon-park/react": "^1.4.2",
     "@types/better-sqlite3": "^7.6.10",
+    "@types/mockjs": "^1.0.10",
     "antd": "^5.18.0",
     "better-sqlite3": "^11.0.0",
     "electron-updater": "^6.1.7",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.4",
+    "mockjs": "^1.1.0",
     "react-router-dom": "^6.23.1",
     "sort-by": "^0.0.2",
     "zustand": "^4.5.2"

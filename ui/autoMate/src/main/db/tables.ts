@@ -1,3 +1,4 @@
+import { Random } from "mockjs";
 import { db } from "./connect";
 
 db.exec(`
@@ -18,3 +19,8 @@ CREATE TABLE IF NOT EXISTS contents (
     created_at TEXT not null
 );
 `)
+
+// for (let i = 0; i < 20; i++) {
+//     const name = Random.title(5, 10)
+//     db.exec(`insert into categories (name, created_at) values('${name}', datetime())`)
+// }
