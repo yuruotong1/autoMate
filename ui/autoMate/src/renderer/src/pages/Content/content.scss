@@ -1,0 +1,10 @@
+.content-page{
+    @apply p-3;
+    h1{
+        @apply text-base font-bold text-slate-600 opacity-95;
+    }
+
+    .content{
+        @apply text-sm text-slate-500 opacity-95 leading-relaxed;
+    }
+}

@@ -11,5 +11,5 @@ type ContentType = {
     title: string
     content: string
     category_id: string
-    createdAt: string
+    created_at: string
 }

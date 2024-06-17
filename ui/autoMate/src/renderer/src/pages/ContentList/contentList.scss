@@ -1,4 +1,4 @@
-.content-page{
+.contentList-page{
     @apply h-screen  text-xs text-slate-700;
     display: grid;
     grid-template: "list content" auto / 150px auto;
@@ -6,7 +6,7 @@
         @apply bg-slate-50 border-r overflow-y-auto;
         grid-area: list;
         a {
-            @apply block truncate py-1 px-1 cursor-pointer;
+            @apply truncate py-1 px-1 cursor-pointer flex items-center gap-1 border-b mx-2;
             &.active{
                 // mx-1 外边距
                 @apply bg-blue-700 text-white mx-1 rounded-md;
