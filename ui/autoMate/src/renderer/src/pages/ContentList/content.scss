@@ -7,6 +7,10 @@
         grid-area: list;
         a {
             @apply block truncate py-1 px-1 cursor-pointer;
+            &.active{
+                // mx-1 外边距
+                @apply bg-blue-700 text-white mx-1 rounded-md;
+            }
         }
     }
     .content{
