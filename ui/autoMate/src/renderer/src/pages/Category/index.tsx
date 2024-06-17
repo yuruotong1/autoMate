@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useLoaderData, useNavigate } from "react-router-dom"
 import "./category.scss"
-import { Add, DatabaseConfig } from "@icon-park/react"
+import { Add, DatabaseConfig, FolderClose } from "@icon-park/react"
 import { useEffect } from "react"
 
 export const Category = () => {
@@ -19,7 +19,10 @@ export const Category = () => {
                 to={`/config/category/contentList/${category.id}`} 
                 key={category.id} 
                 className={({isActive}) => (isActive ? 'active' : '')}
-                >{category.name}</NavLink>
+                >
+                    <FolderClose theme="outline" size="12" strokeWidth={3}></FolderClose>
+                    <div className="truncate">{category.name}</div>
+                    </NavLink>
             ))}
         </div>
 
