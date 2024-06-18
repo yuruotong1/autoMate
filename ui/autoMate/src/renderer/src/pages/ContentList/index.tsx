@@ -6,6 +6,13 @@ export const ContentList = () => {
     const contentList = useLoaderData() as ContentType[]
     return (<main className="contentList-page">
         <div className="list">
+            <input 
+                type="text" 
+                placeholder="搜索..." 
+                className="outline-none text-sm font-bold py-2 px-3 border-b
+                w-full"
+                
+            />
             {contentList.map(content => (
                 <NavLink 
                    key={content.id} 

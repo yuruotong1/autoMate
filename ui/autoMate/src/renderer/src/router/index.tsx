@@ -26,14 +26,14 @@ const router = createHashRouter([
         loader: CategoryLoader,
         children: [
           {
-            index: true,
-            element: <Welcome />
-          },
-          {
             path: "contentList/:cid?",
             loader: ContentListLoader,
             element: <ContentList />,
             children: [
+              {
+                index: true,
+                element: <Welcome />
+              },
               {
                 path: "content/:id",
                 loader: ContentLoader,
