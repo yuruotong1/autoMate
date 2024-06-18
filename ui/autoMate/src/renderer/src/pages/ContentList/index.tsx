@@ -5,12 +5,12 @@ import dayjs from "dayjs"
 
 export const ContentList = () => {
     const contentList = useLoaderData() as ContentType[]
-    const navigate = useNavigate()
-    useEffect(() => {
-        if (contentList) {
-            navigate(`/config/category/contentList/${contentList[0].category_id}/content/${contentList[0].id}`)
-        }
-    }, [contentList])
+    // const navigate = useNavigate()
+    // useEffect(() => {
+    //     if (contentList) {
+    //         navigate(`/config/category/contentList/${contentList[0].category_id}/content/${contentList[0].id}`)
+    //     }
+    // }, [contentList])
     return (<main className="contentList-page">
         <div className="list">
             {contentList.map(content => (

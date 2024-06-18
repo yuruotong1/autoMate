@@ -1,7 +1,7 @@
 .content-page{
     @apply h-screen;
     display: grid;
-    grid-template-rows: 50px 1fr 40px;
+    grid-template-rows: 50px 1fr;
     input{
         @apply text-lg outline-none bg-slate-50 p-3;
     }
