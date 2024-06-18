@@ -15,8 +15,8 @@ const api = {
   openConfigWindow: () => {
     ipcRenderer.send("openConfigWindow")
   },
-  sql: (sql: string, type: SqlActionType) => {
-    return ipcRenderer.invoke("sql", sql, type)
+  sql: (sql: string, type: SqlActionType, params={}) => {
+    return ipcRenderer.invoke("sql", sql, type, params)
   }
 
 }

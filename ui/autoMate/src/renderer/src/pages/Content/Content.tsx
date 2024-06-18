@@ -4,7 +4,7 @@ export const Content = () => {
     const content = useLoaderData() as ContentType
     return (
     <Form method="PUT">
-    <main className="content-page">
+    <main className="content-page" key={content.id}>
         <input defaultValue={content.title} name="title"/>
         <textarea defaultValue={content.content} name="content"/>
         <div className="border-t flex items-center justify-center">
