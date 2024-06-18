@@ -1,7 +1,7 @@
 .contentList-page{
     @apply h-screen  text-xs text-slate-700;
     display: grid;
-    grid-template: "list content" auto / 150px auto;
+    grid-template: "list content" auto / 220px auto;
     .list{
         @apply border-r overflow-y-auto;
         grid-area: list;
