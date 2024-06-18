@@ -15,6 +15,12 @@ export const Category = () => {
                     <div className="truncate">所有内容</div>
                 </div>
             </NavLink>
+            <NavLink to={`/config/category/contentList/0`} end className="font-blod mb-1">
+                <div className="flex items-center gap-1">
+                    <AllApplication theme="outline" size="12" strokeWidth={3}/>
+                    <div className="truncate">未分类</div>
+                </div>
+            </NavLink>
             {categories.map((category) => (
                 <NavLink 
                 to={`/config/category/contentList/${category.id}`} 

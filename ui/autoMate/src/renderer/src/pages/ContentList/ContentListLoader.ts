@@ -7,7 +7,7 @@ export default async({params, request}) => {
         console.log("hello")
         return window.api.sql(sql, "findAll", {searchWord: `%${searchWord}%`})
     }
-    if (params.cid) {
+    if (params.cid != undefined) {
         sql += ` where category_id=${params.cid}`
     }
     sql += " order by id desc"
