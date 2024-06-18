@@ -10,15 +10,15 @@ CREATE TABLE IF NOT EXISTS categories (
 `)
 
 
-db.exec(`
-CREATE TABLE IF NOT EXISTS contents (
-    id INTEGER PRIMARY KEY AUTOINCREMENT not null,
-    title TEXT not null,
-    content TEXT not null,
-    category_id INTEGER,
-    created_at TEXT not null
-);
-`)
+// db.exec(`
+// CREATE TABLE IF NOT EXISTS contents (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT not null,
+//     title TEXT not null,
+//     content TEXT not null,
+//     category_id INTEGER,
+//     created_at TEXT not null
+// );
+// `)
 
 // for (let i = 0; i < 20; i++) {
 //     const name = Random.title(5, 10)
