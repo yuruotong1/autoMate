@@ -1,12 +1,22 @@
 .content-page{
     @apply h-screen;
     display: grid;
-    grid-template-rows: 50px 1fr;
+    grid-template-rows: 50px 30px 1fr;
+    @mixin common {
+        @apply outline-none bg-slate-50;
+    }
     input{
-        @apply text-lg outline-none bg-slate-50 p-3;
+        @include common();
+        @apply text-lg p-3;
+    }
+
+    select{
+        @include common();
+        @apply w-full;
     }
 
     textarea{
-        @apply border-t pt-5 outline-none text-sm opacity-90 bg-slate-50 p-3;
+        @include common();
+        @apply border-t pt-5  text-sm opacity-90 p-3;
     }
 }
