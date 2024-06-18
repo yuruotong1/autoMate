@@ -7,17 +7,22 @@ export const Category = () => {
     return (
     <main className="category-page">
         <div className="categories">
-            {/* 加 end 是避免子路由被选中时，父路由也被选中 */}
-            <NavLink to={`/config/category/contentList`} end>
-                <AllApplication theme="outline" size="22" strokeWidth={3}/>
-                <div className="truncate">所有内容</div>
+            <div className="px-2 mt-2 opacity-90 mb-1">快捷操作</div>
+            {/* 加 end 表示路径完全匹配时，才会被选中 */}
+            <NavLink to={`/config/category/contentList`} end className="font-blod mb-1">
+                <div className="flex items-center gap-1">
+                    <AllApplication theme="outline" size="12" strokeWidth={3}/>
+                    <div className="truncate">所有内容</div>
+                </div>
             </NavLink>
             {categories.map((category) => (
                 <NavLink 
                 to={`/config/category/contentList/${category.id}`} 
                 key={category.id} >
+                    <div className="flex items-center gap-1">
                     <FolderClose theme="outline" size="12" strokeWidth={3}></FolderClose>
                     <div className="truncate">{category.name}</div>
+                    </div>
                     </NavLink>
             ))}
         </div>

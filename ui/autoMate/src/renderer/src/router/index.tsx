@@ -30,7 +30,7 @@ const router = createHashRouter([
             element: <Welcome />
           },
           {
-            path: "contentList/:cid",
+            path: "contentList/:cid?",
             loader: ContentListLoader,
             element: <ContentList />,
             children: [
