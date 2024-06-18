@@ -35,7 +35,7 @@ export const ContentList = () => {
                 <NavLink 
                    key={content.id} 
                    to={`/config/category/contentList/${content.category_id}/content/${content.id}`}
-                   className={({ isActive }) => `${isActive ? "active" : ""}`}> 
+                   className="flex justify-between items-center"> 
                    <div className="truncate">{content.title}</div>
                    <div className="text-[10px] opacity-80 ">{dayjs(content.created_at).format("YYYY/MM/DD")}</div>
                    </NavLink>
