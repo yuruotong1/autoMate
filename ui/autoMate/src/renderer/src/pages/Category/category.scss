@@ -9,14 +9,7 @@
     .categories{
         @apply border-r bg-slate-100 text-xs text-slate-700 overflow-y-auto;
         grid-area: categories;
-        // link 编译完是 a 标题
-        a{
-            @apply p-1 py-1 truncate cursor-pointer block;
-            &.active{
-                // mx-1 外边距
-                @apply bg-blue-700 text-white mx-1 rounded-md;
-            }
-        }
+   
        
     }
 

@@ -1,0 +1,10 @@
+.link{
+            
+    @apply truncate py-1 px-[6px] cursor-pointer flex items-center 
+    gap-1 border-b mx-2 my-1 hover:bg-slate-100;
+   
+}
+
+.active{
+    @apply bg-blue-700 text-white rounded-md border-none hover:bg-blue-700;
+}

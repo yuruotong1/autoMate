@@ -1,0 +1,16 @@
+@mixin commonLink{
+    @apply px-2 py-2 truncate cursor-pointer block mx-1;
+   
+} 
+ // link 编译完是 a 标题
+.link{
+    @include commonLink;
+   
+}
+
+
+.active{
+    @include commonLink;
+    // mx-1 外边距
+    @apply bg-orange-400 text-white rounded-md;
+}
