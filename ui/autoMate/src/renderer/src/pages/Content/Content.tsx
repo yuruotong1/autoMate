@@ -9,6 +9,7 @@ export const Content = () => {
     return (
     <Form method="PUT">
     <main className="content-page" key={content.id}>
+        <input name="id" type="text" defaultValue={content.id} hidden></input>
         <input autoFocus defaultValue={content.title} name="title" onChange={(e) => {
             submit(e.target.form)
         }}/>
