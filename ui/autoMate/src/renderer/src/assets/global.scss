@@ -21,3 +21,9 @@ option{
     -webkit-app-region: none;
 }
 
+.contextMenu{
+    @apply rounded-md;
+    button {
+        @apply bg-[#2c3e50] text-white px-5 py-1 hover:bg-[#34495e];
+    }
+}
