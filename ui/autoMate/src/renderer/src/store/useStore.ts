@@ -8,7 +8,9 @@ interface StateProps{
     error: string,
     setError: (error: string) => void,
     selectId: number,
-    setSelectId: (selectId: number) => void
+    setSelectId: (selectId: number) => void,
+    editCategoryId: number,
+    setEditCategoryId: (id: number) => void
 }
 export const useStore = create<StateProps>((set) => ({
     data: [],
@@ -18,6 +20,8 @@ export const useStore = create<StateProps>((set) => ({
     error: "",
     setError: (error) => set({error}),
     selectId: 0,
-    setSelectId: (selectId) => set({selectId})
+    setSelectId: (selectId) => set({selectId}),
+    editCategoryId: 0,
+    setEditCategoryId: (editCategoryId) => set({editCategoryId})
   }))
 

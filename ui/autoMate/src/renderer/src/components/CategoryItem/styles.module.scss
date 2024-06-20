@@ -1,17 +1,27 @@
-    @mixin commonLink{
-        @apply px-2 py-2 truncate cursor-pointer block mx-1;
-       
-    } 
-     // link 编译完是 a 标题
-    .link{
-        @include commonLink();
-        @apply hover:bg-gray-200;
-       
-    }
+$height: 32px;
+@mixin commonLink{
+    @apply px-2 py-2 truncate cursor-pointer block mx-1 my-1 rounded-md;
+    height: $height;
+    
+} 
+    // link 编译完是 a 标题
+.link{
+    @include commonLink();
+    @apply hover:bg-gray-200;
+    
+}
 
 
-    .active{
-        @include commonLink();
-        // mx-1 外边距
-        @apply bg-blue-600 text-white rounded-md;
+.active{
+    @include commonLink();
+    // mx-1 外边距
+    @apply bg-blue-600 text-white rounded-md;
+}
+
+.input{
+    @apply w-full px-2 ;
+    height: $height;
+    input {
+        @apply h-full w-full rounded-md px-2 border outline-none;
     }
+}
