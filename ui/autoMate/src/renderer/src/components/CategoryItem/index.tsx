@@ -1,5 +1,5 @@
 import { Delete, FolderClose } from "@icon-park/react"
-import { NavLink, useSubmit } from "react-router-dom"
+import { NavLink, useFetcher, useSubmit } from "react-router-dom"
 import styles from "./styles.module.scss"
 import { useContextMenu } from "mantine-contextmenu"
 import { useStore } from "@renderer/store/useStore"
@@ -8,7 +8,8 @@ interface Props {
 }
 
 export const CategoryItem = ({ category }: Props) => {
-  const submit = useSubmit()
+  // fetcher 不会刷新路由
+  const fetcher = useFetcher()
   const { showContextMenu } = useContextMenu()
   const setEditCategoryId = useStore(state => state.setEditCategoryId)
   const editCategoryId = useStore(state => state.editCategoryId)
@@ -23,7 +24,7 @@ export const CategoryItem = ({ category }: Props) => {
           onKeyDown={
             (e) => {
               if (e.key === 'Enter') {
-                submit({ id: category.id, name: e.currentTarget.value }, { method: 'PUT' })
+                fetcher.submit({ id: category.id, name: e.currentTarget.value }, { method: 'PUT' })
                 setEditCategoryId(0)
               }
             }
