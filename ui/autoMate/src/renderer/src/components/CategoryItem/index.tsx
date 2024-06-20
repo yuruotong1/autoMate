@@ -13,8 +13,7 @@ export const CategoryItem = ({ category }: Props) => {
   const fetcher = useFetcher()
   const setEditCategoryId = useStore(state => state.setEditCategoryId)
   const editCategoryId = useStore(state => state.editCategoryId)
-  const { contextMenu } = useCategory()
-  const { updateContentCategory } = useContent()
+  const { contextMenu, dragHandle } = useCategory(category)
   return (
     <>
       {editCategoryId == category.id ? (
@@ -33,8 +32,8 @@ export const CategoryItem = ({ category }: Props) => {
             }
           />
         </div>
-      ) :
-        (<NavLink
+      ) : (
+      <NavLink
           onDoubleClick={
             (_e) => {
               setEditCategoryId(category.id)
@@ -45,19 +44,8 @@ export const CategoryItem = ({ category }: Props) => {
           className={({ isActive }) => {
             return isActive ? styles.active : styles.link
           }}
-          onContextMenu={contextMenu(category)}
-          onDragOver={(e)=>{
-            e.preventDefault()
-            e.currentTarget.classList.add(styles.draging)
-          }}
-          onDragLeave={(e)=>{
-            e.currentTarget.classList.remove(styles.draging)
-          }}
-          onDrop={(e)=>{
-            e.currentTarget.classList.remove(styles.draging)
-            const id = e.dataTransfer.getData("id")
-            updateContentCategory(Number(id), category.id)
-          }}
+          onContextMenu={contextMenu()}
+          {...dragHandle}
         >
           <div className="flex items-center gap-1">
             <FolderClose theme="outline" size="12" strokeWidth={3}></FolderClose>
