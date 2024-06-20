@@ -16,6 +16,9 @@ const { showContextMenu } = useContextMenu();
         className={({isActive})=>{
             return [isActive ? styles.active : '', styles.link].join(' ')
         }}
+        onDragStart={(_e)=>{
+          console.log("drag")
+        }}
         onContextMenu={showContextMenu([
         {
             key: 'remove',
