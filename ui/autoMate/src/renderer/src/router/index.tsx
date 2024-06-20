@@ -10,6 +10,7 @@ import { Content } from "@renderer/pages/Content/Content";
 import ContentAction from "@renderer/pages/Content/ContentAction";
 import { Welcome } from "@renderer/pages/Welcome";
 import ContentListAction from "@renderer/pages/ContentList/ContentListAction";
+import CategoryAction from "@renderer/pages/Category/CategoryAction";
 
 const router = createHashRouter([
   {
@@ -25,6 +26,7 @@ const router = createHashRouter([
         // 界面第一次打开时，默认显示的页面
         element: <Category />,
         loader: CategoryLoader,
+        action: CategoryAction,
         children: [
           {
             path: "contentList/:cid?",
