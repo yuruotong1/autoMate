@@ -1,8 +1,9 @@
 import { FolderClose } from "@icon-park/react"
-import { NavLink, useFetcher, useSubmit } from "react-router-dom"
+import { NavLink, useFetcher} from "react-router-dom"
 import styles from "./styles.module.scss"
 import { useStore } from "@renderer/store/useStore"
 import useCategory from "@renderer/hooks/useCategory"
+import useContent from "@renderer/hooks/useContent"
 interface Props {
   category: CategoryType
 }
@@ -13,22 +14,23 @@ export const CategoryItem = ({ category }: Props) => {
   const setEditCategoryId = useStore(state => state.setEditCategoryId)
   const editCategoryId = useStore(state => state.editCategoryId)
   const { contextMenu } = useCategory()
+  const { updateContentCategory } = useContent()
   return (
     <>
       {editCategoryId == category.id ? (
         <div className={styles.input}>
-          <input 
-          defaultValue={category.name} 
-          name="name" 
-          autoFocus 
-          onKeyDown={
-            (e) => {
-              if (e.key === 'Enter') {
-                fetcher.submit({ id: category.id, name: e.currentTarget.value }, { method: 'PUT' })
-                setEditCategoryId(0)
+          <input
+            defaultValue={category.name}
+            name="name"
+            autoFocus
+            onKeyDown={
+              (e) => {
+                if (e.key === 'Enter') {
+                  fetcher.submit({ id: category.id, name: e.currentTarget.value }, { method: 'PUT' })
+                  setEditCategoryId(0)
+                }
               }
             }
-          }
           />
         </div>
       ) :
@@ -44,6 +46,18 @@ export const CategoryItem = ({ category }: Props) => {
             return isActive ? styles.active : styles.link
           }}
           onContextMenu={contextMenu(category)}
+          onDragOver={(e)=>{
+            e.preventDefault()
+            e.currentTarget.classList.add(styles.draging)
+          }}
+          onDragLeave={(e)=>{
+            e.currentTarget.classList.remove(styles.draging)
+          }}
+          onDrop={(e)=>{
+            e.currentTarget.classList.remove(styles.draging)
+            const id = e.dataTransfer.getData("id")
+            updateContentCategory(Number(id), category.id)
+          }}
         >
           <div className="flex items-center gap-1">
             <FolderClose theme="outline" size="12" strokeWidth={3}></FolderClose>

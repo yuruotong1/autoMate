@@ -16,8 +16,8 @@ const { showContextMenu } = useContextMenu();
         className={({isActive})=>{
             return [isActive ? styles.active : '', styles.link].join(' ')
         }}
-        onDragStart={(_e)=>{
-          console.log("drag")
+        onDragStart={(e)=>{
+          e.dataTransfer.setData('id', String(content.id))
         }}
         onContextMenu={showContextMenu([
         {

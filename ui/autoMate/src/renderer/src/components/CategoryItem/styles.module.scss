@@ -25,3 +25,7 @@ $height: 32px;
         @apply h-full w-full rounded-md px-2 border outline-none;
     }
 }
+
+.draging{
+    @apply bg-slate-400 text-white;
+}
