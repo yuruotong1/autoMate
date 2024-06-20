@@ -1,5 +1,5 @@
-import Config from "@renderer/pages/Config";
-import Home from "@renderer/pages/Home";
+import Config from "@renderer/layouts/Config";
+import Home from "@renderer/layouts/Home";
 import { createHashRouter } from "react-router-dom";
 import {Category} from "@renderer/pages/Category";
 import { ContentList } from "@renderer/pages/ContentList";
@@ -11,6 +11,7 @@ import ContentAction from "@renderer/pages/Content/ContentAction";
 import { Welcome } from "@renderer/pages/Welcome";
 import ContentListAction from "@renderer/pages/ContentList/ContentListAction";
 import CategoryAction from "@renderer/pages/Category/CategoryAction";
+import { Setting } from "@renderer/pages/Setting";
 
 const router = createHashRouter([
   {
@@ -21,6 +22,10 @@ const router = createHashRouter([
     path: "config",
     element: <Config />,
     children: [
+      {
+        index: true,
+        element: <Setting/>
+      },
       {
         path: "category",
         // 界面第一次打开时，默认显示的页面

@@ -35,7 +35,8 @@ export function createWindow(): BrowserWindow {  // Create the browser window.
     // HMR for renderer base on electron-vite cli.
     // Load the remote URL for development or the local html file for production.
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-      win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config/category/contentList")
+      // win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config/category/contentList")
+      win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config")
     } else {
       win.loadURL(
         url.format({

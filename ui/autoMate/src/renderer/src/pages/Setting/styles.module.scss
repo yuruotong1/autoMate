@@ -1,0 +1,10 @@
+.settingPage{
+    @apply bg-slate-100 h-screen p-5;
+    h1 {
+        @apply flex justify-center text-sm;
+    }
+
+    section{
+        @apply border p-3 rounded-md bg-white my-5;
+    }
+}
