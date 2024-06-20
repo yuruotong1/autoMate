@@ -11,7 +11,7 @@ export const Category = () => {
         <div className="categories">
             <QuickNav/>
             {categories.map((category) => (
-                <CategoryItem category={category} key={category.id}/>
+                <CategoryItem category={category} key={category.id} />
             ))}
         </div>
         <FooterMenu/>
