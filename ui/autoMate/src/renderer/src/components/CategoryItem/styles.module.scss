@@ -2,7 +2,7 @@ $height: 32px;
 @mixin commonLink{
     @apply px-2 py-2 truncate cursor-pointer block mx-1 my-1 rounded-md;
     height: $height;
-    
+    -webkit-user-drag: none;
 } 
     // link 编译完是 a 标题
 .link{

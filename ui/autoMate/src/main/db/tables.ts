@@ -1,5 +1,6 @@
 import { Random } from "mockjs";
 import { db } from "./connect";
+import { findOne } from "./query";
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS categories (
@@ -19,6 +20,28 @@ CREATE TABLE IF NOT EXISTS contents (
     created_at TEXT not null
 );
 `)
+
+
+db.exec(`
+CREATE TABLE IF NOT EXISTS config (
+    id INTEGER PRIMARY KEY AUTOINCREMENT not null,
+    content TEXT not null
+);
+`)
+
+
+function initData() {
+    const initData = findOne('select * from config')
+    if (initData) return
+    db.exec(`insert into config (content) values('')`)
+    
+}
+
+initData()
+// for (let i = 0; i < 20; i++) {
+//     const name = Random.title(5, 10)
+//     db.exec(`insert into config (content) values('${name}')`)
+// }
 
 // for (let i = 0; i < 20; i++) {
 //     const name = Random.title(5, 10)

@@ -3,8 +3,8 @@ export interface DataType {
     content: string
 }
 export const codes = [
-    {id:1, content: "Hello, how are you?"},
-    {id:2, content: "I am fine, thank you"},
+    {id:1, content: "月报天才猫！"},
+    {id:2, content: "新闻天才猫！"},
     {id:3, content: "How are you?"},
     {id:4, content: "I am fine, thank you"},
     {id:5, content: "How are you?"},

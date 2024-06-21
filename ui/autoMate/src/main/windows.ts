@@ -13,9 +13,10 @@ export const config = {
         options: {
             width: 1300,
             height: 600,
+            openDevTools: true,
             frame: true,
             transparent: false,
-            hash: '/#config/category/contentList'
+            hash: '/#config'
         }
     }
 
@@ -42,5 +43,6 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 
 app.whenReady().then(() => {
-    getWindowByName('search')
+    // getWindowByName('search')
+    getWindowByName('config')
 })
