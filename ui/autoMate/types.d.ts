@@ -16,3 +16,13 @@ type ContentType = {
 
 
 type WindowNameType = 'search' | 'config'
+
+type ConfigType = {
+    id: number
+    content: string
+}
+
+type ConfigDataType = {
+    shortCut: string
+    databaseDirectory: string
+}

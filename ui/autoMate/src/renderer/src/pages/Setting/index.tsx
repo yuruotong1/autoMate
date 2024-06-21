@@ -1,7 +1,8 @@
-import { Form, useSubmit } from 'react-router-dom'
+import { Form, useLoaderData, useSubmit } from 'react-router-dom'
 import styles from './styles.module.scss'
 
 export const Setting = () => {
+    const config = useLoaderData() as ConfigDataType
     const submit = useSubmit()
     return (
         <Form method="POST">
@@ -12,6 +13,7 @@ export const Setting = () => {
                 <input 
                     type="text"
                     name="shortcut"
+                    defaultValue={config.shortCut}
                     onKeyUp={(e)=>{
                         submit(e.currentTarget.form, {method: 'POST'})
                     }}
@@ -19,7 +21,7 @@ export const Setting = () => {
             </section>
             <section>
                 <h5>数据库</h5>
-                <input type="text" name="databaseDirectory" defaultValue="abc"/>
+                <input type="text" name="databaseDirectory" defaultValue={config.databaseDirectory}/>
             </section>
         </main>
         </Form>
