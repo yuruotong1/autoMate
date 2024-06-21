@@ -1,21 +1,29 @@
-import { BrowserWindow } from "electron"
+import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, app } from "electron"
 import { OptionsType, createWindow} from "./createWindow"
-export type WindowNameType = 'search' | 'config'
+
 export const config = {
     search: {
         id: 0,
-        options: {}
+        options: {
+            hash: ''
+        }
     },
     config: {
         id: 0,
-        options: {}
+        options: {
+            width: 1300,
+            height: 600,
+            frame: true,
+            transparent: false,
+            hash: '/#config/category/contentList'
+        }
     }
 
 } as Record<WindowNameType, {id: number,  options: OptionsType }>
 // createWindow({})
 
-
-export const getWindow = (name: WindowNameType)=>{
+// 根据名称获取窗口
+export const getWindowByName = (name: WindowNameType)=>{
      // 根据id取得窗口
      let win = BrowserWindow.fromId(config[name].id)
      // 避免重复点击重复创建窗口
@@ -25,3 +33,14 @@ export const getWindow = (name: WindowNameType)=>{
      }
      return win
 }
+
+
+// 根据触发来源获取窗口
+export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
+    return BrowserWindow.fromWebContents(event.sender)!
+}
+
+
+app.whenReady().then(() => {
+    getWindowByName('search')
+})

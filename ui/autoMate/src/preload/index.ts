@@ -3,9 +3,6 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  hideWindow: () =>{
-    ipcRenderer.send("hideWindow")
-  },
   shortCut: (type: 'search', shortCut: string) => {
     return ipcRenderer.invoke("shortCut", type, shortCut)
   },
@@ -17,7 +14,13 @@ const api = {
   },
   sql: (sql: string, type: SqlActionType, params={}) => {
     return ipcRenderer.invoke("sql", sql, type, params)
-  }
+  },
+  openWindow: (name: WindowNameType) =>{
+    ipcRenderer.send("openWindow", name)
+  },
+  closeWindow: (name: WindowNameType) =>{
+    ipcRenderer.send("closeWindow", name)
+  },
 
 }
 

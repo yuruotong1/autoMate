@@ -36,7 +36,7 @@ export function createWindow(): BrowserWindow {  // Create the browser window.
     // Load the remote URL for development or the local html file for production.
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
       // win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config/category/contentList")
-      win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config")
+      win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config/category/contentList")
     } else {
       win.loadURL(
         url.format({
