@@ -43,6 +43,6 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 
 app.whenReady().then(() => {
-    // getWindowByName('search')
+    getWindowByName('search')
     getWindowByName('config')
 })

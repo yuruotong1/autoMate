@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS config (
 function initData() {
     const initData = findOne('select * from config')
     if (initData) return
-    db.exec(`insert into config (content) values('')`)
+    db.exec(`insert into config (id, content) values(1,'{"shortCut":"Alt+Space","databaseDirectory":""}')`)
     
 }
 

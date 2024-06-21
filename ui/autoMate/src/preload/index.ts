@@ -3,8 +3,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  shortCut: (type: 'search', shortCut: string) => {
-    return ipcRenderer.invoke("shortCut", type, shortCut)
+  shortCut: () => {
+    return ipcRenderer.invoke("shortCut")
   },
   setIgnoreMouseEvents: (ignore: boolean, options?: { forward: boolean }) => {
     ipcRenderer.send("setIgnoreMouseEvents", ignore, options)
