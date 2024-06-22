@@ -1,4 +1,4 @@
-type SqlActionType = 'findAll' | 'findOne' | 'create' | 'update' | 'del'
+type SqlActionType = 'findAll' | 'findOne' | 'create' | 'update' | 'del'|'config'
 
 type CategoryType = {
     id: number

@@ -21,3 +21,8 @@ export const update = (sql: string, params: Record<string, any>) => {
 export const del = (sql: string, params={}) => {
     return db.prepare(sql).run(params).changes;
 }
+
+export const config = () => {
+    const ret = findOne(`select * from config where id=1`) as {content: string}
+    return JSON.parse(ret.content)
+}

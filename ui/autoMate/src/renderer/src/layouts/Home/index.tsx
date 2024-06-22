@@ -15,7 +15,7 @@ function Home(): JSX.Element {
     // //为开发方便，临时代码
     // window.api.openConfigWindow()
   }, [])
-  // 注册快捷键
+  // // 注册快捷键
   const shortCut = useShortCut()
   shortCut.register()
   return (
