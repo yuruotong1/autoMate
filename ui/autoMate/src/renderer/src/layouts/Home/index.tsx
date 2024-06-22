@@ -16,8 +16,8 @@ function Home(): JSX.Element {
     // window.api.openConfigWindow()
   }, [])
   // // 注册快捷键
-  const shortCut = useShortCut()
-  shortCut.register()
+  const {register} = useShortCut()
+  register()
   return (
     <CodeProvider>
       <main className="relative" ref={mainRef}>
