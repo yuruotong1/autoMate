@@ -7,6 +7,7 @@ import url from 'node:url'
 export interface OptionsType extends Partial<BrowserWindowConstructorOptions>{
     openDevTools?: boolean,
     hash?: string
+    initShow?: boolean
 }
 export function createWindow(options: OptionsType): BrowserWindow {  // Create the browser window.
     const win = new BrowserWindow(Object.assign({
@@ -27,7 +28,7 @@ export function createWindow(options: OptionsType): BrowserWindow {  // Create t
     // 如果是在开发环境下并且选项是打开开发者工具
     if (is.dev && options.openDevTools) win.webContents.openDevTools()
     win.on('ready-to-show', () => {
-        win.show()
+        options.initShow && win.show()
     })
 
     win.webContents.setWindowOpenHandler((details) => {

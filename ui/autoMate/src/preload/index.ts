@@ -21,6 +21,9 @@ const api = {
   closeWindow: (name: WindowNameType) =>{
     ipcRenderer.send("closeWindow", name)
   },
+  selectDatabaseDirectory: () => {
+    return ipcRenderer.invoke("selectDatabaseDirectory")
+  }
 
 }
 

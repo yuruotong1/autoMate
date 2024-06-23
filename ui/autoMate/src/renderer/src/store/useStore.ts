@@ -1,6 +1,8 @@
 import { DataType } from "@renderer/data";
 import { create } from "zustand";
 interface StateProps{
+    config: ConfigDataType,
+    setConfig: (config: ConfigDataType) => void,
     data: DataType[],
     setData: (data: DataType[]) => void,
     search: string,
@@ -13,6 +15,8 @@ interface StateProps{
     setEditCategoryId: (id: number) => void
 }
 export const useStore = create<StateProps>((set) => ({
+    config: {shortCut: "", databaseDirectory: ""},
+    setConfig: (config) => set({config}),
     data: [],
     setData: (data) => set({data}),
     search: "",

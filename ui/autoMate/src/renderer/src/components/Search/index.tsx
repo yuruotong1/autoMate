@@ -21,7 +21,7 @@ export default function Search(): JSX.Element {
               fill="#34495e"
               strokeWidth={4}
               className="cursor-pointer"
-              onClick={()=>window.api.openWindow('config')
+              onClick={()=>window.api.openWindow('code')
               }
             />
             <Input 
@@ -31,7 +31,10 @@ export default function Search(): JSX.Element {
             autoFocus
             />
         </section>
-        <section className="text-center text-slate-600 text-xs mt-2">autoMate</section>
+        <section className="text-center text-slate-600 text-xs mt-2 nodrag">
+          autoMate 
+          <span className="text-blue-600" onClick={()=>window.api.openWindow('config')}>配置信息</span>
+        </section>
     </main>
   )
 }

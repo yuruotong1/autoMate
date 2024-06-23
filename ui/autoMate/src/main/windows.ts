@@ -5,15 +5,29 @@ export const config = {
     search: {
         id: 0,
         options: {
+            initShow: true,
             hash: '',
             openDevTools: true,
+        }
+    },
+    code: {
+        id: 0,
+        options: {
+            initShow: false,
+            width: 1300,
+            height: 700,
+            openDevTools: true,
+            frame: true,
+            transparent: false,
+            hash: '/#config/category/contentList'
         }
     },
     config: {
         id: 0,
         options: {
-            width: 1300,
-            height: 600,
+            initShow: false,
+            width: 600,
+            height: 400,
             openDevTools: true,
             frame: true,
             transparent: false,

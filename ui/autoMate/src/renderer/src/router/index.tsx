@@ -26,8 +26,6 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        loader: SettingLoader,
-        action: SettingAction,
         element: <Setting/>
       },
       {
