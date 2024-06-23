@@ -16,6 +16,7 @@ function Home(): JSX.Element {
     setIgnoreMouseEvents(mainRef as MutableRefObject<HTMLDivElement>)
     // //为开发方便，临时代码
     // window.api.openConfigWindow()
+   
   }, [])
 
   return (
