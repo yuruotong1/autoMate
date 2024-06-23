@@ -14,7 +14,7 @@ export const Setting = () => {
                     <h5>快捷键定义</h5>
                     <input
                         type="text"
-                        name="shortcut"
+                        name="shortCut"
                         defaultValue={config.shortCut}
                         readOnly
                         onKeyDown={(e) => {
@@ -26,8 +26,10 @@ export const Setting = () => {
 
                         }}
                         onKeyUp={(e) => {
-                            submit(e.currentTarget.form, {method: 'POST'})
                             setKeys([])
+                            console.log("keys", e.currentTarget.value)
+                            submit(e.currentTarget.form, {method: 'POST'})
+                            
                         }}
                     />
                 </section>

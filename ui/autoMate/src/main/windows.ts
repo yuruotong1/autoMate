@@ -5,7 +5,8 @@ export const config = {
     search: {
         id: 0,
         options: {
-            hash: ''
+            hash: '',
+            openDevTools: true,
         }
     },
     config: {
