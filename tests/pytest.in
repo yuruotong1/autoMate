@@ -1,3 +1,0 @@
-[pytest]
-log_cli = True
-log_cli_level = info

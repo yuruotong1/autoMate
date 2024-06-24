@@ -1,19 +1,5 @@
-
-# Ignore IDE and editor files
-.idea/
-.vscode/
-dist/
-# Ignore environment-specific files
-.venv
-config.yaml
-
-build/
-cache
-**.lock
-# Ignore Python cache files
-**/__pycache__/
-/session
-
-*.spec
-
-agent/model
+node_modules
+dist
+out
+.DS_Store
+*.log*
