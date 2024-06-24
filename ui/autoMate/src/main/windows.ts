@@ -25,7 +25,7 @@ export const config = {
     config: {
         id: 0,
         options: {
-            initShow: false,
+            initShow: true,
             width: 600,
             height: 400,
             openDevTools: true,

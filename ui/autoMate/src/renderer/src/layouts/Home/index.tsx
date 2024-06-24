@@ -12,6 +12,8 @@ function Home(): JSX.Element {
   const {setIgnoreMouseEvents} = useIgnoreMouseEvents()
   const config = useStore(state => state.config)
   window.api.shortCut(config.shortCut)
+  window.api.setDatabaseDirectory(config.databaseDirectory)
+  window.api.initTable()
   useEffect(()=>{
     setIgnoreMouseEvents(mainRef as MutableRefObject<HTMLDivElement>)
     // //为开发方便，临时代码

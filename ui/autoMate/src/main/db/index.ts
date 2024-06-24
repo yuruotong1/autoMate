@@ -1,2 +1,2 @@
-import './tables'
+// import './tables'
 import './ipc'

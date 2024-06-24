@@ -4,7 +4,7 @@ interface StateProps{
     config: ConfigDataType,
     setConfig: (config: ConfigDataType) => void,
     data: DataType[],
-    setData: (data: DataType[]) => void,
+    setData: (data: ContentType[]) => void,
     search: string,
     setSearch: (search: string) => void,
     error: string,
@@ -15,7 +15,7 @@ interface StateProps{
     setEditCategoryId: (id: number) => void
 }
 export const useStore = create<StateProps>((set) => ({
-    config: {shortCut: "", databaseDirectory: ""},
+    config: {shortCut: "alt+d", databaseDirectory: ""},
     setConfig: (config) => set({config}),
     data: [],
     setData: (data) => set({data}),
@@ -28,4 +28,5 @@ export const useStore = create<StateProps>((set) => ({
     editCategoryId: 0,
     setEditCategoryId: (editCategoryId) => set({editCategoryId})
   }))
+
 

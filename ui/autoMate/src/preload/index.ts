@@ -23,8 +23,13 @@ const api = {
   },
   selectDatabaseDirectory: () => {
     return ipcRenderer.invoke("selectDatabaseDirectory")
+  },
+  setDatabaseDirectory: (path: string) => {
+    ipcRenderer.send("setDatabaseDirectory", path)
+  },
+  initTable: () => {
+    ipcRenderer.send("initTable")
   }
-
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

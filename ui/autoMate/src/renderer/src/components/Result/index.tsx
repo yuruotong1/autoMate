@@ -10,7 +10,7 @@ export default function Result() {
             className={item.id == selectId? styles.active : ''}
             onClick={()=>select(item.id)}
             >
-                <p>{item.content}</p>
+                <p>{item.title}</p>
             </div>
         ))}
 
