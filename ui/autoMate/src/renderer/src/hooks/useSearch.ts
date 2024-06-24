@@ -4,15 +4,15 @@ import { useStore } from "@renderer/store/useStore"
 export default()=>{
     // const {setData} = useCode()
     const setData = useStore((state)=>state.setData)
-    // const [search, setSearch] = useState('')
-    const search = useStore((state)=>state.search)
     const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
+      let inputValue = e.target.value ? e.target.value : "#####@@@@@@@@@@!$%^&&"
       const data = await window.api.sql(
-        `select * from contents where title like @content`,
-         'findAll', 
-         {content: `%${e.target.value}%`})
+          `select * from contents where title like @content`,
+        'findAll', 
+        {content: `%${inputValue}%`})
+      
       setData(data as ContentType[])
     }
-    return {search, handleSearch}
+    return {handleSearch}
 }
 

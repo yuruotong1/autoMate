@@ -1,9 +1,8 @@
-import { DataType } from "@renderer/data";
 import { create } from "zustand";
 interface StateProps{
     config: ConfigDataType,
     setConfig: (config: ConfigDataType) => void,
-    data: DataType[],
+    data: ContentType[],
     setData: (data: ContentType[]) => void,
     search: string,
     setSearch: (search: string) => void,

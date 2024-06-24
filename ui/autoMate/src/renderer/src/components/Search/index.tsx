@@ -1,9 +1,7 @@
-import { useStore } from "@renderer/store/useStore"
 import useSearch from "@renderer/hooks/useSearch"
 import { SettingOne } from "@icon-park/react"
 import { Input } from "antd"
 export default function Search(): JSX.Element {
-  const search = useStore((state)=>state.search)
   const {handleSearch} = useSearch()
   return (
     <main className="bg-slate-50 p-3 rounded-lg drag" >
@@ -19,7 +17,6 @@ export default function Search(): JSX.Element {
             />
             <Input 
             placeholder="请输入内容" 
-            value={search}
             onChange={handleSearch}
             autoFocus
             />
