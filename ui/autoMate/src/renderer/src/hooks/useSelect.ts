@@ -7,16 +7,19 @@ export default()=>{
     const selectId = useStore((state)=>state.selectId)
     const setSelectId = useStore((state)=>state.setSelectId)
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
-       // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
-       if (data.length === 0) return
+       
        switch(e.key){
         case 'ArrowUp': {
+            // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
+            if (data.length === 0) return
             // 找到当前id的索引
             const index = data.findIndex((item)=>item.id === selectId)
             setSelectId(data[index - 1]?.id || data[data.length - 1].id)
             break
         }
         case 'ArrowDown':{
+            // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
+            if (data.length === 0) return
             // 找到当前id的索引
             const index = data.findIndex((item)=>item.id === selectId)
             setSelectId(data[index + 1]?.id || data[0].id)
@@ -24,6 +27,10 @@ export default()=>{
         }
         case 'Enter': {
             select(selectId)
+            break
+        }
+        case 'Escape': {
+            window.api.closeWindow('search')
             break
         }
        }
@@ -36,7 +43,7 @@ export default()=>{
         setData([])
         setSearch('')
         if (content) await navigator.clipboard.writeText(content)
-        window.api.hideWindow()
+        window.api.closeWindow('search')
     }
 
     useEffect(() => {
