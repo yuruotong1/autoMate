@@ -46,7 +46,7 @@ export function createWindow(options: OptionsType): BrowserWindow {  // Create t
             pathname: join(__dirname, '../renderer/index.html'),
             protocol: 'file',
             slashes: true,
-            hash: 'config/category/contentList'
+            hash: options.hash?.substring(1)
           })
         )
       }

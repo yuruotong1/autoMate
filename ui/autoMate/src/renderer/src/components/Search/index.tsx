@@ -24,9 +24,9 @@ export default function Search(): JSX.Element {
             autoFocus
             />
         </div>
-        <section className="text-center text-slate-600 text-xs mt-2 no-drag">
+        <section className="text-center text-slate-600 text-xs mt-2 no-drag select-none">
           autoMate 
-          <span className="text-blue-600" onClick={()=>window.api.openWindow('config')}>配置信息</span>
+          <span className="text-blue-600 cursor-pointer" onClick={()=>window.api.openWindow('config')}>点击配置</span>
         </section>
     </main>
   )
