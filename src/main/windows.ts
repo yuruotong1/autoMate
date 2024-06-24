@@ -7,23 +7,35 @@ export const config = {
         options: {
             initShow: true,
             hash: '',
-            openDevTools: true,
+            openDevTools: false,
         }
     },
     code: {
-        id: 0,
+        id: 1,
         options: {
             initShow: false,
             width: 1300,
             height: 700,
-            openDevTools: true,
+            openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#config/category/contentList'
         }
     },
     config: {
-        id: 0,
+        id: 2,
+        options: {
+            initShow: true,
+            width: 600,
+            height: 400,
+            openDevTools: false,
+            frame: true,
+            transparent: false,
+            hash: '/#config'
+        }
+    },
+    chat: {
+        id: 3,
         options: {
             initShow: true,
             width: 600,
@@ -31,7 +43,7 @@ export const config = {
             openDevTools: true,
             frame: true,
             transparent: false,
-            hash: '/#config'
+            hash: '/#chat'
         }
     }
 
@@ -59,5 +71,5 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 app.whenReady().then(() => {
     getWindowByName('search')
-    getWindowByName('config')
+
 })

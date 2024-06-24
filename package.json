@@ -21,11 +21,14 @@
     "build:linux": "electron-vite build && electron-builder --linux"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.33",
+    "@ant-design/pro-chat": "^2.1.14",
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "@icon-park/react": "^1.4.2",
     "@types/better-sqlite3": "^7.6.10",
     "@types/mockjs": "^1.0.10",
+    "ai": "^3.2.5",
     "antd": "^5.18.0",
     "better-sqlite3": "^11.0.0",
     "clsx": "^2.1.1",

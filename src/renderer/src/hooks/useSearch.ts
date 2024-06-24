@@ -1,8 +1,7 @@
-// import useCode from "@renderer/hooks/useCode"
+
 import { ChangeEvent } from "react"
 import { useStore } from "@renderer/store/useStore"
 export default()=>{
-    // const {setData} = useCode()
     const setData = useStore((state)=>state.setData)
     const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
       let inputValue = e.target.value ? e.target.value : "#####@@@@@@@@@@!$%^&&"
