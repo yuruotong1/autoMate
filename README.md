@@ -1,6 +1,6 @@
 <div align="center">
 
-<a ><img src="./resource/logo.png" width="120" height="120" alt="autoMate logo"></a>
+<a ><img src="./resources/logo.png" width="120" height="120" alt="autoMate logo"></a>
 
 <div style="font-size:24px;">autoMate</div>
 
@@ -15,7 +15,7 @@
 </div>
 各产品优势对比如下。
 
-![alt text](./resource/diff.png)
+![alt text](./resources/diff.png)
 
 ## 功能介绍
 
