@@ -8,6 +8,7 @@ export const Setting = () => {
     const {config} = useLoaderData() as {
         config: ConfigDataType
     }
+    console.log("config:", config)
     const submit = useSubmit()
     return (
         <Form method="POST">
@@ -43,7 +44,7 @@ export const Setting = () => {
                     <h5>大模型配置信息</h5>
                     <input 
                       type="text" 
-                      name="LLM" 
+                      name="llm" 
                       defaultValue={JSON.stringify(config.llm)}
                       onChange={(e)=>{
                         submit(e.currentTarget.value)
