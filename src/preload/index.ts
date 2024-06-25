@@ -24,6 +24,9 @@ const api = {
 
   initTable: () => {
     ipcRenderer.send("initTable")
+  },
+  getConfig: () => {
+    return (ipcRenderer.invoke("getConfig") as Promise<ConfigType>)
   }
 }
 

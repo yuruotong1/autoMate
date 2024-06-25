@@ -28,7 +28,7 @@ export const Setting = () => {
                                 if (code.match(/^(\w|\s)$/gi)) {
                                     e.currentTarget.value = keys.join('+')
                                     setKeys([])
-                                    submit(e.currentTarget.value)
+                                    submit({...config, shortCut:  e.currentTarget.value}, {method: "POST"})
                                     // 注册快捷键
                                     window.api.shortCut()
                                 }
@@ -44,7 +44,7 @@ export const Setting = () => {
                       name="llm" 
                       defaultValue={JSON.stringify(config.llm)}
                       onChange={(e)=>{
-                        submit(e.currentTarget.value)
+                        submit({...config, llm: e.currentTarget.value}, {method: "POST"})
                       }}
                       />
                 </section>

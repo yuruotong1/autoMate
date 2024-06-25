@@ -11,6 +11,7 @@ declare global {
       openWindow: (name: WindowNameType) => void,
       closeWindow: (name: WindowNameType) => void,
       initTable: () => void,
+      getConfig: () => Promise<ConfigType>
     }
   }
 }

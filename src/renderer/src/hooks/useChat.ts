@@ -1,19 +1,20 @@
-import {  StreamingTextResponse, streamText } from "ai";
+import {  streamText } from "ai";
 import { createOpenAI } from '@ai-sdk/openai';
-import { useStore } from "@renderer/store/useStore";
 
 export default async (messages: any)=> {
-    
+    const configType =  await window.api.getConfig()
+    const llm = JSON.parse(JSON.parse(configType.content).llm)
     // todo从数据库中拿配置项数据
     const openai = createOpenAI({
-        baseURL: config.llm.baseURL,
-        apiKey: config.llm.apiKey,
+        baseURL: llm.baseURL,
+        apiKey: llm.apiKey,
       });
+    console.log("messages", messages)
 
     const res = await streamText({
-        model: openai(config.llm.model),
+        model: openai(llm.model),
         messages: messages
     });
     
-  return new StreamingTextResponse(res.textStream);
+  return res.textStream;
 }
