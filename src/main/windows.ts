@@ -7,13 +7,13 @@ export const config = {
         options: {
             initShow: true,
             hash: '',
-            openDevTools: false,
+            openDevTools: true,
         }
     },
     code: {
-        id: 1,
+        id: 0,
         options: {
-            initShow: false,
+            initShow: true,
             width: 1300,
             height: 700,
             openDevTools: false,
@@ -23,7 +23,7 @@ export const config = {
         }
     },
     config: {
-        id: 2,
+        id: 0,
         options: {
             initShow: true,
             width: 600,
@@ -35,7 +35,7 @@ export const config = {
         }
     },
     chat: {
-        id: 3,
+        id: 0,
         options: {
             initShow: true,
             width: 600,
@@ -71,5 +71,8 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 app.whenReady().then(() => {
     getWindowByName('search')
+    // getWindowByName('code')
+    // getWindowByName('config')
+    getWindowByName('chat')
 
 })

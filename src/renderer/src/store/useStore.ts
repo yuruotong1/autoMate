@@ -14,7 +14,7 @@ interface StateProps{
     setEditCategoryId: (id: number) => void
 }
 export const useStore = create<StateProps>((set) => ({
-    config: {shortCut: "alt+d", databaseDirectory: ""},
+    config: {shortCut: "alt+d", databaseDirectory: "", llm: {model: "gpt-4-turbo", apiKey: "sk-xxx", baseURL: "https://api.openai.com/v1"}},
     setConfig: (config) => set({config}),
     data: [],
     setData: (data) => set({data}),

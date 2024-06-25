@@ -1,4 +1,4 @@
-import { Form, useLoaderData } from 'react-router-dom'
+import { Form } from 'react-router-dom'
 import styles from './styles.module.scss'
 import { useState } from 'react'
 import { useStore } from '@renderer/store/useStore'
@@ -52,6 +52,19 @@ export const Setting = () => {
                         }
                       }
                       
+                      />
+                </section>
+
+                <section>
+                    <h5>大模型配置信息</h5>
+                    <input 
+                      type="text" 
+                      name="llm-model" 
+                      defaultValue={JSON.stringify(config.llm)}
+                      onChange={(e)=>{
+                        const value = JSON.parse(e.target.value)
+                        setConfig({...config, llm: value})
+                      }}
                       />
                 </section>
             </main>
