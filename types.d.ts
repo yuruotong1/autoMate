@@ -24,10 +24,16 @@ type ConfigType = {
 
 type ConfigDataType = {
     shortCut: string
-    databaseDirectory: string
     llm: {
         model: string
         apiKey: string
         baseURL: string
     }
+}
+
+
+type LLM = {
+    model: string
+    apiKey: string
+    baseURL: string
 }

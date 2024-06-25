@@ -1,7 +1,5 @@
 import { create } from "zustand";
 interface StateProps{
-    config: ConfigDataType,
-    setConfig: (config: ConfigDataType) => void,
     data: ContentType[],
     setData: (data: ContentType[]) => void,
     search: string,
@@ -14,8 +12,6 @@ interface StateProps{
     setEditCategoryId: (id: number) => void
 }
 export const useStore = create<StateProps>((set) => ({
-    config: {shortCut: "alt+d", databaseDirectory: "", llm: {model: "gpt-4-turbo", apiKey: "sk-xxx", baseURL: "https://api.openai.com/v1"}},
-    setConfig: (config) => set({config}),
     data: [],
     setData: (data) => set({data}),
     search: "",

@@ -3,8 +3,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  shortCut: (shortCut: string) => {
-    return ipcRenderer.invoke("shortCut", shortCut)
+  shortCut: () => {
+    return ipcRenderer.invoke("shortCut")
   },
   setIgnoreMouseEvents: (ignore: boolean, options?: { forward: boolean }) => {
     ipcRenderer.send("setIgnoreMouseEvents", ignore, options)
@@ -21,12 +21,7 @@ const api = {
   closeWindow: (name: WindowNameType) =>{
     ipcRenderer.send("closeWindow", name)
   },
-  selectDatabaseDirectory: () => {
-    return ipcRenderer.invoke("selectDatabaseDirectory")
-  },
-  setDatabaseDirectory: (path: string) => {
-    ipcRenderer.send("setDatabaseDirectory", path)
-  },
+
   initTable: () => {
     ipcRenderer.send("initTable")
   }
