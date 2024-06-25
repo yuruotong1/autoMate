@@ -5,10 +5,7 @@ import { useState } from 'react'
 export const Setting = () => {
     // const config = useLoaderData() as ConfigDataType
     const [keys, setKeys] = useState<string[]>([])
-    const {config} = useLoaderData() as {
-        config: ConfigDataType
-    }
-    console.log("config:", config)
+    const config = useLoaderData() as ConfigDataType
     const submit = useSubmit()
     return (
         <Form method="POST">

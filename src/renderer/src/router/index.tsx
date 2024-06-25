@@ -32,8 +32,9 @@ const router = createHashRouter([
       {
         index: true,
         element: <Setting/>,
-        action: SettingAction,
-        loader: SettingLoader
+        loader: SettingLoader,
+        action: SettingAction
+        
       },
       {
         path: "category",

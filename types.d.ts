@@ -22,6 +22,7 @@ type ConfigType = {
     content: string
 }
 
+
 type ConfigDataType = {
     shortCut: string
     llm: {
