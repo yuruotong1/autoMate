@@ -38,9 +38,9 @@ export const config = {
         id: 0,
         options: {
             initShow: true,
-            width: 600,
-            height: 400,
-            openDevTools: true,
+            width: 1000,
+            height: 600,
+            openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#chat'
@@ -70,7 +70,7 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 
 app.whenReady().then(() => {
-    getWindowByName('search')
+    // getWindowByName('search')
     // getWindowByName('code')
     // getWindowByName('config')
     getWindowByName('chat')

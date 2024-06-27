@@ -1,0 +1,13 @@
+.chat-page{
+  @apply h-screen;
+  display: grid;
+  grid-template: "chat code" auto /600px auto;
+  .chat{
+    // @apply border-r overflow-y-auto;
+    grid-area: chat;
+}
+  .code{
+    @apply bg-slate-50;
+      grid-area: code;
+  }
+}
