@@ -17,7 +17,7 @@ export async function useChat(chat_messages: Array<any>){
   });
   const stream = await streamText({
     model: openai(config.llm.model),
-    messages: messages,
+    messages: [...messages],
   });
 
   return new StreamingTextResponse(stream.textStream) // 支持流式和非流式
