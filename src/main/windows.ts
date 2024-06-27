@@ -52,6 +52,7 @@ export const config = {
 
 // 根据名称获取窗口
 export const getWindowByName = (name: WindowNameType)=>{
+   
      // 根据id取得窗口
      let win = BrowserWindow.fromId(config[name].id)
      // 避免重复点击重复创建窗口
@@ -70,9 +71,9 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 
 app.whenReady().then(() => {
-    // getWindowByName('search')
+    getWindowByName('search')
     // getWindowByName('code')
-    // getWindowByName('config')
+    getWindowByName('config')
     getWindowByName('chat')
 
 })

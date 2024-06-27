@@ -22,7 +22,8 @@ export function createWindow(options: OptionsType): BrowserWindow {  // Create t
         ...(process.platform === 'linux' ? { icon } : {}),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
-            sandbox: false
+            sandbox: false,
+            webSecurity: false // 禁用web安全性
         }
     }, options))
     // 如果是在开发环境下并且选项是打开开发者工具

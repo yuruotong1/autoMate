@@ -44,7 +44,11 @@ export const Setting = () => {
                       name="llm" 
                       defaultValue={JSON.stringify(config.llm)}
                       onChange={(e)=>{
-                        submit({...config, llm: e.currentTarget.value}, {method: "POST"})
+                        window.api.sql(`update config set content=@content where id = 1`,
+                        'update',
+                        {
+                            content: JSON.stringify({...config, llm: JSON.parse(e.currentTarget.value)})
+                        })
                       }}
                       />
                 </section>

@@ -1,7 +1,7 @@
 import { IpcMainInvokeEvent, dialog } from "electron"
 import { ipcMain } from "electron"
 import { getWindowByName } from "./windows"
-import { config, findOne } from "./db/query"
+import { findOne } from "./db/query"
 const { app, globalShortcut } = require('electron')
 
 ipcMain.handle("shortCut", (_event: IpcMainInvokeEvent) => {
