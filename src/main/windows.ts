@@ -40,7 +40,7 @@ export const config = {
             initShow: true,
             width: 1000,
             height: 600,
-            openDevTools: false,
+            openDevTools: true,
             frame: true,
             transparent: false,
             hash: '/#chat'
