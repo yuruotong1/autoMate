@@ -19,6 +19,7 @@ export const Chat = () => {
         }
         request={async (messages) => {
             const response = await useChat(messages)
+            console.log('response', response)
             // 使用 Message 作为参数发送请求
             return response// 支持流式和非流式
     }}

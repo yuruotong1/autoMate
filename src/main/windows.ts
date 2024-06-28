@@ -64,7 +64,7 @@ export const getWindowByName = (name: WindowNameType)=>{
 }
 
 
-// 根据触发来源获取窗口
+// 根据触发来源获取窗口 
 export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
     return BrowserWindow.fromWebContents(event.sender)!
 }
