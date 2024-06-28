@@ -1,7 +1,7 @@
 import { createOpenAI } from "@ai-sdk/openai"
 import { streamText } from "ai"
 
-export default async (systemPrompt: string, chatMessages: Array<Record<string, any>>, callback: (allContent: string) => void) => {
+export default async (systemPrompt: string, chatMessages: Array<Record<string, any>>, callback?: (allContent: string) => void) => {
     const configType = (await window.api.getConfig()) as ConfigType
     const config = JSON.parse(configType.content) as ConfigDataType
     const messages = chatMessages.map((m) => {
@@ -32,17 +32,19 @@ export default async (systemPrompt: string, chatMessages: Array<Record<string, a
 
     const readableStream = new ReadableStream({
         async start(controller) {
+            let res = ""
             function push() {
-                let res = ""
                 reader
                     .read()
                     .then(({ done, value }) => {
                         if (done) {
                             controller.close();
-                            callback(res)
+                            if (callback) {
+                                callback(res);
+                            }
                             return;
                         }
-                        res += value
+                        res += value;
                         controller.enqueue(encoder.encode(value));
                         push();
                     })

@@ -3,7 +3,6 @@ import { NavLink, useFetcher} from "react-router-dom"
 import styles from "./styles.module.scss"
 import { useStore } from "@renderer/store/useStore"
 import useCategory from "@renderer/hooks/useCategory"
-import useContent from "@renderer/hooks/useContent"
 interface Props {
   category: CategoryType
 }
