@@ -1,8 +1,7 @@
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { useStore } from '@renderer/store/useStore';
-// import { StreamLanguage } from '@codemirror/language';
-export default function Code() {  
+export default function CodeEditor() {  
   const code = useStore(state=>state.code)
   
   return (

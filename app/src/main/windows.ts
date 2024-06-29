@@ -34,7 +34,7 @@ export const config = {
             hash: '/#config'
         }
     },
-    chat: {
+    interactive: {
         id: 0,
         options: {
             initShow: true,
@@ -43,7 +43,7 @@ export const config = {
             openDevTools: true,
             frame: true,
             transparent: false,
-            hash: '/#chat'
+            hash: '/#interactive'
         }
     }
 
@@ -71,9 +71,9 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 
 app.whenReady().then(() => {
-    getWindowByName('search')
-    // getWindowByName('code')
-    getWindowByName('config')
-    getWindowByName('chat')
+    // getWindowByName('search')
+    // // getWindowByName('code')
+    // getWindowByName('config')
+    getWindowByName('interactive')
 
 })

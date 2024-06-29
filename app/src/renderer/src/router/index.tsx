@@ -12,7 +12,7 @@ import { Welcome } from "@renderer/pages/Welcome";
 import ContentListAction from "@renderer/pages/ContentList/ContentListAction";
 import CategoryAction from "@renderer/pages/Category/CategoryAction";
 import { Setting } from "@renderer/pages/Setting";
-import { Chat } from "@renderer/pages/Chat/Chat";
+import Interactive from "@renderer/pages/Interactive";
 import SettingAction from "@renderer/pages/Setting/SettingAction";
 import SettingLoader from "@renderer/pages/Setting/SettingLoader";
 
@@ -22,8 +22,8 @@ const router = createHashRouter([
     element: <Home />
   },
   {
-    path: "chat",
-    element: <Chat />
+    path: "interactive",
+    element: <Interactive />
   },
   {
     path: "config",
