@@ -3,6 +3,7 @@ import { python } from '@codemirror/lang-python';
 import { useStore } from '@renderer/store/useStore';
 export default function CodeEditor() {  
   const code = useStore(state=>state.code)
+  const setCode = useStore(state=>state.setCode)
   
   return (
     <CodeMirror 
@@ -10,7 +11,10 @@ export default function CodeEditor() {
     className="w-full h-full fixed overflow-auto"
     height="100%"
     width='400px'
-    value={code} 
+    value={code}
+    onChange={(value)=>{
+      setCode(value)
+    }}
     extensions={[python()]} 
     />
   );
