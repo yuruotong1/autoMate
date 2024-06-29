@@ -3,6 +3,7 @@ import useChat from '@renderer/hooks/useChat';
 import { useTheme } from 'antd-style';
 import "./chat-page.scss"
 import Code from './Code';
+import { Button } from 'antd';
 export const Chat = () => {
   const {getResponse} = useChat()
 
@@ -29,6 +30,15 @@ export const Chat = () => {
   </div>
   <div className='code'>
     <Code />
+    <Button onClick={async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:5000/");
+        const data = await res.json();
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }}>运行</Button>
   </div>
   </div>
   )
