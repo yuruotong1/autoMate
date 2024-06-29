@@ -1,9 +1,11 @@
 import { useStore } from "@renderer/store/useStore";
-import { requireAlignmentPrompt, programmerPrompt } from "./prompt";
+import { requireAlignmentPrompt, programmerPrompt, extraCodePrompt } from "./prompt";
 import useOpenai from "./useOpenai";
 
-export async function useChat(chat_messages: Array<any>){
+export  default ()=>{
   const setCode = useStore(state=>state.setCode)
+  const getResponse=(chat_messages: Array<any>)=>{
+    // const setCode = useStore(state=>state.setCode)
   const messages = chat_messages.map((m) => {
     return {
       role: m.role, 
@@ -17,9 +19,11 @@ export async function useChat(chat_messages: Array<any>){
   });
   const callBack = (allContent: string) => {
 
-    const programmerCallBack = (allContent: string) => {
-      console.log("allContent", allContent)
-      setCode(allContent)
+    const programmerCallBack = (allContent: string) => {  
+        allContent = allContent.replace(/^```python/, "").replace(/^```/, "").replace(/```$/, "").trim()
+        setCode(allContent)
+
+      
     }
     if (allContent.includes("【自动化方案】")) {
       useOpenai(programmerPrompt(), [{
@@ -30,7 +34,10 @@ export async function useChat(chat_messages: Array<any>){
       console.log("Response does not contain '【自动化方案】'");
     }
   }
-  const response = await useOpenai(requireAlignmentPrompt(), messages, callBack)
+  const response = useOpenai(requireAlignmentPrompt(), messages, callBack)
   return response
+  }
+  return {getResponse}
+  
 }
 

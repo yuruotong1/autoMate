@@ -4,7 +4,7 @@ import { useStore } from '@renderer/store/useStore';
 // import { StreamLanguage } from '@codemirror/language';
 export default function Code() {  
   const code = useStore(state=>state.code)
-
+  
   return (
     <CodeMirror 
     theme="dark"
