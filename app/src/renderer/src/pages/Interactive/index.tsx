@@ -14,7 +14,7 @@ export default function Interactive() {
                 <Chat />
             </div>
             <div className='code'>
-                <CodeEditor />
+                <CodeEditor/>
                 <Button onClick={async () => {
                     try {
                         const res = await fetch(localServerBaseUrl + "/execute", {

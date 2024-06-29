@@ -8,9 +8,9 @@ export default function CodeEditor() {
   return (
     <CodeMirror 
     theme="dark"
-    className="w-full h-full fixed overflow-auto"
-    height="100%"
-    width='400px'
+    // className="w-full h-full"
+    height="500px"
+    width='600px'
     value={code}
     onChange={(value)=>{
       setCode(value)
