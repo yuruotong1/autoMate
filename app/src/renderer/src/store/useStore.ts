@@ -1,3 +1,4 @@
+import { ChatMessage } from "@ant-design/pro-chat";
 import { create } from "zustand";
 interface StateProps{
     data: ContentType[],
@@ -11,7 +12,9 @@ interface StateProps{
     editCategoryId: number,
     setEditCategoryId: (id: number) => void,
     code: string,
-    setCode: (code: string) => void
+    setCode: (code: string) => void,
+    chatMessages: ChatMessage<Record<string, any>>[],
+    setChatMessage: (chatMessage: ChatMessage<Record<string, any>>[]) => void
 }
 export const useStore = create<StateProps>((set) => ({
     data: [],
@@ -25,7 +28,9 @@ export const useStore = create<StateProps>((set) => ({
     editCategoryId: 0,
     setEditCategoryId: (editCategoryId) => set({editCategoryId}),
     code: "",
-    setCode: (code) => set({code})
+    setCode: (code) => set({code}),
+    chatMessages: [],
+    setChatMessage: (chatMessages) => set({chatMessages})
   }))
 
 

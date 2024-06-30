@@ -10,7 +10,7 @@ export default function CodeEditor() {
     theme="dark"
     // className="w-full h-full"
     height="500px"
-    width='600px'
+    width='587px'
     value={code}
     onChange={(value)=>{
       setCode(value)
