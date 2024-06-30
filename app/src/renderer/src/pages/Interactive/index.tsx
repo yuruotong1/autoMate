@@ -27,6 +27,7 @@ export default function Interactive() {
                             })
                         });
                         const data = await res.json();
+                        
                         console.log("run_result", data);
                     } catch (error) {
                         console.error('Error fetching data:', error);
