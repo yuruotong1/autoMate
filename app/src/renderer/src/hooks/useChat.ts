@@ -3,11 +3,9 @@ import { requireAlignmentPrompt, programmerPrompt} from "./prompt";
 import useOpenai from "./useOpenai";
 
 export  default ()=>{
-  const setCode = useStore(state=>state.setCode)
   const setChatMessages = useStore(state=>state.setChatMessage)
   const chatMessages = useStore(state=>state.chatMessages)
-  const getResponse=(chat_messages: Array<any>)=>{
-    // const setCode = useStore(state=>state.setCode)
+  const getResponse=(chat_messages: Array<any>, id:number)=>{
   const messages = chat_messages.map((m) => {
     return {
       role: m.role, 
@@ -21,15 +19,18 @@ export  default ()=>{
   });
   const response = useOpenai(requireAlignmentPrompt(), messages, (allContent)=>{
     const programmerCallBack = (allContent: string) => {  
-      allContent = allContent.replace(/^```python/, "").replace(/^```/, "").replace(/```$/, "").trim()
-      setCode(allContent)
+      allContent = allContent.replace(/^```python/, "").  replace(/^```/, "").replace(/```$/, "").trim()
+      window.api.sql('update contents set content = @content where id = @id', 
+      'update', 
+      {content: allContent, id})
+      
       chatMessages.pop()  
       setChatMessages([...chatMessages, {
         id: Date.now().toString(),
         createAt: Date.now(),
         updateAt: Date.now(),
         role: "assistant",
-        content: "自动化代码生成成功，请在右侧查看代码"
+        content: "自动化代码生成成功！"
       }])
 
   }

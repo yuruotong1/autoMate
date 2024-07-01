@@ -30,7 +30,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             padding: 0,
           },
         }}>
-        <Chat />
+        <Chat id={id}/>
       </Drawer>
 
       <CodeMirror

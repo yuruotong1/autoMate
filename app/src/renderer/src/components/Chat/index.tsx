@@ -2,7 +2,8 @@ import { ProChat } from '@ant-design/pro-chat';
 import { useStore } from '@renderer/store/useStore';
 import useChat from '@renderer/hooks/useChat';
 import { useTheme } from 'antd-style';
-export default function Chat() {
+export default function Chat(props: {id: string}) {
+  const {id} = props;
   const setMessages = useStore(state=>state.setChatMessage)
   const chatMessages = useStore(state=>state.chatMessages)
   const {getResponse} = useChat()
@@ -20,7 +21,7 @@ export default function Chat() {
             <div className='text-black'>你好，我叫智子，你的智能Agent助手！我可以帮你生成自动化代码，有什么要求可以随时吩咐！</div>
         }
         request={async (messages) => {
-            const response = await getResponse(messages)
+            const response = await getResponse(messages, id)
             return response// 支持流式和非流式
     }}
   />
