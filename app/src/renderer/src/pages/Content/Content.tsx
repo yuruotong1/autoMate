@@ -1,4 +1,4 @@
-import { Form, useLoaderData, useSubmit } from "react-router-dom"
+import { Form, useLoaderData, useRevalidator, useSubmit } from "react-router-dom"
 import "./content.scss"
 import CodeEditor from "@renderer/components/CodeEditor"
 export const Content = () => {
@@ -6,6 +6,7 @@ export const Content = () => {
         content: ContentType
         categories: CategoryType[]
     }
+    const revalidator = useRevalidator();
     const submit = useSubmit()
     return (
     <Form method="PUT">
@@ -26,7 +27,7 @@ export const Content = () => {
             submit(e.target.form)
             setCode(e.target.value)
         }}/> */}
-        <CodeEditor id={content.id} defaultValue={content.content}/>
+        <CodeEditor id={content.id} defaultValue={content.content} revalidator={()=>revalidator.revalidate()} />
     </main>
     </Form>
     )

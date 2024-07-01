@@ -8,17 +8,17 @@ import "./codeEditor.scss"
 interface CodeEditorProps {
   id: number;
   defaultValue: string;
+  revalidator: () => void;
+
 }
 
 export default function CodeEditor(props: CodeEditorProps) {
-  const { id, defaultValue} = props;
+  const { id, defaultValue, revalidator} = props;
   const [open, setOpen] = useState(false);
 
   return (
     <div>
-      
-      {/* <Spin tip="Loading" size="large">  */}
-      <FloatButton icon={<QuestionCircleOutlined />} type="primary" onClick={() => {
+        <FloatButton icon={<QuestionCircleOutlined />} type="primary" onClick={() => {
         setOpen(true);
       }} />
       <Drawer
@@ -32,9 +32,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             padding: 0,
           },
         }}>
-          <div style={{ height: '100%', width: '100%' }}>
-           <Chat id={id}/>
-          </div>
+           <Chat id={id} revalidator={revalidator}/>
       </Drawer>
 
       <CodeMirror

@@ -3,7 +3,7 @@ import useOpenai from "./useOpenai";
 import { ProChatInstance } from "@ant-design/pro-chat";
 
 export  default ()=>{
-  const getResponse=(chat_messages: Array<any>, id:number, proChatRef: ProChatInstance|undefined)=>{
+  const getResponse=(chat_messages: Array<any>, id:number, proChatRef: ProChatInstance|undefined, revalidator: () => void)=>{
   const messages = chat_messages.map((m) => {
     return {
       role: m.role, 
@@ -23,6 +23,7 @@ export  default ()=>{
       'update', 
       {content: allContent, id})
       proChatRef!.setMessageContent(chat_id, "代码已经生成完毕！")
+      revalidator()
 
   }
   if (allContent.includes("【自动化方案】")) {
