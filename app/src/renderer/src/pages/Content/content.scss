@@ -15,8 +15,8 @@
         @apply w-full;
     }
 
-    textarea{
-        @include common();
-        @apply border-t pt-5  text-sm opacity-90 p-3;
-    }
+    // code-editor{
+    //     @include common();
+    //     @apply border-t pt-5  text-sm opacity-90 p-3;
+    // }
 }

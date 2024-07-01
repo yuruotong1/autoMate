@@ -4,7 +4,7 @@ import { Drawer, FloatButton } from 'antd';
 import { useState } from 'react';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Chat from '@renderer/components/Chat';
-
+import "./codeEditor.scss"
 interface CodeEditorProps {
   id: number;
   defaultValue: string;
@@ -34,10 +34,11 @@ export default function CodeEditor(props: CodeEditorProps) {
       </Drawer>
 
       <CodeMirror
-        theme="dark"
-        height="500px"
-        width='587px'
-        className=''
+        // theme="dark"
+        // height="100%"
+        maxHeight='550px'
+        // width='587px'
+        className='code-mirror'
         value={defaultValue}
         onChange={async (value) => {
           await window.api.sql(

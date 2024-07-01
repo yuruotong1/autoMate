@@ -1,0 +1,10 @@
+
+.code-mirror {
+    // font-size: 20px ;
+    @apply text-[18px] border-t pt-5  p-3;
+    :focus {
+        outline: none;
+        border: none;
+      }
+}
+
