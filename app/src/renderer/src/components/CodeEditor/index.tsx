@@ -16,6 +16,8 @@ export default function CodeEditor(props: CodeEditorProps) {
 
   return (
     <div>
+      
+      {/* <Spin tip="Loading" size="large">  */}
       <FloatButton icon={<QuestionCircleOutlined />} type="primary" onClick={() => {
         setOpen(true);
       }} />
@@ -30,7 +32,9 @@ export default function CodeEditor(props: CodeEditorProps) {
             padding: 0,
           },
         }}>
-        <Chat id={id}/>
+          <div style={{ height: '100%', width: '100%' }}>
+           <Chat id={id}/>
+          </div>
       </Drawer>
 
       <CodeMirror
@@ -52,6 +56,8 @@ export default function CodeEditor(props: CodeEditorProps) {
         }}
         extensions={[python()]}
       />
+       
+      {/* </Spin> */}
     </div>
   );
 };
