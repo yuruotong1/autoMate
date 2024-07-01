@@ -25,7 +25,6 @@ export default function Chat(props: {id: number, revalidator: () => void}) {
         }
   
         request={async (messages) => {
-            // // const proChat = useProChat()
             const response = await getResponse(messages, id, proChatRef.current, revalidator)
             return response// 支持流式和非流式
     }}

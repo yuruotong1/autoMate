@@ -1,7 +1,6 @@
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { Drawer, FloatButton } from 'antd';
-import { useState } from 'react';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Chat from '@renderer/components/Chat';
 import "./codeEditor.scss"
@@ -9,13 +8,12 @@ interface CodeEditorProps {
   id: number;
   defaultValue: string;
   revalidator: () => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 
 }
-
 export default function CodeEditor(props: CodeEditorProps) {
-  const { id, defaultValue, revalidator} = props;
-  const [open, setOpen] = useState(false);
-
+  const { id, defaultValue, revalidator, open, setOpen} = props;
   return (
     <div>
         <FloatButton icon={<QuestionCircleOutlined />} type="primary" onClick={() => {
@@ -36,10 +34,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       </Drawer>
 
       <CodeMirror
-        // theme="dark"
-        // height="100%"
         maxHeight='550px'
-        // width='587px'
         className='code-mirror'
         value={defaultValue}
         onChange={async (value) => {
@@ -54,8 +49,6 @@ export default function CodeEditor(props: CodeEditorProps) {
         }}
         extensions={[python()]}
       />
-       
-      {/* </Spin> */}
     </div>
   );
 };
