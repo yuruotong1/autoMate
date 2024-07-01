@@ -7,7 +7,7 @@ export const config = {
         options: {
             initShow: true,
             hash: '',
-            openDevTools: true,
+            openDevTools: false,
         }
     },
     code: {
@@ -16,7 +16,7 @@ export const config = {
             initShow: true,
             width: 1300,
             height: 700,
-            openDevTools: true,
+            openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#config/category/contentList'
@@ -28,7 +28,7 @@ export const config = {
             initShow: true,
             width: 600,
             height: 400,
-            openDevTools: true,
+            openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#config'
@@ -39,15 +39,16 @@ export const config = {
 // createWindow({})
 
 // 根据名称获取窗口
-export const getWindowByName = (name: WindowNameType)=>{
+export const getWindowByName = (name: WindowNameType, router_url="")=>{
    
      // 根据id取得窗口
      let win = BrowserWindow.fromId(config[name].id)
      // 避免重复点击重复创建窗口
      if (!win) {
-         win = createWindow(config[name].options)
+         win = createWindow(config[name].options,router_url)
          config[name].id = win.id
      }
+    
      return win
 }
 
@@ -59,8 +60,8 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 
 app.whenReady().then(() => {
-    // getWindowByName('search')
-    getWindowByName('code')
+    getWindowByName('search')
+    // getWindowByName('code')
     // getWindowByName('config')
 
 })

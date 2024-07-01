@@ -9,7 +9,7 @@ export interface OptionsType extends Partial<BrowserWindowConstructorOptions>{
     hash?: string
     initShow?: boolean
 }
-export function createWindow(options: OptionsType): BrowserWindow {  // Create the browser window.
+export function createWindow(options: OptionsType, router_url=""): BrowserWindow {  // Create the browser window.
     const win = new BrowserWindow(Object.assign({
         width: 500,
         height: 350,
@@ -39,15 +39,14 @@ export function createWindow(options: OptionsType): BrowserWindow {  // Create t
 
 
     if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-        // win.loadURL(process.env['ELECTRON_RENDERER_URL'] + "/#config/category/contentList")
-        win.loadURL(process.env['ELECTRON_RENDERER_URL'] + options.hash)
+        win.loadURL(process.env['ELECTRON_RENDERER_URL'] + options.hash + router_url)
       } else {
         win.loadURL(
           url.format({
             pathname: join(__dirname, '../renderer/index.html'),
             protocol: 'file',
             slashes: true,
-            hash: options.hash?.substring(1)
+            hash: options.hash?.substring(1) + router_url
           })
         )
       }

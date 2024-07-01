@@ -15,8 +15,8 @@ const api = {
   sql: (sql: string, type: SqlActionType, params={}) => {
     return ipcRenderer.invoke("sql", sql, type, params)
   },
-  openWindow: (name: WindowNameType) =>{
-    ipcRenderer.send("openWindow", name)
+  openWindow: (name: WindowNameType, router_url?: string) =>{
+    return ipcRenderer.send("openWindow", name, router_url)
   },
   closeWindow: (name: WindowNameType) =>{
     ipcRenderer.send("closeWindow", name)

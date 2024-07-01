@@ -1,11 +1,13 @@
 import {useStore} from "@renderer/store/useStore"
 import { useCallback, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 export default()=>{
     const data = useStore((state)=>state.data) 
     const setData = useStore((state)=>state.setData)
     const setSearch = useStore((state)=>state.setSearch)
     const selectId = useStore((state)=>state.selectId)
     const setSelectId = useStore((state)=>state.setSelectId)
+    const navigate = useNavigate()
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
        
        switch(e.key){
@@ -39,11 +41,12 @@ export default()=>{
 
     // 选中代码块
     async function select(id: Number){
-        const content = data.find((item)=>item.id == id)?.content
         setData([])
         setSearch('')
-        if (content) await navigator.clipboard.writeText(content)
+        // if (content) await navigator.clipboard.writeText(content)
         window.api.closeWindow('search')
+        const category_id = data.find((item)=>item.id == id)?.category_id
+        window.api.openWindow('code', `/${category_id}/content/${id}`)
     }
 
     useEffect(() => {
