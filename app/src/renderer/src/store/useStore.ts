@@ -11,8 +11,6 @@ interface StateProps{
     setSelectId: (selectId: number) => void,
     editCategoryId: number,
     setEditCategoryId: (id: number) => void,
-    code: string,
-    setCode: (code: string) => void,
     chatMessages: ChatMessage<Record<string, any>>[],
     setChatMessage: (chatMessage: ChatMessage<Record<string, any>>[]) => void
 }
@@ -27,8 +25,6 @@ export const useStore = create<StateProps>((set) => ({
     setSelectId: (selectId) => set({selectId}),
     editCategoryId: 0,
     setEditCategoryId: (editCategoryId) => set({editCategoryId}),
-    code: "",
-    setCode: (code) => set({code}),
     chatMessages: [],
     setChatMessage: (chatMessages) => set({chatMessages})
   }))

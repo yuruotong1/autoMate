@@ -1,5 +1,6 @@
 import { Form, useLoaderData, useSubmit } from "react-router-dom"
 import "./content.scss"
+import CodeEditor from "@renderer/components/CodeEditor"
 export const Content = () => {
     const {content, categories} = useLoaderData() as {
         content: ContentType
@@ -21,9 +22,11 @@ export const Content = () => {
                 <option key={category.id} value={category.id}>{category.name}</option>
             ))}
         </select>
-        <textarea placeholder="请输入内容..." defaultValue={content.content} name="content" onChange={(e) => {
+        {/* <textarea  defaultValue={content.content} name="content" onChange={(e) => {
             submit(e.target.form)
-        }}/>
+            setCode(e.target.value)
+        }}/> */}
+        <CodeEditor id={content.id} defaultValue={content.content}/>
     </main>
     </Form>
     )

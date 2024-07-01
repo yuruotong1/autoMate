@@ -16,7 +16,7 @@ export const config = {
             initShow: true,
             width: 1300,
             height: 700,
-            openDevTools: false,
+            openDevTools: true,
             frame: true,
             transparent: false,
             hash: '/#config/category/contentList'
@@ -32,18 +32,6 @@ export const config = {
             frame: true,
             transparent: false,
             hash: '/#config'
-        }
-    },
-    interactive: {
-        id: 0,
-        options: {
-            initShow: true,
-            width: 1200,
-            height: 600,
-            openDevTools: true,
-            frame: true,
-            transparent: false,
-            hash: '/#interactive'
         }
     }
 
@@ -72,8 +60,7 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 app.whenReady().then(() => {
     // getWindowByName('search')
-    // // getWindowByName('code')
+    getWindowByName('code')
     // getWindowByName('config')
-    getWindowByName('interactive')
 
 })

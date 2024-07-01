@@ -22,10 +22,6 @@ const router = createHashRouter([
     element: <Home />
   },
   {
-    path: "interactive",
-    element: <Interactive />
-  },
-  {
     path: "config",
     element: <Config />,
     children: [
