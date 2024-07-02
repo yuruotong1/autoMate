@@ -48,6 +48,13 @@ export const getWindowByName = (name: WindowNameType, router_url="")=>{
          win = createWindow(config[name].options,router_url)
          config[name].id = win.id
      }
+     // 在页面加载完成后设置窗口标题
+    win.webContents.on('did-finish-load', () => {
+        win.setTitle('autoMate');
+    });
+ 
+     // 修改窗口图标 (需要提供图标的路径)
+    win.setIcon('resources/icon.png');
     
      return win
 }

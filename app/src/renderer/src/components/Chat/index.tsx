@@ -11,10 +11,10 @@ export default function Chat(props: {id: number, revalidator: () => void}) {
   const chatMessages = useStore(state=>state.chatMessages)
   const setMessages = useStore(state=>state.setChatMessage)
   return (
-    <ProChatProvider>
     <ProChat
         chats={chatMessages}
         onChatsChange={(chat)=>{
+          console.log('chat', chat)
           setMessages(chat)
         }}
         chatRef={proChatRef}
@@ -29,7 +29,6 @@ export default function Chat(props: {id: number, revalidator: () => void}) {
             return response// 支持流式和非流式
     }}
   />
-  </ProChatProvider>
   )
 
 }
