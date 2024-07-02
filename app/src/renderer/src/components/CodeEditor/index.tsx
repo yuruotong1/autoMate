@@ -37,6 +37,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       <Spin spinning={isCodeLoading} tip="根据自动化方案生成代码中，请稍等...">
       <CodeMirror
         maxHeight='550px'
+        maxWidth='850px'
         className='code-mirror'
         value={defaultValue}
         onChange={async (value) => {
