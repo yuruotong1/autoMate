@@ -6,7 +6,7 @@ function Error(){
     const error = useStore(state => state.error)
     const setError = useStore(state => state.setError)
     useEffect(() => {   
-       const id = setTimeout(() => setError(""), 20000)
+       const id = setTimeout(() => setError(""), 10000)
        return () => clearTimeout(id)
     }, [error])
     if (!error) return <></>

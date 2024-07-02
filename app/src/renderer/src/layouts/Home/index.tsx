@@ -22,8 +22,8 @@ function Home(): JSX.Element {
   }, [])
   window.api.getConfig().then((res)=>{
     const config  = JSON.parse(res.content) as ConfigDataType
-    if (config.llm.apiKey=="sk-xxx") {
-      setError("没有检测到大模型信息，请“点击配置”进行配置。如有疑问可查看文档:https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec")
+    if (config.llm.apiKey=="") {
+      setError("没有检测到大模型配置信息，请“点击配置”进行配置。如有疑问可查看文档:https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec")
     }
   })
 

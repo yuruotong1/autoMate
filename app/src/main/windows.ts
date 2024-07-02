@@ -7,7 +7,7 @@ export const config = {
         options: {
             initShow: true,
             hash: '',
-            openDevTools: true,
+            openDevTools: false,
         }
     },
     code: {
