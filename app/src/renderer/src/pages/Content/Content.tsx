@@ -33,14 +33,15 @@ export const Content = () => {
                         ))}
                     </select>
                     <Button onClick={async () => {
-                        revalidator.revalidate()
+                        const code_content = (await window.api.sql(`select * from contents where id = ${content.id}`, "findOne")) as ContentType
+                        console.log(code_content)
                         const res = await fetch(localServerBaseUrl + "/execute", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                code: content.content
+                                code: code_content.content
                             })
                         });
                         const data = await res.json();
