@@ -16,7 +16,7 @@ export default function Search(): JSX.Element {
               }
             />
             <Input 
-            placeholder="请输入内容" 
+            placeholder="请输入常用的action名字以快速调用" 
             onChange={handleSearch}
             autoFocus
             />
