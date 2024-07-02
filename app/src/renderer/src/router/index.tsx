@@ -12,7 +12,6 @@ import { Welcome } from "@renderer/pages/Welcome";
 import ContentListAction from "@renderer/pages/ContentList/ContentListAction";
 import CategoryAction from "@renderer/pages/Category/CategoryAction";
 import { Setting } from "@renderer/pages/Setting";
-import Interactive from "@renderer/pages/Interactive";
 import SettingAction from "@renderer/pages/Setting/SettingAction";
 import SettingLoader from "@renderer/pages/Setting/SettingLoader";
 

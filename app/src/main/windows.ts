@@ -98,9 +98,10 @@ app.whenReady().then(() => {
         win.hide()
     })
     if(!is.dev){
-        exec("./autoMateServer.exe", (error: any, stdout: any, stderr: any) => {
+        const serverPath = process.platform === 'win32' ? '.\\autoMateServer.exe' : './autoMateServer.exe';
+        exec(serverPath, (error: any, stdout: any, stderr: any) => {
             if (error) {
-          console.error(`执行的错误: ${error}`);
+          console.error(`error: ${error}`);
           return;
         }
         console.log(`stdout: ${stdout}`);
