@@ -6,6 +6,8 @@ def create_app():
     with app.app_context():
         from route.code_executor import home_bp
         app.register_blueprint(home_bp)
+        from route.shutdown import home_bp
+        app.register_blueprint(home_bp)
 
     return app
 

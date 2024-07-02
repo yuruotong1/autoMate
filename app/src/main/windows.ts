@@ -1,7 +1,7 @@
-import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, app } from "electron"
+import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, Menu, Tray, app } from "electron"
 import { OptionsType, createWindow} from "./createWindow"
 const { exec } = require('child_process');
-
+import { is } from '@electron-toolkit/utils'
 export const config = {
     search: {
         id: 0,
@@ -66,17 +66,47 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
     return BrowserWindow.fromWebContents(event.sender)!
 }
 
+function createTray(){
+    const tray = new Tray('resources/icon.png')
+    tray.setToolTip('autoMate智子')
+    tray.setTitle('autoMate')
+    tray.addListener('click', () => {
+        getWindowByName('search').show()
+    })
+
+    const menu = Menu.buildFromTemplate([
+        { label: '搜索', click: () => { getWindowByName('search').show() } },
+        { label: '配置', click: () => { getWindowByName('config').show() } },
+        { label: '代码', click: () => { getWindowByName('code').show() } },
+        { label: '退出', click: async () => { 
+            try{
+                await fetch('http://127.0.0.1:5000/shutdown')
+            }catch(_e){
+            }
+            app.quit() 
+        } 
+        
+        },
+    ])
+    tray.setContextMenu(menu)
+}
 
 app.whenReady().then(() => {
-    getWindowByName('search')
-    exec("./server.exe", (error: any, stdout: any, stderr: any) => {
-        if (error) {
+    createTray()
+    const win = getWindowByName('search')
+    win.on('blur', () => {
+        win.hide()
+    })
+    if(!is.dev){
+        exec("./autoMateServer.exe", (error: any, stdout: any, stderr: any) => {
+            if (error) {
           console.error(`执行的错误: ${error}`);
           return;
         }
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
-      });
+      });}
+    
     
     // getWindowByName('code')
     // getWindowByName('config')
