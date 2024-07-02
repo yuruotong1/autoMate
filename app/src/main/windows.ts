@@ -1,5 +1,6 @@
 import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, app } from "electron"
 import { OptionsType, createWindow} from "./createWindow"
+const { exec } = require('child_process');
 
 export const config = {
     search: {
@@ -68,6 +69,14 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 
 app.whenReady().then(() => {
     getWindowByName('search')
+    exec("./server.exe", (error: any, stdout: any, stderr: any) => {
+        if (error) {
+          console.error(`执行的错误: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+      });
     
     // getWindowByName('code')
     // getWindowByName('config')
