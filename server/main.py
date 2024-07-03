@@ -8,6 +8,8 @@ def create_app():
         app.register_blueprint(home_bp)
         from route.shutdown import home_bp
         app.register_blueprint(home_bp)
+        from route.llm import home_bp
+        app.register_blueprint(home_bp)
 
     return app
 

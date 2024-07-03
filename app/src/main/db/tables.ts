@@ -38,7 +38,7 @@ initData()
 function initData() {
     const initData = findOne('select * from config')
     if (initData) return
-    const llm = {model: "gpt-4-turbo", apiKey: "", baseURL: "https://api.openai.com/v1"}
+    const llm = {model: "gpt-4-turbo", api_key: "", base_url: "https://api.openai.com/v1"}
     db().exec(`insert into config (id, content) values(1,'{"shortCut":"Alt+d","llm": ${JSON.stringify(llm)}}')`)
     
 }
