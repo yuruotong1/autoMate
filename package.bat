@@ -9,5 +9,5 @@ xcopy .\.venv\Lib\site-packages\litellm\*.json .\dist\autoMateServer\_internal\l
 xcopy .\dist\autoMateServer\* ..\app\dist\win-unpacked\ /E /H /F /I /Y
 cd ..\app\dist
 REN win-unpacked autoMate
-call del autoMate.zip
+del autoMate.zip
 powershell Compress-Archive -Path autoMate -DestinationPath autoMate.zip
