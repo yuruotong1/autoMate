@@ -17,7 +17,7 @@ export const config = {
             initShow: true,
             width: 1300,
             height: 700,
-            openDevTools: true,
+            openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#config/category/contentList'
