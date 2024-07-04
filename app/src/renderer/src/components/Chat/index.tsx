@@ -2,7 +2,7 @@ import { ProChat, ProChatInstance } from '@ant-design/pro-chat';
 import useChat from '@renderer/hooks/useChat';
 import { useStore } from '@renderer/store/useStore';
 import { useTheme } from 'antd-style';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 export default function Chat(props: {id: number, revalidator: () => void}) {
   const {id, revalidator} = props;
   const {getResponse} = useChat()
@@ -10,7 +10,12 @@ export default function Chat(props: {id: number, revalidator: () => void}) {
   const chatMessages = useStore(state=>state.chatMessages)
   const setMessages = useStore(state=>state.setChatMessage)
   const proChatRef = useRef<ProChatInstance>();
-
+  const sendChatWithSearch = useStore(state=>state.sendChatWithSearch)
+  useEffect(()=>{
+    if (sendChatWithSearch) {
+      proChatRef.current?.sendMessage(sendChatWithSearch)
+    }
+  }, [sendChatWithSearch])
   return (
     <ProChat
         chats={chatMessages}

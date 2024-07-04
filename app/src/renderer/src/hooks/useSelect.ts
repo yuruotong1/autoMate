@@ -3,7 +3,9 @@ import { useCallback, useEffect } from "react"
 export default()=>{
     const data = useStore((state)=>state.data) 
     const setData = useStore((state)=>state.setData)
+    const search = useStore((state)=>state.search)
     const setSearch = useStore((state)=>state.setSearch)
+    const setSendChatWithSearch = useStore((state)=>state.setSendChatWithSearch)
     const selectId = useStore((state)=>state.selectId)
     const setSelectId = useStore((state)=>state.setSelectId)
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
@@ -39,7 +41,16 @@ export default()=>{
 
     // 选中代码块
     async function select(id: Number){
-        if (id === 0) return
+        if (id === 0) {
+            setData([])
+            window.api.closeWindow('search')
+            const new_id = await window.api.sql(
+                `insert into contents (title, content, category_id, created_at) values ('${search}', '', 0, datetime())`, 
+                "create")
+            window.api.openWindow('code', `/0/content/${new_id}`)
+            setSendChatWithSearch(search)
+            return
+        }
         setData([])
         setSearch('')
         // if (content) await navigator.clipboard.writeText(content)

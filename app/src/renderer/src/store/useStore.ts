@@ -14,7 +14,9 @@ interface StateProps{
     chatMessages: ChatMessage<Record<string, any>>[],
     setChatMessage: (chatMessage: ChatMessage<Record<string, any>>[]) => void,
     isCodeLoading: boolean,
-    setIsCodeLoading: (isCodeLoading: boolean) => void
+    setIsCodeLoading: (isCodeLoading: boolean) => void,
+    sendChatWithSearch: string,
+    setSendChatWithSearch: (sendChatWithSearch: string) => void
 }
 export const useStore = create<StateProps>((set) => ({
     data: [],
@@ -30,7 +32,9 @@ export const useStore = create<StateProps>((set) => ({
     chatMessages: [],
     setChatMessage: (chatMessages) => set({chatMessages}),
     isCodeLoading: false,
-    setIsCodeLoading: (isCodeLoading) => set({isCodeLoading})
+    setIsCodeLoading: (isCodeLoading) => set({isCodeLoading}),
+    sendChatWithSearch: '',
+    setSendChatWithSearch: (sendChatWithSearch) => set({sendChatWithSearch})
   }))
 
 
