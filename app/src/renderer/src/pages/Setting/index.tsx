@@ -1,6 +1,8 @@
 import { Form, useLoaderData, useSubmit } from 'react-router-dom'
 import styles from './styles.module.scss'
 import { useState } from 'react'
+import { Button, message } from 'antd'
+import { localServerBaseUrl } from '@renderer/config'
 
 export const Setting = () => {
     // const config = useLoaderData() as ConfigDataType
@@ -38,7 +40,33 @@ export const Setting = () => {
                     />
                 </section>
                 <section>
+                    <div className='flex flex-row  justify-between items-center mb-3'>
                     <h5>大模型配置信息</h5>
+                    <Button className=' bg-blue-500 text-white' 
+                      onClick={async () => {
+                          const hide = message.loading('检测中...', 0);
+                          try {
+                              const res = await fetch(`${localServerBaseUrl}/llm`, 
+                                {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json'
+                                  },
+                                  body: JSON.stringify({"messages": [{"role": "user", "content": "hello"}]}),
+                                }
+                              )
+                              hide();
+                              if (res.ok) {
+                                message.success('连接成功')
+                              } else {
+                                message.error(`连接失败，请检查配置信息是否正确：\n${res.statusText}`)
+                              }
+                          } catch (error) {
+                              hide();
+                              message.error(`连接失败，请检查配置信息是否正确：\n${error}`)
+                          }
+                      }}>检查连接</Button>
+                    </div>
                     <input 
                       type="text" 
                       name="llm" 
