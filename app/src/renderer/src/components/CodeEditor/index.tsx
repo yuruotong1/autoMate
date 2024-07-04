@@ -5,17 +5,23 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import Chat from '@renderer/components/Chat';
 import "./codeEditor.scss"
 import { useStore } from '@renderer/store/useStore';
+import { useEffect } from 'react';
 interface CodeEditorProps {
   id: number;
   defaultValue: string;
   revalidator: () => void;
   open: boolean;
   setOpen: (open: boolean) => void;
-
+  search: string;
 }
 export default function CodeEditor(props: CodeEditorProps) {
-  const { id, defaultValue, revalidator, open, setOpen} = props;
+  const { id, defaultValue, revalidator, open, setOpen, search} = props;
   const isCodeLoading = useStore(state => state.isCodeLoading)
+  useEffect(()=>{
+    if (search) {
+      setOpen(true)
+    }
+  }, [])
   return (
     <div>
         <FloatButton icon={<QuestionCircleOutlined />} type="primary" onClick={() => {
@@ -32,7 +38,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             padding: 0,
           },
         }}>
-           <Chat id={id} revalidator={revalidator}/>
+           <Chat id={id} revalidator={revalidator} search={search}/>
       </Drawer>
       <Spin spinning={isCodeLoading} tip="根据自动化方案生成代码中，请稍等...">
       <CodeMirror

@@ -5,7 +5,6 @@ export default()=>{
     const setData = useStore((state)=>state.setData)
     const search = useStore((state)=>state.search)
     const setSearch = useStore((state)=>state.setSearch)
-    const setSendChatWithSearch = useStore((state)=>state.setSendChatWithSearch)
     const selectId = useStore((state)=>state.selectId)
     const setSelectId = useStore((state)=>state.setSelectId)
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
@@ -47,8 +46,8 @@ export default()=>{
             const new_id = await window.api.sql(
                 `insert into contents (title, content, category_id, created_at) values ('${search}', '', 0, datetime())`, 
                 "create")
-            window.api.openWindow('code', `/0/content/${new_id}`)
-            setSendChatWithSearch(search)
+            window.api.openWindow('code', `/0/content/${new_id}/${search}`)
+            setSearch("")
             return
         }
         setData([])
@@ -56,7 +55,7 @@ export default()=>{
         // if (content) await navigator.clipboard.writeText(content)
         window.api.closeWindow('search')
         const category_id = data.find((item)=>item.id == id)?.category_id
-        window.api.openWindow('code', `/${category_id}/content/${id}`)
+        window.api.openWindow('code', `/${category_id}/content/${id}/${search}`)
     }
 
     useEffect(() => {

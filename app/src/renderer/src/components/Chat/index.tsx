@@ -3,19 +3,24 @@ import useChat from '@renderer/hooks/useChat';
 import { useStore } from '@renderer/store/useStore';
 import { useTheme } from 'antd-style';
 import { useEffect, useRef } from 'react';
-export default function Chat(props: {id: number, revalidator: () => void}) {
-  const {id, revalidator} = props;
+export default function Chat(props: {id: number, revalidator: () => void, search: string}) {
+  const {id, revalidator, search} = props;
   const {getResponse} = useChat()
   const theme = useTheme();
   const chatMessages = useStore(state=>state.chatMessages)
   const setMessages = useStore(state=>state.setChatMessage)
   const proChatRef = useRef<ProChatInstance>();
-  const sendChatWithSearch = useStore(state=>state.sendChatWithSearch)
+  // 确保 useeffect 只执行一次
+  const effectRan = useRef(false);
+
   useEffect(()=>{
-    if (sendChatWithSearch) {
-      proChatRef.current?.sendMessage(sendChatWithSearch)
+    if (effectRan.current === false) {
+    if (search) {
+      proChatRef.current?.sendMessage(search)
     }
-  }, [sendChatWithSearch])
+    effectRan.current = true;
+  }
+  }, [])
   return (
     <ProChat
         chats={chatMessages}

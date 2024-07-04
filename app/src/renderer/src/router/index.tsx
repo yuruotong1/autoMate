@@ -49,7 +49,7 @@ const router = createHashRouter([
                 element: <Welcome />
               },
               {
-                path: "content/:id",
+                path: "content/:id/:search?",
                 loader: ContentLoader,
                 action: ContentAction,
                 element: <Content />

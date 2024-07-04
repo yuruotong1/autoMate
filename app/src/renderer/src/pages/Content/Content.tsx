@@ -7,9 +7,10 @@ import { useState } from "react"
 import { useStore } from "@renderer/store/useStore"
 
 export const Content = () => {
-    const { content, categories } = useLoaderData() as {
+    const { content, categories, search } = useLoaderData() as {
         content: ContentType
         categories: CategoryType[]
+        search: string
     }
     const revalidator = useRevalidator();
     const submit = useSubmit()
@@ -56,6 +57,7 @@ export const Content = () => {
                     id={content.id}
                     defaultValue={content.content}
                     revalidator={() => revalidator.revalidate()}
+                    search={search}
                 />
             </main>
         </Form>
