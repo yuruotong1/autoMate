@@ -19,10 +19,12 @@ export function Setting(){
   const onModelChange = (value: string) => {
     switch (value) {
       case 'openai':
-        form.setFieldsValue({ model: 'gpt-4-turbo', base_url:"https://api.openai.com/v1"});
+        form.resetFields(['llm'])
+        form.setFieldsValue({"llm": {model: 'gpt-4-turbo', base_url:"https://api.openai.com/v1"}});
         break;
       case 'ollama':
-        form.setFieldsValue({ model: 'ollama/llama2',api_base: "http://localhost:11434" });
+        form.resetFields(['llm'])
+        form.setFieldsValue({"llm": {model: 'ollama/llama2',api_base: "http://localhost:11434" }});
         break;
       default:
     }
