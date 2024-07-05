@@ -7,9 +7,9 @@ export default() => {
           })
       
         document.body.addEventListener('mouseover', (e: MouseEvent)=>{
-        // if (e.target === document.body) {
-        //     window.api.setIgnoreMouseEvents(true, {forward: true})
-        // }
+        if (e.target === document.body) {
+            window.api.setIgnoreMouseEvents(true, {forward: true})
+        }
         })
     }
     return {setIgnoreMouseEvents}
