@@ -6,12 +6,12 @@ const { app, globalShortcut } = require('electron')
 
 ipcMain.handle("shortcut", (_event: IpcMainInvokeEvent) => {
   // react 严格模式会执行两次，可能会导致快捷键重复注册，这里在注册前会删除旧快捷键
-  return registerSearchShortCut()
+  return registerSearchShortcut()
   
 })
 
 
-export function registerSearchShortCut(){
+export function registerSearchShortcut(){
   globalShortcut.unregisterAll()
   const ret = findOne(`select * from config where id=1`) as {content: string}
   const shortcut = JSON.parse(ret.content).shortcut as string
