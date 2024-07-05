@@ -1,108 +1,106 @@
-import { Form, useLoaderData, useSubmit } from 'react-router-dom'
-import styles from './styles.module.scss'
-import { useState } from 'react'
-import { Button, Select, message } from 'antd'
-import { localServerBaseUrl } from '@renderer/config'
+import { Button, Form, Input, Select, Space } from 'antd';
+
+const { Option } = Select;
+
+const layout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 16 },
+};
+
+const tailLayout = {
+  wrapperCol: { offset: 6, span: 16 },
+};
 
 export const Setting = () => {
-  // const config = useLoaderData() as ConfigDataType
-  const [keys, setKeys] = useState<string[]>([])
-  const config = useLoaderData() as ConfigDataType
-  const submit = useSubmit()
-  return (
-    <Form method="POST">
-      <main className={styles.settingPage}>
-        <h1>Setting</h1>
-        <section>
-          <h5>快捷键定义</h5>
-          <input
-            type="text"
-            name="shortCut"
-            defaultValue={config.shortCut}
-            readOnly
-            onKeyDown={(e) => {
-              if (e.metaKey || e.ctrlKey || e.altKey) {
-                const code = e.code.replace(/Left|Right|Key|Digit/, '')
-                if (keys.includes(code)) return
-                keys.push(code)
-                setKeys(keys)
-                // 如果以数字或字母或者空格结尾
-                if (code.match(/^(\w|\s)$/gi)) {
-                  e.currentTarget.value = keys.join('+')
-                  setKeys([])
-                  config.shortCut = e.currentTarget.value
-                  // 注册快捷键
-                  window.api.shortCut()
-                }
-              }
+  const [form] = Form.useForm();
 
-            }}
-          />
-        </section>
-        <section>
-          <div className='flex flex-row  justify-between items-center mb-3'>
-            <h5>大模型配置信息</h5>
-            <Button
-              onClick={async () => {
-                const hide = message.loading('检测中...', 0);
-                try {
-                  const res = await fetch(`${localServerBaseUrl}/llm`,
-                    {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({ "messages": [{ "role": "user", "content": "hello" }] }),
-                    }
-                  )
-                  hide();
-                  if (res.ok) {
-                    message.success('连接成功')
-                  } else {
-                    message.error(`连接失败，请检查配置信息是否正确：\n${res.statusText}`)
-                  }
-                } catch (error) {
-                  hide();
-                  message.error(`连接失败，请检查配置信息是否正确：\n${error}`)
-                }
-              }}>检查连接</Button>
-          </div>
-          <input
-            type="text"
-            name="llm"
-            defaultValue={JSON.stringify(config.llm)}
-            onChange={(e) => {
-              config.llm = JSON.parse(e.currentTarget.value)
-            }}
-          />
-           {/* <Select
-        value={""}
-        style={{ width: 80, margin: '0 8px' }}
-        onChange={(e) => {
-          config.llm.model = e.Symbol
-        }}
+  const onModelChange = (value: string) => {
+    switch (value) {
+      case 'openai':
+        form.setFieldsValue({ model: 'gpt-4-turbo', base_url:"https://api.openai.com/v1"});
+        
+        break;
+      case 'ollama':
+        form.setFieldsValue({ model: 'ollama/llama2',api_base: "http://localhost:11434" });
+        break;
+      default:
+    }
+  };
+
+  const onFinish = (values: any) => {
+    console.log(values);
+  };
+
+  const onReset = () => {
+    form.resetFields();
+  };
+
+
+  return (
+    <div className='flex justify-center items-center h-screen'>
+    <Form
+      {...layout}
+      form={form}
+      name="control-hooks"
+      onFinish={onFinish}
+      style={{ maxWidth: 900 }}
+    >
+        <Form.Item name="format" label="格式" rules={[{ required: true }]}>
+        <Select
+          placeholder="选择格式，一般OpenAI格式为万能格式"
+          onChange={onModelChange}
+          allowClear
+        >
+          <Option value="openai">OpenAI</Option>
+          <Option value="ollama">Ollama</Option>
+        </Select>
+      </Form.Item>
+      
+      <Form.Item name="model" label="model" rules={[{ required: true }]}>
+        <Input />
+      </Form.Item>
+      
+      <Form.Item
+        noStyle
+        shouldUpdate={(prevValues, currentValues) => prevValues.format !== currentValues.format}
       >
-        <Option value="rmb">RMB</Option>
-        <Option value="dollar">Dollar</Option>
-      </Select> */}
-        </section>
-        <div className='flex justify-center items-center'>
-          <Button className='mr-8' onClick={() => {
-            window.close();
-          }}>取消</Button>
-          <Button type="primary" onClick={
-            async () => {
-              await window.api.sql(`update config set content=@content where id = 1`,
-                'update',
-                {
-                  content: JSON.stringify(config)
-                })
-              window.close();
-            }
-          }
-          >保存</Button>
-        </div>
-      </main>
+        {({ getFieldValue }) =>
+          getFieldValue('format') === 'openai' ? (
+            <div>
+            <Form.Item name="api_key" label="api_key" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+            <Form.Item name="base_url" label="base_url" rules={[{ required: false }]}>
+            <Input />
+          </Form.Item>
+          </div>
+          ) : null
+        }
+      </Form.Item>
+
+      <Form.Item
+        noStyle
+        shouldUpdate={(prevValues, currentValues) => prevValues.format !== currentValues.format}
+      >
+        {({ getFieldValue }) =>
+          getFieldValue('format') === 'ollama' ? (
+            <Form.Item name="api_base" label="api_base" rules={[{ required: false }]}>
+            <Input />
+          </Form.Item>
+          ) : null
+        }
+      </Form.Item>
+      <Form.Item {...tailLayout} className='mt-10'>
+        <Space>
+          <Button type="primary" htmlType="submit" >
+            Submit
+          </Button>
+          <Button htmlType="button" onClick={onReset}>
+            Reset
+          </Button>
+        </Space>
+      </Form.Item>
     </Form>
-  )
-}
+    </div>
+  );
+};
