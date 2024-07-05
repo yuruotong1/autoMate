@@ -16,8 +16,8 @@ export const Setting = () => {
           <h5>快捷键定义</h5>
           <input
             type="text"
-            name="shortCut"
-            defaultValue={config.shortCut}
+            name="shortcut"
+            defaultValue={config.shortcut}
             readOnly
             onKeyDown={(e) => {
               if (e.metaKey || e.ctrlKey || e.altKey) {
@@ -29,9 +29,9 @@ export const Setting = () => {
                 if (code.match(/^(\w|\s)$/gi)) {
                   e.currentTarget.value = keys.join('+')
                   setKeys([])
-                  config.shortCut = e.currentTarget.value
+                  config.shortcut = e.currentTarget.value
                   // 注册快捷键
-                  window.api.shortCut()
+                  window.api.shortcut()
                 }
               }
 

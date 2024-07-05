@@ -12,8 +12,8 @@ function App(): JSX.Element {
   useEffect(()=>{
     setIgnoreMouseEvents(mainRef as MutableRefObject<HTMLDivElement>)
   }, [])
-  // const shortCut = useShortCut("CommandOrControl+n")
-  // shortCut.register()
+  // const shortcut = useShortCut("CommandOrControl+n")
+  // shortcut.register()
   return (
     <CodeProvider>
       <main className="relative" ref={mainRef}>

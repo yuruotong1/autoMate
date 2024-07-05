@@ -7,7 +7,9 @@ import { localServerBaseUrl } from '@renderer/config';
 export function Setting(){
     const [form] = Form.useForm();
     const config = useLoaderData() as ConfigDataType
-    form.setFieldsValue(config);
+    useEffect(() => {
+      form.setFieldsValue(config);
+    }, [])
     const { Option } = Select;
     const tailLayout = {
     wrapperCol: { offset: 6, span: 16 },
@@ -27,14 +29,14 @@ export function Setting(){
   };
 
   const onFinish = async (values: any) => {
-    // 注册快捷键
-    window.api.shortCut()
     await window.api.sql(`update config set content=@content where id = 1`,
     'update',
     {
       content: JSON.stringify(values)
     })
-    //  window.close();
+    // 注册快捷键
+    window.api.shortcut()
+     window.close();
   };
 
   const onClose = () => {

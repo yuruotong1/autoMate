@@ -24,7 +24,7 @@ type ConfigType = {
 
 
 type ConfigDataType = {
-    shortCut: string
+    shortcut: string
     format: string
     llm: {
         model: string
