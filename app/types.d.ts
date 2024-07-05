@@ -25,9 +25,11 @@ type ConfigType = {
 
 type ConfigDataType = {
     shortCut: string
+    format: string
     llm: {
         model: string
-        api_key: string
-        base_url: string
+        api_key?: string
+        base_url?: string
+        api_base?: string
     }
 }

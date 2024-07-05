@@ -1,24 +1,23 @@
-import { Button, Form, Input, Select, Space } from 'antd';
+import { Button, Form, Input, Select, Space, message } from 'antd';
+import styles from './styles.module.scss'
+import { useEffect, useState } from 'react';
+import { useLoaderData } from 'react-router-dom';
+import { localServerBaseUrl } from '@renderer/config';
 
-const { Option } = Select;
+export function Setting(){
+    const [form] = Form.useForm();
+    const config = useLoaderData() as ConfigDataType
+    form.setFieldsValue(config);
+    const { Option } = Select;
+    const tailLayout = {
+    wrapperCol: { offset: 6, span: 16 },
+    };
 
-const layout = {
-  labelCol: { span: 6 },
-  wrapperCol: { span: 16 },
-};
-
-const tailLayout = {
-  wrapperCol: { offset: 6, span: 16 },
-};
-
-export const Setting = () => {
-  const [form] = Form.useForm();
-
+  const [keys, setKeys] = useState<string[]>([])
   const onModelChange = (value: string) => {
     switch (value) {
       case 'openai':
         form.setFieldsValue({ model: 'gpt-4-turbo', base_url:"https://api.openai.com/v1"});
-        
         break;
       case 'ollama':
         form.setFieldsValue({ model: 'ollama/llama2',api_base: "http://localhost:11434" });
@@ -27,24 +26,84 @@ export const Setting = () => {
     }
   };
 
-  const onFinish = (values: any) => {
-    console.log(values);
+  const onFinish = async (values: any) => {
+    // 注册快捷键
+    window.api.shortCut()
+    await window.api.sql(`update config set content=@content where id = 1`,
+    'update',
+    {
+      content: JSON.stringify(values)
+    })
+    //  window.close();
   };
 
-  const onReset = () => {
-    form.resetFields();
+  const onClose = () => {
+    window.close()
   };
 
 
   return (
-    <div className='flex justify-center items-center h-screen'>
+    <div className={styles.settingPage}>
+    <h1>Setting</h1>
     <Form
-      {...layout}
       form={form}
       name="control-hooks"
       onFinish={onFinish}
-      style={{ maxWidth: 900 }}
-    >
+    >   
+        <section>
+        <h5>快捷键定义</h5>
+        <Form.Item name="shortcut" label="呼出快捷键" rules={[{ required: true }]}>
+            <Input 
+              type="text"
+              readOnly
+              onKeyDown={(e) => {
+              if (e.metaKey || e.ctrlKey || e.altKey) {
+                const code = e.code.replace(/Left|Right|Key|Digit/, '')
+                if (keys.includes(code)) return
+                keys.push(code)
+                setKeys(keys)
+                // 如果以数字或字母或者空格结尾
+                if (code.match(/^(\w|\s)$/gi)) {
+                  e.currentTarget.value = keys.join('+')
+                  form.setFieldsValue({shortcut: e.currentTarget.value})
+                  setKeys([])
+                }
+              }
+            }}
+            />
+       </Form.Item>
+       </section>
+       <section>
+       
+       <div className='flex flex-row  justify-between items-center mb-3'>
+       <h5>大模型配置信息</h5>
+       <Button
+              onClick={async () => {
+                const hide = message.loading('检测中...', 0);
+                try {
+                  const res = await fetch(`${localServerBaseUrl}/llm`,
+                    {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify(
+                        { "messages": [{ "role": "user", "content": "hello" }],
+                         "llm_config": JSON.stringify(form.getFieldValue("llm"))}),
+                    }
+                  )
+                  hide();
+                  if (res.ok) {
+                    message.success('连接成功')
+                  } else {
+                    message.error(`连接失败，请检查配置信息是否正确：\n${res.statusText}`)
+                  }
+                } catch (error) {
+                  hide();
+                  message.error(`连接失败，请检查配置信息是否正确：\n${error}`)
+                }
+              }}>检查连接</Button>
+        </div>
         <Form.Item name="format" label="格式" rules={[{ required: true }]}>
         <Select
           placeholder="选择格式，一般OpenAI格式为万能格式"
@@ -56,7 +115,7 @@ export const Setting = () => {
         </Select>
       </Form.Item>
       
-      <Form.Item name="model" label="model" rules={[{ required: true }]}>
+      <Form.Item name={["llm", "model"]} label="model" rules={[{ required: true }]}>
         <Input />
       </Form.Item>
       
@@ -67,10 +126,10 @@ export const Setting = () => {
         {({ getFieldValue }) =>
           getFieldValue('format') === 'openai' ? (
             <div>
-            <Form.Item name="api_key" label="api_key" rules={[{ required: true }]}>
+            <Form.Item name={["llm", "api_key"]} label="api_key" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-            <Form.Item name="base_url" label="base_url" rules={[{ required: false }]}>
+            <Form.Item name={["llm", "base_url"]} label="base_url" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           </div>
@@ -84,22 +143,26 @@ export const Setting = () => {
       >
         {({ getFieldValue }) =>
           getFieldValue('format') === 'ollama' ? (
-            <Form.Item name="api_base" label="api_base" rules={[{ required: false }]}>
+            <Form.Item name={["llm", "api_base"]} label="api_base" rules={[{ required: false }]}>
             <Input />
           </Form.Item>
           ) : null
         }
       </Form.Item>
-      <Form.Item {...tailLayout} className='mt-10'>
+      </section>
+      <div className='mt-10 flex justify-center items-center'>
+      <Form.Item {...tailLayout} >
         <Space>
+         <Button htmlType="button" onClick={onClose} className='mr-5'>
+            取消
+          </Button>
           <Button type="primary" htmlType="submit" >
-            Submit
+            保存
           </Button>
-          <Button htmlType="button" onClick={onReset}>
-            Reset
-          </Button>
+          
         </Space>
       </Form.Item>
+      </div>
     </Form>
     </div>
   );

@@ -14,7 +14,9 @@ ipcMain.handle("shortCut", (_event: IpcMainInvokeEvent) => {
 export function registerSearchShortCut(){
   globalShortcut.unregisterAll()
   const ret = findOne(`select * from config where id=1`) as {content: string}
-  const shortCut = JSON.parse(ret.content).shortCut as string
+  console.log(ret)
+  const shortCut = JSON.parse(ret.content).shortcut as string
+  console.log(shortCut)
   if (shortCut && globalShortcut.isRegistered(shortCut)){
     dialog.showErrorBox('提示', '快捷键注册失败，请更换')
     return false

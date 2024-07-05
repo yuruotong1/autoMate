@@ -7,15 +7,20 @@ home_bp = Blueprint('llm', __name__)
 
 @home_bp.route('/llm', methods=["POST"])
 def llm():
-    config = get_config()
+    
     messages = request.get_json()["messages"]
     isStream = request.get_json().get("isStream", False)
+    llm_config = request.get_json().get("llm_config", None)
+    if llm_config:
+        config = json.loads(llm_config)
+    else:
+        config = json.loads(get_config())["llm"]
     if isStream:
         def generate():
             response = completion(
                 messages=messages,
                 stream=True,
-                **json.loads(config)["llm"]
+                **config
             )
             for part in response:
                 yield part.choices[0].delta.content or ""
@@ -23,7 +28,7 @@ def llm():
     else:
         res =  completion(
             messages=messages,
-            **json.loads(config)["llm"]
+            **config
         )
         return {
             "content": res.choices[0].message.content

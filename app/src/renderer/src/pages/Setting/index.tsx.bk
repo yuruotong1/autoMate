@@ -25,7 +25,6 @@ export const Setting = () => {
                 if (keys.includes(code)) return
                 keys.push(code)
                 setKeys(keys)
-
                 // 如果以数字或字母或者空格结尾
                 if (code.match(/^(\w|\s)$/gi)) {
                   e.currentTarget.value = keys.join('+')
