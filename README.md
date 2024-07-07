@@ -75,6 +75,12 @@
 
 - [基础功能](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec#O9W8dEqfBo13oQxCslycFUWonFd)
 
+- [项目理念](https://s0soyusc93k.feishu.cn/wiki/SR9ywLMZmin7gakGo21cnyaFnRf?from=from_copylink)
+
+## 🍬 快速开始
+
+下载 release 最新版本，双击即可直接运行，无需安装任何依赖。
+
 ## ⌨️ 本地开发
 
 本项目分为前端和后端两个部分，前端项目在 app  目录下，后端项目在 server 目录下。这意味着，如果要运行 autoMate，你就得同时启动前端和后端。项目启动后会在～ 目录创建 sqlite 数据库 autoMate.db ，如果想查看数据库内容，建议使用开源数据库软件dbeaver。
@@ -108,6 +114,9 @@
 
 ## 🤝 参与共建
 
+请参考[贡献指南](https://s0soyusc93k.feishu.cn/wiki/ZE7KwtRweicLbNkHSdMcBMTxngg?from=from_copylink).
+
+> 强烈推荐阅读 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)、[《如何向开源社区提问题》](https://github.com/seajs/seajs/issues/545) 和 [《如何有效地报告 Bug》](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs-cn.html)、[《如何向开源项目提交无法解答的问题》](https://zhuanlan.zhihu.com/p/25795393)，更好的问题更容易获得帮助。
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
