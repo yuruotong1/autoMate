@@ -2,6 +2,7 @@ import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, Menu, Tray, app } from
 import { OptionsType, createWindow} from "./createWindow"
 const { exec } = require('child_process');
 import { is } from '@electron-toolkit/utils'
+import autoMateServer from './autoUpdater'
 export const config = {
     search: {
         id: 0,
@@ -108,6 +109,7 @@ app.whenReady().then(() => {
         console.error(`stderr: ${stderr}`);
       });}
     
+    autoMateServer(win)
     
     // getWindowByName('code')
     // getWindowByName('config')

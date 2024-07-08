@@ -5,6 +5,7 @@
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
+  "repository": "https://github.com/yuruotong1/autoMate/tree/master/app",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
@@ -22,7 +23,6 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.33",
-    "openai": "^4.24.7",
     "@ant-design/pro-chat": "^1.14.2",
     "@ant-design/pro-editor": "^1.2.1",
     "@codemirror/lang-python": "^6.1.6",
@@ -38,11 +38,12 @@
     "better-sqlite3": "^11.0.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
-    "electron-updater": "^6.1.7",
+    "electron-updater": "^6.2.1",
     "localforage": "^1.10.0",
     "mantine-contextmenu": "^7.10.2",
     "match-sorter": "^6.3.4",
     "mockjs": "^1.1.0",
+    "openai": "^4.24.7",
     "react-router-dom": "^6.23.1",
     "sort-by": "^0.0.2",
     "zustand": "^4.5.2"
