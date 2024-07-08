@@ -9,11 +9,21 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+extraFiles:
+  - from: '../server/dist/autoMateServer'
+    filter: '**/*'
+  - from: './resources'
+    to: 'resources'
+    filter: '**/*'
 asarUnpack:
   - resources/**
 win:
   executableName: automate
 nsis:
+  oneClick: false # 创建一键安装程序还是辅助安装程序（默认是一键安装）
+  allowElevation: true # 是否允许请求提升，如果为false，则用户必须使用提升的权限重新启动安装程序 （仅作用于辅助安装程序）
+  allowToChangeInstallationDirectory: true # 是否允许修改安装目录 （仅作用于辅助安装程序）
+  createStartMenuShortcut: true # 是否创建开始菜单快捷方式
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}

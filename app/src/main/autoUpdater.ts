@@ -48,7 +48,7 @@ export default (win: BrowserWindow) => {
       .showMessageBox({
         type: 'warning',
         title: '更新提示',
-        message: '软件更新失败',
+        message: `软件更新失败,消息为：${_info.message}`,
         buttons: ['网站下载', '取消更新'],
         cancelId: 1
       })
