@@ -5,7 +5,7 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: {
-      shortCut: () => Promise<boolean>,
+      shortcut: () => Promise<boolean>,
       setIgnoreMouseEvents: (ignore: boolean, options?: { forward: boolean }) => void,
       openConfigWindow: () => void,
       sql: <T>(sql: string, type: SqlActionType, params?: Record<string, any>) => Promise<T>

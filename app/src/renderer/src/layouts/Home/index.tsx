@@ -12,7 +12,7 @@ function Home(): JSX.Element {
   const {setIgnoreMouseEvents} = useIgnoreMouseEvents()
   window.api.initTable()
   // 注册快捷键
-  window.api.shortCut()
+  window.api.shortcut()
   const setError = useStore((state)=>state.setError)
   useEffect(()=>{
     setIgnoreMouseEvents(mainRef as MutableRefObject<HTMLDivElement>)

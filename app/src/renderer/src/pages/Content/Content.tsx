@@ -35,7 +35,6 @@ export const Content = () => {
                     </select>
                     <Button onClick={async () => {
                         const code_content = (await window.api.sql(`select * from contents where id = ${content.id}`, "findOne")) as ContentType
-                        console.log(code_content)
                         const res = await fetch(localServerBaseUrl + "/execute", {
                             method: 'POST',
                             headers: {
