@@ -3,7 +3,7 @@
 <img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 
-一个 Agent 和 RPA 开发平台
+一个开源的Agent+RPA开发平台。
 
 [![][issues-helper-image]][issues-helper-url] [![Issues need help][help-wanted-image]][help-wanted-url]
 
