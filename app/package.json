@@ -1,11 +1,11 @@
 {
   "name": "automate",
-  "version": "1.0.0",
+  "version": "2.2.1",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
-  "repository": "https://github.com/yuruotong1/autoMate",
+  "repository": "https://github.com/yuruotong1/autoMate/tree/master/app",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
