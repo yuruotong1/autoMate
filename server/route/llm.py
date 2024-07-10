@@ -11,8 +11,11 @@ def llm():
     data = request.get_json()
     messages = data["messages"]
     isStream = data.get("isStream", False)
-    config = json.loads(data.get("llm_config", get_config()))["llm"]
-    messages = [{"role": "system", "content": code_prompt}] + messages
+    if data.get("llm_config"):
+        config = json.loads(data.get("llm_config"))
+    else:
+        config = json.loads(get_config())["llm"]
+    messages = [{"role": "system", "content": code_prompt.substitute()}] + messages
     if isStream:
         def generate():
             response = completion(messages=messages, stream=True, **config)
