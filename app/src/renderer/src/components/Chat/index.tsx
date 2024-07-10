@@ -4,7 +4,7 @@ import { useStore } from '@renderer/store/useStore';
 import { useTheme } from 'antd-style';
 import { useEffect, useRef } from 'react';
 export default function Chat(props: {id: number, revalidator: () => void, search: string}) {
-  const {id, revalidator, search} = props;
+  const {search} = props;
   const {getResponse} = useChat()
   const theme = useTheme();
   const chatMessages = useStore(state=>state.chatMessages)
@@ -36,7 +36,7 @@ export default function Chat(props: {id: number, revalidator: () => void, search
         }
   
         request={async (messages) => {
-            const response = await getResponse(messages, id, revalidator)
+            const response = await getResponse(messages)
             return new Response(response.content)// 支持流式和非流式
     }}
   />
