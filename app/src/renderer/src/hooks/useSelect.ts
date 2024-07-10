@@ -55,7 +55,7 @@ export default()=>{
         // if (content) await navigator.clipboard.writeText(content)
         window.api.closeWindow('search')
         const category_id = data.find((item)=>item.id == id)?.category_id
-        window.api.openWindow('code', `/${category_id}/content/${id}/${search}`)
+        window.api.openWindow('code', `/${category_id}/content/${id}`)
     }
 
     useEffect(() => {

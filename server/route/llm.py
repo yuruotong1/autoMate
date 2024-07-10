@@ -16,6 +16,7 @@ def llm():
     else:
         config = json.loads(get_config())["llm"]
     messages = [{"role": "system", "content": code_prompt.substitute()}] + messages
+    # 暂时没有strem
     if isStream:
         def generate():
             response = completion(messages=messages, stream=True, **config)
@@ -23,5 +24,8 @@ def llm():
                 yield part.choices[0].delta.content or ""
         return Response(generate(), mimetype='text/event-stream')
     else:
-        res = completion(messages=messages, **config)
-        return {"content": res.choices[0].message.content}
+        try:
+            res = completion(messages=messages, **config)
+            return {"content": res.choices[0].message.content, "status": 0}
+        except Exception as e:
+            return {"content": str(e), "status": 1}

@@ -84,28 +84,28 @@ export function Setting(){
        <Button
               onClick={async () => {
                 const hide = message.loading('检测中...', 0);
-                try {
-                  const res = await fetch(`${localServerBaseUrl}/llm`,
-                    {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify(
-                        { "messages": [{ "role": "user", "content": "hello" }],
-                         "llm_config": JSON.stringify(form.getFieldValue("llm"))}),
-                    }
-                  )
-                  hide();
-                  if (res.ok) {
-                    message.success('连接成功')
-                  } else {
-                    message.error(`连接失败，请检查配置信息是否正确：\n${res.statusText}`)
+                const res = await fetch(`${localServerBaseUrl}/llm`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                      { "messages": [{ "role": "user", "content": "hello" }],
+                        "llm_config": JSON.stringify(form.getFieldValue("llm"))}),
                   }
-                } catch (error) {
-                  hide();
-                  message.error(`连接失败，请检查配置信息是否正确：\n${error}`)
+                )
+                hide();
+                const jsonResponse = await res.json()
+                if (jsonResponse.status === 0) {
+                  message.success(`连接成功！`)
+                } else {
+                  message.error( 
+                  <span style={{ whiteSpace: 'pre-line' }}>
+                  {`连接失败！\n${jsonResponse.content}`}
+                </span>)
                 }
+              
               }}>检查连接</Button>
         </div>
         <Form.Item name="format" label="格式" rules={[{ required: true }]}>
