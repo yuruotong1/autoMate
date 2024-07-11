@@ -87,7 +87,7 @@
 
 ### 启动前端
 
-1. 安装 nodejs，使用最新版本即可；
+1. 安装 nodejs，要求nodejs版本为 v18.x；
 2. 使用命令行进入到 app 目录；
 3. 输入 npm install 安装依赖；
 4. 输入 npm run dev 启动前端。
