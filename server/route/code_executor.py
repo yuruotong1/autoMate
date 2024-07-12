@@ -1,14 +1,14 @@
 import io
 import sys
 import traceback
-from flask import Blueprint
-from flask import request
-home_bp = Blueprint('home', __name__)
+from fastapi import APIRouter,Request
+from json import loads
+code_executor_route = APIRouter()
 
-@home_bp.route('/execute', methods=["POST"])
-def home():
-    code = request.get_json()["code"]
-    # 创建一个 StringIO 对象来捕获输出
+@code_executor_route.post("/execute")
+async def home_execute(req:Request):
+    code = await req.body()
+    code = loads(code).get("code")
     output = io.StringIO()
     # 保存当前的 stdout
     old_stdout = sys.stdout

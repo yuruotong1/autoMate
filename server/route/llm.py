@@ -1,14 +1,15 @@
-from flask import Blueprint, Response, request
+from fastapi import APIRouter,Request
+from fastapi.responses import StreamingResponse
 from litellm import completion
 from utils.sql_util import get_config
 from agent.prompt import code_prompt
 import json
+llm_route = APIRouter()
 
-home_bp = Blueprint('llm', __name__)
-
-@home_bp.route('/llm', methods=["POST"])
-def llm():
-    data = request.get_json()
+@llm_route.post("/llm")
+async def llm_post(req:Request):
+    data = await req.body()
+    data = json.loads(data)
     messages = data["messages"]
     isStream = data.get("isStream", False)
     if data.get("llm_config"):
@@ -22,7 +23,7 @@ def llm():
             response = completion(messages=messages, stream=True, **config)
             for part in response:
                 yield part.choices[0].delta.content or ""
-        return Response(generate(), mimetype='text/event-stream')
+        return StreamingResponse(generate(),media_type='text/event-stream')
     else:
         try:
             res = completion(messages=messages, **config)
