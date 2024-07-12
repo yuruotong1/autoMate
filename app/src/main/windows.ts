@@ -27,13 +27,25 @@ export const config = {
     config: {
         id: 0,
         options: {
-            initShow: true,
+            initShow: false,
             width: 830,
             height: 670,
             openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#config'
+        }
+    },
+    about: {
+        id: 0,
+        options: {
+            initShow: true,
+            width: 830,
+            height: 670,
+            openDevTools: true,
+            frame: true,
+            transparent: false,
+            hash: '/#about'
         }
     }
 
@@ -76,9 +88,10 @@ function createTray(){
     })
 
     const menu = Menu.buildFromTemplate([
-        { label: '搜索', click: () => { getWindowByName('search').show() } },
+        { label: '关于', click: () => { getWindowByName('about').show() } },
+
         { label: '配置', click: () => { getWindowByName('config').show() } },
-        { label: '代码', click: () => { getWindowByName('code').show() } },
+
         { label: '退出', click: async () => { 
             try{
                 await fetch('http://127.0.0.1:5000/shutdown')

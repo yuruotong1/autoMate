@@ -27,6 +27,11 @@ const api = {
   },
   getConfig: () => {
     return (ipcRenderer.invoke("getConfig") as Promise<ConfigType>)
+  },
+  getVersion: async() => {
+
+    const version = await ipcRenderer.invoke("getVersion")
+    return version
   }
 }
 

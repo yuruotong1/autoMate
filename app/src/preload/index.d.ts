@@ -13,6 +13,7 @@ declare global {
       closeWindow: (name: WindowNameType) => void,
       initTable: () => void,
       getConfig: () => Promise<ConfigType>
+      getVersion: () => string
     }
   }
 }

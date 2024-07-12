@@ -1,4 +1,4 @@
-import {ipcMain, IpcMainEvent } from "electron"
+import {app, ipcMain, IpcMainEvent } from "electron"
 import { getWindowByName, getWindowByEvent} from "./windows"
 
 ipcMain.on('openWindow', (_event: IpcMainEvent, name: WindowNameType, router_url="") => {
@@ -14,3 +14,7 @@ ipcMain.on('setIgnoreMouseEvents',
     (event: IpcMainEvent, ignore: boolean, options?:{forward: boolean}) => {
     getWindowByEvent(event).setIgnoreMouseEvents(ignore, options)
  })
+
+ipcMain.handle('getVersion', async (_event) => {
+    return app.getVersion()
+})
