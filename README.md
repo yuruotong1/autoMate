@@ -8,7 +8,7 @@
 [![][issues-helper-image]][issues-helper-url] [![Issues need help][help-wanted-image]][help-wanted-url]
 
 
-📚[文档地址](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec?from=from_copylink)|🎞️[介绍视频](https://www.bilibili.com/video/BV1LW421R7Ai/?share_source=copy_web&vd_source=c28e503b050f016c21660b69e391d391)|🗨[Discord](https://discord.gg/9fyT4ma)
+📚[文档地址](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec?from=from_copylink)|🎞️[介绍视频](https://www.bilibili.com/video/BV1LW421R7Ai/?share_source=copy_web&vd_source=c28e503b050f016c21660b69e391d391)|🗨[QQ频道](https://pd.qq.com/s/1ygylejjb)
 
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 
