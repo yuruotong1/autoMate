@@ -26,7 +26,6 @@ export default function Chat(props: {id: number, revalidator: () => void, search
     <ProChat
         chats={chatMessages}
         onChatsChange={(chat)=>{
-          console.log('chat', chat)
           setMessages(chat)
         }}
         chatItemRenderConfig={{
@@ -62,29 +61,20 @@ export default function Chat(props: {id: number, revalidator: () => void, search
         }
   
         request={async (messages) => {
-            // const response = await getResponse(messages)
-            // if (response.isExistCode === 0) {
-            // setTimeout(() => {
-            //   proChatRef.current?.sendMessage({
-            //     type: 'text',
-            //     content: response.content,
-            //     role: 'coder',
-            //     originData: response
-            //   });
-            // }, 1000); // 延时1秒推送消息
-            
-            // }
-
-            // return new Response(response.content)// 支持流式和非流式
-            setTimeout(() => {
-              proChatRef.current?.pushChat({
+            const response = await getResponse(messages)
+            console.log(response)
+            if (response.isExistCode === 0) {
+              setTimeout(() => {
+                proChatRef.current?.pushChat({
                 type: 'text',
-                content: "hello",
+                content: response.content,
                 role: 'coder',
-                originData: "dd"
+                originData: response
               });
+              
             }, 1000); // 延时1秒推送消息
-            return new Response("hello")
+          }
+            return new Response(response.content)
     }}
   />
   )
