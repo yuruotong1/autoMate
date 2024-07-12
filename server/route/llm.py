@@ -19,9 +19,11 @@ def llm():
         config = json.loads(get_config())["llm"]
     messages = [{"role": "system", "content": code_prompt.substitute()}] + messages
     try:
+        print(config)
         res = completion(messages=messages, **config).choices[0].message.content
         return {"content": res, "code": extract_code_blocks(res), "status": 0}
     except Exception as e:
+        print(e)
         return {"content": str(e), "status": 1}
 
 

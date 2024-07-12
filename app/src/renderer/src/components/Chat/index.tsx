@@ -1,5 +1,6 @@
 import { ProChat, ProChatInstance } from '@ant-design/pro-chat';
 import useChat from '@renderer/hooks/useChat';
+import useRunCode from '@renderer/hooks/useRunCode';
 import { useStore } from '@renderer/store/useStore';
 import { Button } from 'antd';
 import { useTheme } from 'antd-style';
@@ -13,6 +14,8 @@ export default function Chat(props: {id: number, revalidator: () => void, search
   const proChatRef = useRef<ProChatInstance>();
   // 确保 useeffect 只执行一次
   const effectRan = useRef(false);
+  const {id, revalidator} = props;
+  const { runCode } = useRunCode()
 
   useEffect(()=>{
     if (effectRan.current === false) {
@@ -30,17 +33,28 @@ export default function Chat(props: {id: number, revalidator: () => void, search
         }}
         chatItemRenderConfig={{
           contentRender: (props, defaultDom) => {
-            if (props.originData?.role === 'coder') {
+            if (props.originData!.role === 'coder' && props.originData!.originData) {
               try {
                 // const resJson = JSON.parse(item?.originData?.content);
                 return (<div className='flex flex-row'>
                   <Button onClick={()=>{
-                    console.log('运行')
+                    const code = props.originData!.originData.code;
+                    runCode(code)
                   }}>
                     运行
                   </Button>
                   <Button className='ml-2' onClick={()=>{
-                    console.log('应用')
+                      // 更新代码
+                     window.api.sql(
+                      `update contents set content=@content where id=@id`, 
+                      "update",
+                      {
+                        content: props.originData!.originData.code,
+                        id
+                      }
+                  )
+                  // 让代码展示区域重新加载
+                  revalidator()
                   }}>
                    应用
                   </Button>
@@ -63,7 +77,7 @@ export default function Chat(props: {id: number, revalidator: () => void, search
         request={async (messages) => {
             const response = await getResponse(messages)
             console.log(response)
-            if (response.isExistCode === 0) {
+            if (response.status === 0 && response.code != "") {
               setTimeout(() => {
                 proChatRef.current?.pushChat({
                 type: 'text',

@@ -1,6 +1,6 @@
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
-import { Drawer, FloatButton, Spin } from 'antd';
+import { Drawer, FloatButton } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Chat from '@renderer/components/Chat';
 import "./codeEditor.scss"

@@ -2,9 +2,9 @@ import { Form, useLoaderData, useRevalidator, useSubmit } from "react-router-dom
 import "./content.scss"
 import CodeEditor from "@renderer/components/CodeEditor"
 import { Button } from "antd"
-import { localServerBaseUrl } from "@renderer/config"
 import { useState } from "react"
-import { useStore } from "@renderer/store/useStore"
+import useRunCode from "@renderer/hooks/useRunCode"
+
 
 export const Content = () => {
     const { content, categories, search } = useLoaderData() as {
@@ -15,8 +15,7 @@ export const Content = () => {
     const revalidator = useRevalidator();
     const submit = useSubmit()
     const [open, setOpen] = useState(false);
-    const setChatMessages = useStore(state => state.setChatMessage)
-    const chatMessages = useStore(state => state.chatMessages)
+    const { runCode } = useRunCode()
     return (
         <Form method="PUT">
             <main className="content-page" key={content.id}>
@@ -34,20 +33,10 @@ export const Content = () => {
                         ))}
                     </select>
                     <Button onClick={async () => {
-                        const code_content = (await window.api.sql(`select * from contents where id = ${content.id}`, "findOne")) as ContentType
-                        const res = await fetch(localServerBaseUrl + "/execute", {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                code: code_content.content
-                            })
-                        });
-                        const data = await res.json();
-                        setOpen(true)
-                        setChatMessages([...chatMessages,
-                        { role: "assistant", content: "代码运行结果如下：" + JSON.stringify(data), createAt: new Date().getTime(), updateAt: new Date().getTime(), id: new Date().getTime().toString() }])
+                       setOpen(true)
+                       const code_content = (await window.api.sql(`select * from contents where id = ${content.id}`, "findOne")) as ContentType
+                       const code = code_content.content
+                       runCode(code)
                     }}>运行</Button>
                 </div>
                 <CodeEditor
