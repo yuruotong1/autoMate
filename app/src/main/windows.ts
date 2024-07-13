@@ -2,7 +2,6 @@ import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, Menu, Tray, app } from
 import { OptionsType, createWindow} from "./createWindow"
 const { exec } = require('child_process');
 import { is } from '@electron-toolkit/utils'
-import autoUpdater from './autoUpdater'
 export const config = {
     search: {
         id: 0,
@@ -39,10 +38,10 @@ export const config = {
     about: {
         id: 0,
         options: {
-            initShow: true,
-            width: 830,
-            height: 670,
-            openDevTools: true,
+            initShow: false,
+            width: 500,
+            height: 300,
+            openDevTools: false,
             frame: true,
             transparent: false,
             hash: '/#about'
@@ -122,9 +121,7 @@ app.whenReady().then(() => {
         console.error(`stderr: ${stderr}`);
       });}
     
-    autoUpdater(win)
-    
     // getWindowByName('code')
-    // getWindowByName('config')
+    // getWindowByName('about')
 
 })

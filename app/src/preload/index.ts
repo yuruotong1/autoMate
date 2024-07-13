@@ -28,12 +28,18 @@ const api = {
   getConfig: () => {
     return (ipcRenderer.invoke("getConfig") as Promise<ConfigType>)
   },
-  getVersion: async() => {
-
-    const version = await ipcRenderer.invoke("getVersion")
-    return version
+  getVersion: () => {
+    return ipcRenderer.invoke("getVersion")
+  },
+  checkUpdate: () => {
+    ipcRenderer.send("checkUpdate")
+  },
+  updateInfo: (fn: (value: string) => void)=> {
+    ipcRenderer.on("updateInfo", (_event, value)=> fn(value))
   }
 }
+
+
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -42,6 +48,7 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
+  
   } catch (error) {
     console.error(error)
   }
