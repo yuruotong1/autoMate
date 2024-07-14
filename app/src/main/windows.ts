@@ -68,12 +68,23 @@ export const getWindowByEvent = (event: IpcMainEvent | IpcMainInvokeEvent) => {
 }
 
 function createTray(){
+
+  if (process.platform === 'darwin') {
+    const tray = new Tray('resources/appiconset/mac-16x16.png')
+    tray.setToolTip('autoMate智子')
+    tray.setTitle('autoMate')
+    tray.addListener('click', () => {
+      getWindowByName('search').show()
+    })
+  } else {
     const tray = new Tray('resources/icon.png')
     tray.setToolTip('autoMate智子')
     tray.setTitle('autoMate')
     tray.addListener('click', () => {
-        getWindowByName('search').show()
+      getWindowByName('search').show()
     })
+  }
+
 
     const menu = Menu.buildFromTemplate([
         { label: '搜索', click: () => { getWindowByName('search').show() } },
