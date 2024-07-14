@@ -2,7 +2,6 @@ import {app, ipcMain, IpcMainEvent } from "electron"
 import { getWindowByName, getWindowByEvent} from "./windows"
 import { autoUpdater } from 'electron-updater'
 import { shutdownServer } from "./serverUtilts"
-import updateRegister from "./updateRegister"
 
 
 ipcMain.on('openWindow', (_event: IpcMainEvent, name: WindowNameType, router_url="") => {
@@ -31,17 +30,9 @@ ipcMain.on('restartApp', async () => {
 
 // 检测更新
 ipcMain.on('checkUpdate', (event) => {
-  
     const win = getWindowByEvent(event);
     autoUpdater.checkForUpdates();
     win.webContents.send('updateInfo', `正在检查更新...`)
     
-    
-})
-
-// 注册更新事件
-ipcMain.on('registerUpdate', (event) => {
-    const win = getWindowByEvent(event);
-    updateRegister(win)
 })
 

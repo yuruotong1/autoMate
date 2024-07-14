@@ -6,7 +6,6 @@ function About() {
     const [updateInfo, setUpdateInfo] = useState('');
    
     useEffect(() => {
-        window.api.registerUpdate()
         window.api.updateInfo((value)=>{
             if(value === '软件更新失败，重试中...'){
                 window.api.checkUpdate();
@@ -33,9 +32,12 @@ function About() {
                     {updateInfo}
                 </div>
 
-                {updateInfo === '下载完成，重启软件完成更新！' && <Button type="primary" onClick={()=>{
+                {updateInfo === '下载完成，重启软件完成更新！' && (
+                <div>检测到新版本，点击重启完成更新！
+                <Button type="primary" onClick={()=>{
                     window.api.restartApp()
-                }}>重启软件</Button>}
+                }}>重启</Button>
+                </div>)}
                 </div>
             </div>
         </main>

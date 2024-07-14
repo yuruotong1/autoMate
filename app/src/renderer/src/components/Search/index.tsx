@@ -1,10 +1,25 @@
 import useSearch from "@renderer/hooks/useSearch"
 import { SettingOne } from "@icon-park/react"
-import { Input } from "antd"
+import { Button, Input } from "antd"
 import { useStore } from "@renderer/store/useStore"
+import { useEffect, useState } from "react"
 export default function Search(): JSX.Element {
   const {handleSearch} = useSearch()
   const search = useStore((state)=>state.search)
+  const [version, setVersion] = useState('')
+  const [updateInfo, setUpdateInfo] = useState('')
+  useEffect(() => {
+    window.api.getVersion().then((res) => {
+        setVersion(res)
+    })
+    window.api.updateInfo((value)=>{
+      if(value === '软件更新失败，重试中...'){
+          window.api.checkUpdate();
+      }
+  })
+
+  window.api.checkUpdate();
+}, []);
   return (
     <main className="bg-slate-50 p-3 rounded-lg drag" >
         <div className="bg-slate-200 p-3 rounded-l flex items-center gap-1 no-drag">
@@ -25,9 +40,13 @@ export default function Search(): JSX.Element {
             />
         </div>
         <section className="text-center text-slate-600 text-xs mt-2 no-drag select-none">
-          autoMate 
+          <div>
+          autoMate V{version}
           <span className="text-blue-600 cursor-pointer" onClick={()=>window.api.openWindow('config')}>点击配置</span>
+          </div>
+          {updateInfo==='成功' && <Button type="primary" onClick={()=>window.api.restart()}>重启</Button>}
         </section>
+
     </main>
   )
 }

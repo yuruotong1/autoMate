@@ -1,3 +1,4 @@
+import { is } from "@electron-toolkit/utils"
 import { BrowserWindow } from "electron"
 import { autoUpdater } from "electron-updater"
 
@@ -6,6 +7,8 @@ export default (win: BrowserWindow) => {
     autoUpdater.autoDownload = false
     //退出时自动安装更新
     autoUpdater.autoInstallOnAppQuit = true
+    // 检查更新
+    !is.dev && autoUpdater.checkForUpdates()
 
     autoUpdater.on('update-available', (_info) => {
         win.webContents.send('updateInfo', `发现新的版本!}`)

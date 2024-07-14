@@ -3,6 +3,7 @@ import { OptionsType, createWindow} from "./createWindow"
 const { exec } = require('child_process');
 import { is } from '@electron-toolkit/utils'
 import { shutdownServer } from "./serverUtilts";
+import updateRegister from "./updateRegister";
 export const config = {
     search: {
         id: 0,
@@ -105,6 +106,7 @@ function createTray(){
 app.whenReady().then(() => {
     createTray()
     const win = getWindowByName('search')
+    updateRegister(win)
     win.on('blur', () => {
         win.hide()
     })
