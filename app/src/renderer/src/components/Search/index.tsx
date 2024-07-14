@@ -44,7 +44,7 @@ export default function Search(): JSX.Element {
           autoMate V{version}
           <span className="text-blue-600 cursor-pointer" onClick={()=>window.api.openWindow('config')}>点击配置</span>
           </div>
-          {updateInfo==='成功' && <Button type="primary" onClick={()=>window.api.restart()}>重启</Button>}
+          {updateInfo==='成功' && <Button type="primary" onClick={()=>window.api.restartApp()}>重启</Button>}
         </section>
 
     </main>
