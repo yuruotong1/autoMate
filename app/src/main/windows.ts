@@ -120,17 +120,6 @@ app.whenReady().then(() => {
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });}
-
-      const serverPath = process.platform === 'win32' ? '..\\..\\dist\\win-unpacked\\autoMateServer.exe' : './autoMateServer.exe';
-      exec(serverPath, (error: any, stdout: any, stderr: any) => {
-          if (error) {
-            console.error(`error: ${error}`);
-            return;
-          }
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
-    }
-      )
     
     // getWindowByName('code')
     // getWindowByName('about')
