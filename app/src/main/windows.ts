@@ -2,6 +2,7 @@ import { BrowserWindow, IpcMainEvent, IpcMainInvokeEvent, Menu, Tray, app } from
 import { OptionsType, createWindow} from "./createWindow"
 const { exec } = require('child_process');
 import { is } from '@electron-toolkit/utils'
+import { shutdownServer } from "./serverUtilts";
 export const config = {
     search: {
         id: 0,
@@ -92,10 +93,7 @@ function createTray(){
         { label: '配置', click: () => { getWindowByName('config').show() } },
 
         { label: '退出', click: async () => { 
-            try{
-                await fetch('http://127.0.0.1:5000/shutdown')
-            }catch(_e){
-            }
+            await shutdownServer()
             app.quit() 
         } 
         
@@ -120,6 +118,17 @@ app.whenReady().then(() => {
         console.log(`stdout: ${stdout}`);
         console.error(`stderr: ${stderr}`);
       });}
+
+      const serverPath = process.platform === 'win32' ? '..\\..\\dist\\win-unpacked\\autoMateServer.exe' : './autoMateServer.exe';
+      exec(serverPath, (error: any, stdout: any, stderr: any) => {
+          if (error) {
+            console.error(`error: ${error}`);
+            return;
+          }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+    }
+      )
     
     // getWindowByName('code')
     // getWindowByName('about')

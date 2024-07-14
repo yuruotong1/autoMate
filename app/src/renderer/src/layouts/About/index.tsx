@@ -1,12 +1,19 @@
+import { Button } from "antd";
 import { useEffect, useState } from "react";
 
 function About() {
     const [version, setVersion] = useState('');
     const [updateInfo, setUpdateInfo] = useState('');
-    window.api.updateInfo((value)=>{
-        setUpdateInfo(value)
-    })
+   
     useEffect(() => {
+        window.api.registerUpdate()
+        window.api.updateInfo((value)=>{
+            if(value === '软件更新失败，重试中...'){
+                window.api.checkUpdate();
+            }
+            setUpdateInfo(value)
+        })
+
         window.api.checkUpdate();
         
         window.api.getVersion().then((res) => {
@@ -21,8 +28,14 @@ function About() {
                     autoMate
                 </h1>
                 v{version}
-                <div className="text-sm mt-5">
+                <div>
+                <div className="text-sm mt-5 mr-5">
                     {updateInfo}
+                </div>
+
+                {updateInfo === '下载完成，重启软件完成更新！' && <Button type="primary" onClick={()=>{
+                    window.api.restartApp()
+                }}>重启软件</Button>}
                 </div>
             </div>
         </main>

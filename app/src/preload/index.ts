@@ -36,6 +36,12 @@ const api = {
   },
   updateInfo: (fn: (value: string) => void)=> {
     ipcRenderer.on("updateInfo", (_event, value)=> fn(value))
+  },
+  restartApp: () => {
+    ipcRenderer.send("restartApp")
+  },
+  registerUpdate: () => {
+    ipcRenderer.send("registerUpdate")
   }
 }
 

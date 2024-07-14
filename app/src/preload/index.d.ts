@@ -16,6 +16,8 @@ declare global {
       getVersion: () => Promise<string>,
       checkUpdate: () => void,
       updateInfo: (fn: (value: string) => void) => void,
+      restartApp: () => void,
+      registerUpdate: () => void,
     }
   }
 }
