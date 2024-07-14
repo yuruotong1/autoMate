@@ -7,7 +7,7 @@ export default function Search(): JSX.Element {
   const {handleSearch} = useSearch()
   const search = useStore((state)=>state.search)
   const [version, setVersion] = useState('')
-  const [updateInfo, setUpdateInfo] = useState('')
+  const [updateInfo] = useState('')
   useEffect(() => {
     window.api.getVersion().then((res) => {
         setVersion(res)
