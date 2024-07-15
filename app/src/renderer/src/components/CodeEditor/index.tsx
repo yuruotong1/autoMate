@@ -1,9 +1,9 @@
-import CodeMirror from '@uiw/react-codemirror';
+import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { Drawer, FloatButton } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Chat from '@renderer/components/Chat';
-import "./codeEditor.scss"
+import styles from "./styles.module.scss"
 import { useEffect } from 'react';
 interface CodeEditorProps {
   id: number;
@@ -41,8 +41,8 @@ export default function CodeEditor(props: CodeEditorProps) {
       <CodeMirror
         maxHeight='550px'
         maxWidth='850px'
-        className='code-mirror'
         value={defaultValue}
+        className={styles.codeMirror}
         onChange={async (value) => {
           await window.api.sql(
             `update contents set content=@content where id=@id`, 
@@ -53,7 +53,13 @@ export default function CodeEditor(props: CodeEditorProps) {
             }
         )
         }}
-        extensions={[python()]}
+        extensions={[
+          python(),   
+          EditorView.theme({
+          "&.cm-editor.cm-focused": {
+            outline: "none !important",
+          },
+        }),]}
       />
     </div>
   );
