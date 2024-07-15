@@ -17,7 +17,6 @@ declare global {
       checkUpdate: () => void,
       updateInfo: (fn: (value: string) => void) => void,
       restartApp: () => void,
-      registerUpdate: () => void,
     }
   }
 }

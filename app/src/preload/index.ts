@@ -39,9 +39,6 @@ const api = {
   },
   restartApp: () => {
     ipcRenderer.send("restartApp")
-  },
-  registerUpdate: () => {
-    ipcRenderer.send("registerUpdate")
   }
 }
 
