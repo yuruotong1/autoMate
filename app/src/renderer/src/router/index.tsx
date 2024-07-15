@@ -14,11 +14,16 @@ import CategoryAction from "@renderer/pages/Category/CategoryAction";
 import { Setting } from "@renderer/pages/Setting";
 import SettingAction from "@renderer/pages/Setting/SettingAction";
 import SettingLoader from "@renderer/pages/Setting/SettingLoader";
+import About from "@renderer/layouts/About";
 
 const router = createHashRouter([
   {
     path: "/",
     element: <Home />
+  },
+  {
+    path: "about",
+    element: <About />
   },
   {
     path: "config",
