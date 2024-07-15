@@ -4,7 +4,7 @@ import { Drawer, FloatButton } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Chat from '@renderer/components/Chat';
 import "./codeEditor.scss"
-import { useEffect } from 'react';
+import { useEffect,useRef } from 'react';
 interface CodeEditorProps {
   id: number;
   defaultValue: string;
@@ -15,14 +15,39 @@ interface CodeEditorProps {
 }
 export default function CodeEditor(props: CodeEditorProps) {
   const { id, defaultValue, revalidator, open, setOpen, search} = props;
+  const floatButton = useRef(null)
+  function addText() {
+    if (floatButton != null) {
+      // @ts-ignore
+      const html = floatButton.current.innerHTML
+      if (html.indexOf('智子助手') < 0) {
+        const newHtml = html + '<span style="font-size:10px">智子助手</span>'
+        if (floatButton.current) {
+            // @ts-ignore
+          floatButton.current.innerHTML= newHtml
+        }
+      }
+    }
+  }
+  // const onButtonClick = () => {
+  //   // 关键代码，`current` 指向已挂载到 DOM 上的文本输入元素
+  //   // button.current.focus();
+  //   let html = button.current.innerHTML
+  //   if (html.indexOf('智能助手')<0){
+  //     const newHtml = html + '<span style="font-size:10px">智能助手</span>'
+  //     // @ts-ignore
+  //     button.current.innerHTML = newHtml
+  //   }
+  // };
   useEffect(()=>{
     if (search) {
       setOpen(true)
     }
+    addText()
   }, [])
   return (
     <div>
-        <FloatButton icon={<QuestionCircleOutlined />} type="primary" onClick={() => {
+        <FloatButton icon={<QuestionCircleOutlined />} ref={floatButton} type="primary" onClick={() => {
         setOpen(true);
       }} />
       <Drawer
@@ -45,7 +70,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         value={defaultValue}
         onChange={async (value) => {
           await window.api.sql(
-            `update contents set content=@content where id=@id`, 
+            `update contents set content=@content where id=@id`,
             "update",
             {
               id,
