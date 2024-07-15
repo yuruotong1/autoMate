@@ -38,7 +38,7 @@ export const CategoryItem = ({ category }: Props) => {
               setEditCategoryId(category.id)
             }
           }
-          to={`/config/category/contentList/${category.id}`}
+          to={`/code/category/contentList/${category.id}`}
           key={category.id}
           className={({ isActive }) => {
             return isActive ? styles.active : styles.link

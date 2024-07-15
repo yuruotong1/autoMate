@@ -21,19 +21,19 @@ export const config = {
             openDevTools: false,
             frame: true,
             transparent: false,
-            hash: '/#config/category/contentList'
+            hash: '/#code/category/contentList'
         }
     },
-    config: {
+    setting: {
         id: 0,
         options: {
             initShow: false,
             width: 830,
             height: 670,
-            openDevTools: false,
+            openDevTools: true,
             frame: true,
             transparent: false,
-            hash: '/#config'
+            hash: '/#setting'
         }
     },
     about: {
@@ -90,7 +90,7 @@ function createTray(){
     const menu = Menu.buildFromTemplate([
         { label: '关于', click: () => { getWindowByName('about').show() } },
 
-        { label: '配置', click: () => { getWindowByName('config').show() } },
+        { label: '设置', click: () => { getWindowByName('setting').show() } },
 
         { label: '退出', click: async () => { 
             await shutdownServer()

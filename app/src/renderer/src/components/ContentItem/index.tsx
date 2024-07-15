@@ -12,7 +12,7 @@ const { showContextMenu } = useContextMenu();
   return (
     <NavLink 
         key={content.id} 
-        to={`/config/category/contentList/${content.category_id}/content/${content.id}`}
+        to={`/code/category/contentList/${content.category_id}/content/${content.id}`}
         className={({isActive})=>{
             return [isActive ? styles.active : '', styles.link].join(' ')
         }}

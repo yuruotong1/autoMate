@@ -10,6 +10,7 @@ export const FooterMenu = () => {
           submit(null, {method:'POST'})
         }/>
         </div>
+     
     </>
   )
 }

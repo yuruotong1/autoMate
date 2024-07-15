@@ -1,4 +1,3 @@
-import Config from "@renderer/layouts/Config";
 import Home from "@renderer/layouts/Home";
 import { createHashRouter } from "react-router-dom";
 import {Category} from "@renderer/pages/Category";
@@ -11,10 +10,11 @@ import ContentAction from "@renderer/pages/Content/ContentAction";
 import { Welcome } from "@renderer/pages/Welcome";
 import ContentListAction from "@renderer/pages/ContentList/ContentListAction";
 import CategoryAction from "@renderer/pages/Category/CategoryAction";
-import { Setting } from "@renderer/pages/Setting";
 import SettingAction from "@renderer/pages/Setting/SettingAction";
 import SettingLoader from "@renderer/pages/Setting/SettingLoader";
+import Setting from "@renderer/pages/Setting/index";
 import About from "@renderer/layouts/About";
+import Code from "@renderer/layouts/Code";
 
 const router = createHashRouter([
   {
@@ -26,17 +26,15 @@ const router = createHashRouter([
     element: <About />
   },
   {
-    path: "config",
-    element: <Config />,
-    children: [
-      {
-        index: true,
-        element: <Setting/>,
-        loader: SettingLoader,
-        action: SettingAction
-        
-      },
-      {
+    path: "setting",
+    element: <Setting/>,
+    loader: SettingLoader,
+    action: SettingAction
+  },
+  {
+    path: "code",
+    element: <Code/>,
+    children: [{
         path: "category",
         // 界面第一次打开时，默认显示的页面
         element: <Category />,

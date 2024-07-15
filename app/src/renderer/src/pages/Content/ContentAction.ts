@@ -9,5 +9,5 @@ export default async({request}) => {
         "update",
         data
     )
-    return redirect(`/config/category/contentList/${data.category_id}/content/${data.id}`)
+    return redirect(`/code/category/contentList/${data.category_id}/content/${data.id}`)
 }

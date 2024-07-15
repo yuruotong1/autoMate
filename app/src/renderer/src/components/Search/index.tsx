@@ -1,5 +1,5 @@
 import useSearch from "@renderer/hooks/useSearch"
-import { SettingOne } from "@icon-park/react"
+import { CodeOne } from "@icon-park/react"
 import { Button, Input } from "antd"
 import { useStore } from "@renderer/store/useStore"
 import { useEffect, useState } from "react"
@@ -23,7 +23,7 @@ export default function Search(): JSX.Element {
   return (
     <main className="bg-slate-50 p-3 rounded-lg drag" >
         <div className="bg-slate-200 p-3 rounded-l flex items-center gap-1 no-drag">
-            <SettingOne 
+            <CodeOne 
               theme="outline"
               size="22"
               fill="#34495e"
@@ -42,7 +42,7 @@ export default function Search(): JSX.Element {
         <section className="text-center text-slate-600 text-xs mt-2 no-drag select-none">
           <div>
           autoMate V{version}
-          <span className="text-blue-600 cursor-pointer" onClick={()=>window.api.openWindow('config')}>点击配置</span>
+          <span className="text-blue-600 cursor-pointer" onClick={()=>window.api.openWindow('setting')}>点击配置</span>
           </div>
           {updateInfo==='成功' && <Button type="primary" onClick={()=>window.api.restartApp()}>重启</Button>}
         </section>

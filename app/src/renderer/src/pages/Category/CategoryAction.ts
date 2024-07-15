@@ -25,7 +25,7 @@ export default async ({ request }) => {
                     category_id: data.id
                 }
             )
-            return redirect("/config/category/contentList")
+            return redirect("/code/category/contentList")
         }
         case "PUT": {
             return await window.api.sql(

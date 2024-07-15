@@ -1,6 +1,5 @@
 import Result from "@renderer/components/Result"
 import Search from "@renderer/components/Search"
-import { CodeProvider } from "@renderer/context/CodeContext"
 import Error from "@renderer/components/Error"
 import { MutableRefObject, useEffect, useRef } from "react"
 import useIgnoreMouseEvents from "@renderer/hooks/useIgnoreMouseEvents"
@@ -28,13 +27,12 @@ function Home(): JSX.Element {
   })
 
   return (
-    <CodeProvider>
+  
       <main className="relative" ref={mainRef}>
       <Error/>
       <Search />
       <Result />
       </main>
-    </CodeProvider>
   )
 }
 

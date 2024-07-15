@@ -8,7 +8,7 @@ export default  () => {
             "update",
             {category_id, id}
         )
-        navigate(`/config/category/contentList/${category_id}/content/${id}`)
+        navigate(`/code/category/contentList/${category_id}/content/${id}`)
 
     }
     return {updateContentCategory}
