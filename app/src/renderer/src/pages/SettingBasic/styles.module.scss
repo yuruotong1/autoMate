@@ -1,0 +1,21 @@
+.settingPage{
+    @apply bg-slate-100 h-screen p-5;
+    h1 {
+        @apply flex justify-center text-sm;
+    }
+
+    section{
+        h5 {
+            @apply text-sm font-bold mb-8 text-slate-700 opacity-80;
+        }
+        h6 {
+            @apply text-sm mb-2 text-slate-700 opacity-80;
+        }
+        @apply border p-3 rounded-md bg-white my-5;
+        input {
+            @apply border w-full outline-none;
+        }
+
+
+    }
+}

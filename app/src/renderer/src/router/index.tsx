@@ -15,6 +15,8 @@ import SettingLoader from "@renderer/pages/Setting/SettingLoader";
 import Setting from "@renderer/pages/Setting/index";
 import About from "@renderer/layouts/About";
 import Code from "@renderer/layouts/Code";
+import { SettingBasic } from "@renderer/pages/SettingBasic";
+import { SettingUser } from "@renderer/pages/SettingUser";
 
 const router = createHashRouter([
   {
@@ -28,8 +30,19 @@ const router = createHashRouter([
   {
     path: "setting",
     element: <Setting/>,
-    loader: SettingLoader,
-    action: SettingAction
+    children: [
+      {
+        index: true,
+        path: "settingUser",
+        element: <SettingUser />
+      },
+      {
+        path: "settingBasic",
+        element: <SettingBasic />,
+        loader: SettingLoader,
+        action: SettingAction
+      }
+    ]
   },
   {
     path: "code",

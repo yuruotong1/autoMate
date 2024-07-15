@@ -48,7 +48,6 @@ export const SettingBasic = () => {
   
     return (
         <div className={styles.settingPage}>
-    <h1>Setting</h1>
     <Form
       form={form}
       name="control-hooks"

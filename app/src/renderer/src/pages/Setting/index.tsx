@@ -1,13 +1,17 @@
-import React  from 'react';
+import React, { useEffect } from 'react';
 import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Menu } from 'antd';
 import type { GetProp, MenuProps } from 'antd';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+import styles from './styles.module.scss'
 
 
+
+const Setting: React.FC = () => {
+  
 type MenuItem = GetProp<MenuProps, 'items'>[number];
 
 const items: MenuItem[] = [
@@ -22,24 +26,31 @@ const items: MenuItem[] = [
     label: '设置',
   }
 ];
+  const navigate = useNavigate()
 
-const Setting: React.FC = () => {
- 
+  useEffect(() => {
+    navigate('/setting/settingUser');
+  }, [navigate]);
+
   return (
-    <>
+    <main className={styles.setting}>
+      <div className={styles.menu}>
       <Menu
-        style={{ width: 150 }}
         defaultSelectedKeys={['1']}
         items={items}
         onSelect={(e)=>{
-          console.log(e.key)
+          if(e.key === '1'){
+            navigate('/setting/settingUser')
+          }else if(e.key === '2'){
+            navigate('/setting/settingBasic')
+          }
         }}
       />
-    <div >
-          <Outlet></Outlet>
+      </div>
+    <div className={styles.content}>
+          <Outlet/>
     </div>
-
-    </>
+    </main>
   );
 };
 
