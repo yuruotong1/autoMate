@@ -84,6 +84,10 @@ export function Setting(){
        <Button
               onClick={async () => {
                 const hide = message.loading('检测中...', 0);
+                const llmConfig = {
+                  ...form.getFieldValue("llm"),
+                  custom_llm_provider: form.getFieldValue("format")
+                };
                 const res = await fetch(`${localServerBaseUrl}/llm`,
                   {
                     method: 'POST',
@@ -92,7 +96,7 @@ export function Setting(){
                     },
                     body: JSON.stringify(
                       { "messages": [{ "role": "user", "content": "hello" }],
-                        "llm_config": JSON.stringify(form.getFieldValue("llm"))}),
+                        "llm_config": JSON.stringify(llmConfig)}),
                   }
                 )
                 hide();
