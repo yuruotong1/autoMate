@@ -13,8 +13,7 @@ interface StateProps{
     setEditCategoryId: (id: number) => void,
     chatMessages: ChatMessage<Record<string, any>>[],
     setChatMessage: (chatMessage: ChatMessage<Record<string, any>>[]) => void,
-    isCodeLoading: boolean,
-    setIsCodeLoading: (isCodeLoading: boolean) => void
+
 }
 export const useStore = create<StateProps>((set) => ({
     data: [],
@@ -29,8 +28,6 @@ export const useStore = create<StateProps>((set) => ({
     setEditCategoryId: (editCategoryId) => set({editCategoryId}),
     chatMessages: [],
     setChatMessage: (chatMessages) => set({chatMessages}),
-    isCodeLoading: false,
-    setIsCodeLoading: (isCodeLoading) => set({isCodeLoading})
   }))
 
 

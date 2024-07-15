@@ -1,6 +1,6 @@
 {
   "name": "automate",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.33",
-    "@ant-design/pro-chat": "^1.14.2",
+    "@ant-design/pro-chat": "^1.15.0",
     "@ant-design/pro-editor": "^1.2.1",
     "@codemirror/lang-python": "^6.1.6",
     "@electron-toolkit/preload": "^3.0.0",
