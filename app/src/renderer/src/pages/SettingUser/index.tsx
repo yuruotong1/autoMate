@@ -21,7 +21,7 @@ import {
   
   type LoginType = 'phone' | 'account';
   
-  export const SettingUser () => {
+  export const SettingUser = () => {
     const { token } = theme.useToken();
     const [loginType, setLoginType] = useState<LoginType>('phone');
   

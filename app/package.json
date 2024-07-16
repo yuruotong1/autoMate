@@ -3,8 +3,8 @@
   "version": "2.2.3",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "Yu RuoTong <yuruotong1@163.com> (https://github.com/yuruotong1/autoMate)",
+  "homepage": "https://github.com/yuruotong1/autoMate",
   "repository": "https://github.com/yuruotong1/autoMate/tree/master/app",
   "scripts": {
     "format": "prettier --write .",
@@ -21,6 +21,22 @@
     "build:mac": "electron-vite build && electron-builder --mac --config",
     "build:linux": "electron-vite build && electron-builder --linux --config"
   },
+  "build": {
+    "appId": "com.yuruotong.automate",
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "exe"
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "rpm",
+        "snap"
+      ]
+    }
+  },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.33",
     "@ant-design/pro-chat": "^1.15.0",
@@ -30,6 +46,7 @@
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "@icon-park/react": "^1.4.2",
+    "@radix-ui/react-tooltip": "^1.1.2",
     "@types/better-sqlite3": "^7.6.10",
     "@types/mockjs": "^1.0.10",
     "@uiw/react-codemirror": "^4.22.2",
@@ -37,16 +54,20 @@
     "antd": "^5.18.3",
     "antd-style": "^3.6.2",
     "better-sqlite3": "^11.0.0",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "electron-updater": "^6.2.1",
     "localforage": "^1.10.0",
+    "lucide-react": "^0.408.0",
     "mantine-contextmenu": "^7.10.2",
     "match-sorter": "^6.3.4",
     "mockjs": "^1.1.0",
     "openai": "^4.24.7",
     "react-router-dom": "^6.23.1",
     "sort-by": "^0.0.2",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
