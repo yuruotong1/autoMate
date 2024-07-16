@@ -3,12 +3,14 @@
 <img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 
-An Open Source Development Platform for Agent+RPA.
+简体中文 | [ENGLISH](./REAMDME_EN.md)
+
+一个开源的Agent+RPA开发平台。
 
 [![][issues-helper-image]][issues-helper-url] [![Issues need help][help-wanted-image]][help-wanted-url]
 
 
-📚[Documentations](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec?from=from_copylink)|🎞️[Introduction Video](https://www.bilibili.com/video/BV1LW421R7Ai/?share_source=copy_web&vd_source=c28e503b050f016c21660b69e391d391)|🗨[QQ Channel](https://pd.qq.com/s/1ygylejjb)
+📚[文档地址](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec?from=from_copylink)|🎞️[介绍视频](https://www.bilibili.com/video/BV1LW421R7Ai/?share_source=copy_web&vd_source=c28e503b050f016c21660b69e391d391)|🗨[QQ频道](https://pd.qq.com/s/1ygylejjb)
 
 ![](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
 
@@ -22,20 +24,20 @@ An Open Source Development Platform for Agent+RPA.
 [![](./resources/autoMate.png)](https://ant.design)
 
 
-## ✨ Features
+## ✨ 特性
 
-- 🌈 Generate automation code by chatting.
-- 🔍 Run automation code with one click from quick search.
-- 📦 Comprehensive automation toolkit
-- ⚙️ Integrated framework and tools for automation development.
-- 🥳 Compatible with all online and local LLMs.
+- 🌈 聊聊天就能生成自动化代码。
+- 🔍 快捷键呼出搜索框一键运行自动化代码。
+- 📦 开箱即用的自动化工具套件。
+- ⚙️ 自动化开发框架和工具配套。
+- 🥳 兼容所有在线和本地大模型。
 
-## 🖥 Enviroment
+## 🖥 环境支持
 
-- LLM APIs formatted by OpenAI.
-- Refer to the following LiteLLM configuration for detailed information:
+- openai 的 api 格式大模型
+- 详见以下 litellm 配置
 
-| LLMs                                                                            | [Completion](https://docs.litellm.ai/docs/#basic-usage) | [Streaming](https://docs.litellm.ai/docs/completion/stream#streaming-responses) | [Async Completion](https://docs.litellm.ai/docs/completion/stream#async-completion) | [Async Streaming](https://docs.litellm.ai/docs/completion/stream#async-streaming) | [Async Embedding](https://docs.litellm.ai/docs/embedding/supported_embedding) | [Async Image Generation](https://docs.litellm.ai/docs/image_generation) |
+| 大模型                                                                            | [Completion](https://docs.litellm.ai/docs/#basic-usage) | [Streaming](https://docs.litellm.ai/docs/completion/stream#streaming-responses) | [Async Completion](https://docs.litellm.ai/docs/completion/stream#async-completion) | [Async Streaming](https://docs.litellm.ai/docs/completion/stream#async-streaming) | [Async Embedding](https://docs.litellm.ai/docs/embedding/supported_embedding) | [Async Image Generation](https://docs.litellm.ai/docs/image_generation) |
 |-------------------------------------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|-------------------------------------------------------------------------------|-------------------------------------------------------------------------|
 | [openai](https://docs.litellm.ai/docs/providers/openai)                             | ✅                                                       | ✅                                                                               | ✅                                                                                   | ✅                                                                                 | ✅                                                                             | ✅                                                                       |
 | [azure](https://docs.litellm.ai/docs/providers/azure)                               | ✅                                                       | ✅                                                                               | ✅                                                                                   | ✅                                                                                 | ✅                                                                             | ✅                                                                       |
@@ -70,53 +72,53 @@ An Open Source Development Platform for Agent+RPA.
 | [FriendliAI](https://docs.litellm.ai/docs/providers/friendliai)                              | ✅                                                       | ✅                                                                               | ✅                                                                                   | ✅                                                                                 |                                                                               |                                                                         |
 
 
-## 🔗 Related Links
+## 🔗 链接
 
 
-- [Basic Features](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec#O9W8dEqfBo13oQxCslycFUWonFd)
+- [基础功能](https://s0soyusc93k.feishu.cn/wiki/JhhIwAUXJiBHG9kmt3YcXisWnec#O9W8dEqfBo13oQxCslycFUWonFd)
 
-- [Project Overview](https://s0soyusc93k.feishu.cn/wiki/SR9ywLMZmin7gakGo21cnyaFnRf?from=from_copylink)
+- [项目理念](https://s0soyusc93k.feishu.cn/wiki/SR9ywLMZmin7gakGo21cnyaFnRf?from=from_copylink)
 
-## 🍬 Quick Start
+## 🍬 快速开始
 
-Download the latest version from the release and double-click to run directly; no dependencies are required.
+下载 release 最新版本，双击即可直接运行，无需安装任何依赖。
 
-## ⌨️ Local LLM Application Development
+## ⌨️ 本地开发
 
-This project is divided into two parts: front-end and back-end. The front-end project is in the `app` directory, and the back-end project is in the `server` directory. This means that to run autoMate, you need to start both the front-end and back-end simultaneously. The project will create an SQLite database autoMate.db in the home directory. To view the database contents, we recommend using the open-source database software `DBeaver`.
+本项目分为前端和后端两个部分，前端项目在 app  目录下，后端项目在 server 目录下。这意味着，如果要运行 autoMate，你就得同时启动前端和后端。项目启动后会在～ 目录创建 sqlite 数据库 autoMate.db ，如果想查看数据库内容，建议使用开源数据库软件dbeaver。
 
-### Initiate the Front-End
+### 启动前端
 
-1. Install Node.js (version v18.x is required).
-2. Navigate to the app directory using the command line.
-3. Run `npm install` to install dependencies.
-4. Run `npm run dev` to initiate the front-end
+1. 安装 nodejs，要求nodejs版本为 v18.x；
+2. 使用命令行进入到 app 目录；
+3. 输入 npm install 安装依赖；
+4. 输入 npm run dev 启动前端。
 
-### Initiate the Back-End：
+### 启动后端：
 
-1. Install Python 3, preferably version 3.9+.
-2. Navigate to the `server` directory using the command line.
-3. Create and activate virtual env, and run `python -m venv .venv`.
-4. Run `pip install -r requirements.txt` to install the required dependencies.
-5. Run `flask --app main run` to start the back-end.
+1. 安装python3，最好 3.9+版本。
+2. 使用命令行进入 server 目录；
+3. 创建并激活虚拟环境，输入 python -m venv .venv；
+4. 输入 pip install -r requirements.txt 安装依赖；
+5. 输入 flask --app main run 启动后端
 
-### Packaging
+### 打包
 
-Back-end packaging command:
+后端打包命令：
 
 `pyinstaller main.spec`
 
-Front-end packaging command:
+前端打包命令：
 
 `npm run build:win`
 
-After packaging, place `main.exe` in the front-end root directory.
+打包完成后，将main.exe放在前端根目录下。
 
-## 🤝 Collaborations
+## 🤝 参与共建
 
-Please refer to [Contribution Guidance](https://s0soyusc93k.feishu.cn/wiki/ZE7KwtRweicLbNkHSdMcBMTxngg?from=from_copylink).
+请参考[贡献指南](https://s0soyusc93k.feishu.cn/wiki/ZE7KwtRweicLbNkHSdMcBMTxngg?from=from_copylink).
 
-> Highly recommended reading [HOW TO ASK QUESTIONS THE SMART WAY](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)、[HOW TO ASK QUESTIONS TO OPEN SOURCE COMMUNITY](https://github.com/seajs/seajs/issues/545) 和 [HOW TO REPORT BUGS EFFICIENTLY](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs-cn.html)、[HOW TO SUBMIT A GOOD ISSUE TO OPEN SOURCE PROJECTS](https://zhuanlan.zhihu.com/p/25795393). Better questions are more likely to get help.
+> 强烈推荐阅读 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)、[《如何向开源社区提问题》](https://github.com/seajs/seajs/issues/545) 和 [《如何有效地报告 Bug》](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs-cn.html)、[《如何向开源项目提交无法解答的问题》](https://zhuanlan.zhihu.com/p/25795393)，更好的问题更容易获得帮助。
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
