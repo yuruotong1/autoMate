@@ -3,7 +3,7 @@
 <img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 
-简体中文 | [ENGLISH](./REAMDME_EN.md)
+简体中文 | [ENGLISH](./README_EN.md)
 
 一个开源的Agent+RPA开发平台。
 
