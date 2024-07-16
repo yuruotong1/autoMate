@@ -3,6 +3,8 @@
 <img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 
+[简体中文](./README.md) | ENGLISH
+
 An Open Source Development Platform for Agent+RPA.
 
 [![][issues-helper-image]][issues-helper-url] [![Issues need help][help-wanted-image]][help-wanted-url]
