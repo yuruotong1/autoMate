@@ -10,8 +10,8 @@ import ContentAction from "@renderer/pages/Content/ContentAction";
 import { Welcome } from "@renderer/pages/Welcome";
 import ContentListAction from "@renderer/pages/ContentList/ContentListAction";
 import CategoryAction from "@renderer/pages/Category/CategoryAction";
-import SettingAction from "@renderer/pages/Setting/SettingAction";
-import SettingLoader from "@renderer/pages/Setting/SettingLoader";
+import SettingBasicAction from "@renderer/pages/SettingBasic/SettingBasicAction";
+import SettingBasicLoader from "@renderer/pages/SettingBasic/SettingBasicLoader";
 import Setting from "@renderer/pages/Setting/index";
 import About from "@renderer/layouts/About";
 import Code from "@renderer/layouts/Code";
@@ -34,13 +34,13 @@ const router = createHashRouter([
       {
         index: true,
         path: "settingUser",
-        element: <SettingUser />
+        element: <SettingUser />,
       },
       {
         path: "settingBasic",
         element: <SettingBasic />,
-        loader: SettingLoader,
-        action: SettingAction
+        loader: SettingBasicLoader,
+        action: SettingBasicAction
       }
     ]
   },

@@ -2,8 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Electron</title>
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <title>autoMate</title>
     <meta
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
     />
@@ -11,6 +10,8 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx"></script>
+    <script src="../../node_modules/leancloud-storage/dist/av-min.js"></script>
+
   </body>
 </html>

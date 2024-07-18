@@ -58,6 +58,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "electron-updater": "^6.2.1",
+    "leancloud-storage": "^4.15.2",
     "localforage": "^1.10.0",
     "lucide-react": "^0.408.0",
     "mantine-contextmenu": "^7.10.2",

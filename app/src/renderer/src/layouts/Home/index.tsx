@@ -5,7 +5,6 @@ import { MutableRefObject, useEffect, useRef } from "react"
 import useIgnoreMouseEvents from "@renderer/hooks/useIgnoreMouseEvents"
 import { useStore } from "@renderer/store/useStore"
 
-
 function Home(): JSX.Element {
   const mainRef = useRef<HTMLDivElement>(null)
   const {setIgnoreMouseEvents} = useIgnoreMouseEvents()
