@@ -1,14 +1,18 @@
 import {useStore} from "@renderer/store/useStore"
 import { useCallback, useEffect } from "react"
+import useRunCode from "@renderer/hooks/useRunCode"
+
 export default()=>{
-    const data = useStore((state)=>state.data) 
+    const data = useStore((state)=>state.data)
     const setData = useStore((state)=>state.setData)
     const search = useStore((state)=>state.search)
     const setSearch = useStore((state)=>state.setSearch)
     const selectId = useStore((state)=>state.selectId)
     const setSelectId = useStore((state)=>state.setSelectId)
+    const { runCode } = useRunCode()
     const handleKeyEvent = useCallback((e: KeyboardEvent) => {
-       
+
+
        switch(e.key){
         case 'ArrowUp': {
             // 初始没有数据，所以data.length为0 ，防止向上箭头，将数据变为-1
@@ -27,7 +31,7 @@ export default()=>{
             break
         }
         case 'Enter': {
-            select(selectId)
+            enterRun(selectId)
             break
         }
         case 'Escape': {
@@ -44,7 +48,7 @@ export default()=>{
             setData([])
             window.api.closeWindow('search')
             const new_id = await window.api.sql(
-                `insert into contents (title, content, category_id, created_at) values ('${search}', '', 0, datetime())`, 
+                `insert into contents (title, content, category_id, created_at) values ('${search}', '', 0, datetime())`,
                 "create")
             window.api.openWindow('code', `/0/content/${new_id}/${search}`)
             setSearch("")
@@ -57,11 +61,28 @@ export default()=>{
         const category_id = data.find((item)=>item.id == id)?.category_id
         window.api.openWindow('code', `/${category_id}/content/${id}`)
     }
+    //不打开编辑界面 直接进行运行 运行结果查看后续设计
+    async function enterRun(id: Number){
+      if (id === 0) {
+        setData([])
+        window.api.closeWindow('search')
+        const new_id = await window.api.sql(
+          `insert into contents (title, content, category_id, created_at) values ('${search}', '', 0, datetime())`,
+          "create")
+        window.api.openWindow('code', `/0/content/${new_id}/${search}`)
+        setSearch("")
+        return
+      }
+      const code_content = (await window.api.sql(`select * from contents where id = ${id}`, "findOne")) as ContentType
+      const code = code_content.content
+      runCode(code)
+    }
+
 
     useEffect(() => {
         document.addEventListener('keydown', handleKeyEvent)
         // 如果 data 发生变化，先前的事件监听器会被移除，然后再添加新的监听器，以确保使用最新的 data
-        // 如果不移除，data变化会不停添加监听器 
+        // 如果不移除，data变化会不停添加监听器
         return () => {
             document.removeEventListener('keydown', handleKeyEvent)
         }
