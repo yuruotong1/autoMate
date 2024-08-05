@@ -1,9 +1,8 @@
-import Result from "@renderer/components/Result"
-import Search from "@renderer/components/Search"
 import Error from "@renderer/components/Error"
 import { MutableRefObject, useEffect, useRef } from "react"
 import useIgnoreMouseEvents from "@renderer/hooks/useIgnoreMouseEvents"
 import { useStore } from "@renderer/store/useStore"
+import Chat from "@renderer/components/Chat"
 
 function Home(): JSX.Element {
   const mainRef = useRef<HTMLDivElement>(null)
@@ -29,8 +28,7 @@ function Home(): JSX.Element {
   
       <main className="relative" ref={mainRef}>
       <Error/>
-      <Search />
-      <Result />
+      <Chat/>   
       </main>
   )
 }

@@ -4,24 +4,16 @@ const { exec } = require('child_process');
 import { is } from '@electron-toolkit/utils'
 import { shutdownServer } from "./serverUtilts";
 export const config = {
-    search: {
+    chat: {
         id: 0,
         options: {
             initShow: true,
-            hash: '',
-            openDevTools: false,
-        }
-    },
-    code: {
-        id: 0,
-        options: {
-            initShow: true,
-            width: 1300,
+            width: 600,
             height: 700,
+            frame: false,
+            transparent: true,
             openDevTools: false,
-            frame: true,
-            transparent: false,
-            hash: '/#code/category/contentList'
+            hash: ''
         }
     },
     setting: {
@@ -84,7 +76,7 @@ function createTray(){
     tray.setToolTip('autoMate智子')
     tray.setTitle('autoMate')
     tray.addListener('click', () => {
-        getWindowByName('search').show()
+        getWindowByName('chat').show()
     })
 
     const menu = Menu.buildFromTemplate([
@@ -104,7 +96,7 @@ function createTray(){
 
 app.whenReady().then(() => {
     createTray()
-    const win = getWindowByName('search')
+    const win = getWindowByName('chat')
     win.on('blur', () => {
         win.hide()
     })

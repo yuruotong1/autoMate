@@ -20,7 +20,7 @@ export function registerSearchShortcut(){
     return false
   }
 
-  const win = getWindowByName('search')
+  const win = getWindowByName('chat')
   const res =  globalShortcut.register(shortcut, () => {
     win.isVisible() ? win.hide() : win.show()
   })

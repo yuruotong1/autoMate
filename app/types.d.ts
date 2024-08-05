@@ -15,7 +15,7 @@ type ContentType = {
 }
 
 
-type WindowNameType = 'search' | 'setting' | 'code' | 'interactive' | 'about'
+type WindowNameType = 'chat' | 'setting' | 'about'
 
 type ConfigType = {
     id: number
