@@ -91,16 +91,17 @@
 
 1. 安装 nodejs，要求nodejs版本为 v18.x；
 2. 使用命令行进入到 app 目录；
-3. 输入 npm install 安装依赖；
-4. 输入 npm run dev 启动前端。
+3. 输入 `npm install` 安装依赖；
+4. 输入 `npm run dev` 启动前端。
 
 ### 启动后端：
 
 1. 安装python3，最好 3.9+版本。
 2. 使用命令行进入 server 目录；
-3. 创建并激活虚拟环境，输入 python -m venv .venv；
-4. 输入 pip install -r requirements.txt 安装依赖；
-5. 输入 flask --app main run 启动后端
+3. 创建虚拟环境，输入 `python -m venv .venv`；
+4. 激活虚拟环境，输入 `.\.venv\Scripts\activate`(Windows)`source .venv/bin/activate`(MacOS/Linux);
+5. 输入 `pip install -r requirements.txt` 安装依赖；
+6. 输入 `flask --app main run` 启动后端
 
 ### 打包
 
