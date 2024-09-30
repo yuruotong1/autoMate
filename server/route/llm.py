@@ -17,7 +17,7 @@ def llm():
         config = json.loads(data.get("llm_config"))
     else:
         config = json.loads(get_config())["llm"]
-    messages = [{"role": "system", "content": code_prompt.substitute()}] + messages
+    messages = [{"role": "system", "content": code_prompt}] + messages
     try:
         print(config)
         res = completion(messages=messages, **config).choices[0].message.content

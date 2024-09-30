@@ -98,9 +98,10 @@ This project is divided into two parts: front-end and back-end. The front-end pr
 
 1. Install Python 3, preferably version 3.9+.
 2. Navigate to the `server` directory using the command line.
-3. Create and activate virtual env, and run `python -m venv .venv`.
-4. Run `pip install -r requirements.txt` to install the required dependencies.
-5. Run `flask --app main run` to start the back-end.
+3. Create virtual env by running `python -m venv .venv`.
+4. Activate virtual env by running `source .venv/bin/activate`(MacOS/Linux) or `.venv\Scripts\activate`(Windows)
+5. Run `pip install -r requirements.txt` to install the required dependencies.
+6. Run `flask --app main run` to start the back-end.
 
 ### Packaging
 
