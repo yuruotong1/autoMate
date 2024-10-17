@@ -5,3 +5,5 @@ dist
 config.yaml
 *.log
 **/__pycache__
+db/
+test_tasks/
