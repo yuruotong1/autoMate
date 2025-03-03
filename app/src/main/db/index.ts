@@ -1,2 +1,0 @@
-// import './tables'
-import './ipc'
