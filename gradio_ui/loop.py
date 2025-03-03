@@ -39,7 +39,6 @@ PROVIDER_TO_DEFAULT_MODEL_NAME: dict[APIProvider, str] = {
 def sampling_loop_sync(
     *,
     model: str,
-    provider: APIProvider | None,
     messages: list[BetaMessageParam],
     output_callback: Callable[[BetaContentBlock], None],
     tool_output_callback: Callable[[ToolResult, str], None],
@@ -58,7 +57,6 @@ def sampling_loop_sync(
         # Register Actor and Executor
         actor = AnthropicActor(
             model=model, 
-            provider=provider,
             api_key=api_key, 
             api_response_callback=api_response_callback,
             max_tokens=max_tokens,
@@ -67,7 +65,6 @@ def sampling_loop_sync(
     elif model in set(["omniparser + gpt-4o", "omniparser + o1", "omniparser + o3-mini", "omniparser + R1", "omniparser + qwen2.5vl"]):
         actor = VLMAgent(
             model=model,
-            provider=provider,
             api_key=api_key,
             api_response_callback=api_response_callback,
             output_callback=output_callback,

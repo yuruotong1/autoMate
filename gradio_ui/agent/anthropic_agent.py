@@ -48,7 +48,6 @@ class AnthropicActor:
     def __init__(
         self, 
         model: str, 
-        provider: APIProvider,
         api_key: str,
         api_response_callback: Callable[[APIResponse[BetaMessage]], None],
         max_tokens: int = 4096,
@@ -56,7 +55,6 @@ class AnthropicActor:
         print_usage: bool = True,
     ):
         self.model = model
-        self.provider = provider
         self.api_key = api_key
         self.api_response_callback = api_response_callback
         self.max_tokens = max_tokens

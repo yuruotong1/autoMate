@@ -224,7 +224,6 @@ def process_input(user_input, state):
     # Run sampling_loop_sync with the chatbot_output_callback
     for loop_msg in sampling_loop_sync(
         model=state["model"],
-        provider=state["provider"],
         messages=state["messages"],
         output_callback=partial(chatbot_output_callback, chatbot_state=state['chatbot_messages'], hide_images=False),
         tool_output_callback=partial(_tool_output_callback, tool_state=state["tools"]),
@@ -349,7 +348,6 @@ def run():
 
         def update_api_key(api_key_value, state):
             state["api_key"] = api_key_value
-            state[f'{state["provider"]}_api_key'] = api_key_value
 
         def clear_chat(state):
             # Reset message-related state
