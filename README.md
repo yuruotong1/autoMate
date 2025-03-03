@@ -3,9 +3,9 @@
 <img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 
-一个基于OmniParser的AI+RPA工具。
+一个基于OmniParser的AI+RPA工具，简化了官方的安装步骤，支持本地自动化。
 
-[![][issues-helper-image]][issues-helper-url] [![Issues need help][help-wanted-image]][help-wanted-url]
+
 
 </div>
 
