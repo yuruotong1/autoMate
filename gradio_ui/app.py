@@ -287,9 +287,7 @@ def run():
                 chatbot = gr.Chatbot(
                     label="Chatbot History",
                     autoscroll=True,
-                    height=580,
-                    type="messages"
-                )
+                    height=580                )
 
         def update_model(model_selection, state):
             state["model"] = model_selection
