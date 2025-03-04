@@ -24,9 +24,10 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## 问题
-可以通过`pip list`查看pytorch版本，然后从[官网]([官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本。如果cuda不匹配就无法使用GPU，这会导致运行过程非常卡。
+然后浏览器打开`http://localhost:7888/`，输入你的API KEY、Base URL等基本信息。大模型建议使用gpt-4o。
 
+## 问题
+可以通过`pip list`查看pytorch版本，然后从[官网]([官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本。如果cuda不匹配就无法使用GPU，这会导致运行过程非常卡。比如如果`pip list`查看的 torch 版本为 2.6.0，那么它只支持cuda版本为11.8、12.4和12.6，请升级或者降级你的cuda版本到这几个版本。
 
 ## 🤝 参与共建
 
