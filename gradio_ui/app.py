@@ -291,7 +291,6 @@ def run():
 
         def update_model(model_selection, state):
             state["model"] = model_selection
-            print(f"Model updated to: {state['model']}")
             api_key_update = gr.update(
                 placeholder="API Key",
                 value=state["api_key"]
