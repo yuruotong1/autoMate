@@ -309,7 +309,6 @@ def run():
             state["messages"] = []
             state["responses"] = {}
             state["tools"] = {}
-            state["base_url"] = ""
             state['chatbot_messages'] = []
             return state['chatbot_messages']
 
