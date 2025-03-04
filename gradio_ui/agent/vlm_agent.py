@@ -45,7 +45,7 @@ class VLMAgent:
         self.max_tokens = max_tokens
         self.only_n_most_recent_images = only_n_most_recent_images
         self.output_callback = output_callback
-
+        self.model = model
         self.print_usage = print_usage
         self.total_token_usage = 0
         self.total_cost = 0

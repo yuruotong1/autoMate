@@ -15,7 +15,6 @@ from anthropic.types import TextBlock
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock
 from anthropic.types.tool_use_block import ToolUseBlock
 from gradio_ui.loop import (
-    APIProvider,
     sampling_loop_sync,
 )
 from gradio_ui.tools import ToolResult
@@ -63,32 +62,12 @@ def setup_state(state):
     if 'stop' not in state:
         state['stop'] = False
     if 'base_url' not in state: 
-        state['base_url'] = "" 
+        state['base_url'] = "https://api.openai-next.com/v1"
 
 async def main(state):
     """Render loop for Gradio"""
     setup_state(state)
     return "Setup completed"
-# 删除整个 validate_auth 函数
-def validate_auth(provider: APIProvider, api_key: str | None):
-    if provider == APIProvider.ANTHROPIC:
-        if not api_key:
-            return "Enter your Anthropic API key to continue."
-    if provider == APIProvider.BEDROCK:
-        import boto3
-
-        if not boto3.Session().get_credentials():
-            return "You must have AWS credentials set up to use the Bedrock API."
-    if provider == APIProvider.VERTEX:
-        import google.auth
-        from google.auth.exceptions import DefaultCredentialsError
-
-        if not os.environ.get("CLOUD_ML_REGION"):
-            return "Set the CLOUD_ML_REGION environment variable to use the Vertex API."
-        try:
-            google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
-        except DefaultCredentialsError:
-            return "Your google cloud credentials are not set up correctly."
 
 def load_from_storage(filename: str) -> str | None:
     """Load data from a file in the storage directory."""
@@ -188,15 +167,13 @@ def process_input(user_input, state):
     state["messages"].append(
         {
             "role": Sender.USER,
-            "content": user_input,
+            "content": [TextBlock(type="text", text=user_input)],
         }
     )
 
     # Append the user's message to chatbot_messages with None for the assistant's reply
-    state['chatbot_messages'].append({"role": "user", "content": user_input})  # 确保格式正确
+    state['chatbot_messages'].append((user_input, None))  # 确保格式正确
     yield state['chatbot_messages']  # Yield to update the chatbot UI with the user's message
-    print(state)
-
     # Run sampling_loop_sync with the chatbot_output_callback
     for loop_msg in sampling_loop_sync(
         model=state["model"],

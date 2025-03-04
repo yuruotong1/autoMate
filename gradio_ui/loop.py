@@ -20,22 +20,6 @@ from gradio_ui.agent.anthropic_agent import AnthropicActor
 from gradio_ui.agent.vlm_agent import VLMAgent
 from gradio_ui.executor.anthropic_executor import AnthropicExecutor
 
-BETA_FLAG = "computer-use-2024-10-22"
-
-class APIProvider(StrEnum):
-    ANTHROPIC = "anthropic"
-    BEDROCK = "bedrock"
-    VERTEX = "vertex"
-    OPENAI = "openai"
-
-
-PROVIDER_TO_DEFAULT_MODEL_NAME: dict[APIProvider, str] = {
-    APIProvider.ANTHROPIC: "claude-3-5-sonnet-20241022",
-    APIProvider.BEDROCK: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    APIProvider.VERTEX: "claude-3-5-sonnet-v2@20241022",
-    APIProvider.OPENAI: "gpt-4o",
-}
-
 def sampling_loop_sync(
     *,
     model: str,
@@ -75,9 +59,7 @@ def sampling_loop_sync(
     while True:
         parsed_screen = omniparser_client()
         tools_use_needed, vlm_response_json = actor(messages=messages, parsed_screen=parsed_screen)
-
         for message, tool_result_content in executor(tools_use_needed, messages):
             yield message
-    
         if not tool_result_content:
             return messages

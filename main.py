@@ -8,9 +8,9 @@ import time
 import torch
 def run():
     try:
-        print(torch.cuda.is_available())  # 应该返回True
-        print(torch.cuda.device_count())  # 应该至少返回1
-        print(torch.cuda.get_device_name(0))  # 应该显示您的GPU名称
+        print("cuda is_available: ", torch.cuda.is_available())  # 应该返回True
+        print("cuda device_count", torch.cuda.device_count())  # 应该至少返回1
+        print("cuda device_name", torch.cuda.get_device_name(0))  # 应该显示您的GPU名称
     except Exception:
         print("显卡驱动不适配，请根据readme安装合适版本的 torch！")
 
@@ -26,7 +26,7 @@ def run():
     try:
         # 下载权重文件
         download_weights.download()
-        print("启动Omniserver服务中，约20s左右，请耐心等待！")
+        print("启动Omniserver服务中，约40s左右，请耐心等待！")
         # 启动 Gradio UI
          # 等待 server_process 打印出 "Started server process"
         while True:
