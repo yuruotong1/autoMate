@@ -2,3 +2,4 @@
 weights**
 .conda**
 .venv
+tmp**

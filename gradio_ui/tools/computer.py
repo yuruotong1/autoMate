@@ -4,7 +4,7 @@ from enum import StrEnum
 from typing import Literal, TypedDict
 
 from PIL import Image
-
+from util import tool
 from anthropic.types.beta import BetaToolComputerUse20241022Param
 
 from .base import BaseAnthropicTool, ToolError, ToolResult
@@ -236,18 +236,12 @@ class ComputerTool(BaseAnthropicTool):
 
         try:
             print(f"sending to vm: {command_list}")
-            response = requests.post(
-                f"http://localhost:5000/execute", 
-                headers={'Content-Type': 'application/json'},
-                json={"command": command_list},
-                timeout=90
-            )
+            # 使用 tool.execute_command 替代 requests.post
+            response = tool.execute_command(command_list)
             time.sleep(0.7) # avoid async error as actions take time to complete
             print(f"action executed")
-            if response.status_code != 200:
-                raise ToolError(f"Failed to execute command. Status code: {response.status_code}")
             if parse:
-                output = response.json()['output'].strip()
+                output = response['output'].strip()
                 match = re.search(r'Point\(x=(\d+),\s*y=(\d+)\)', output)
                 if not match:
                     raise ToolError(f"Could not parse coordinates from output: {output}")
@@ -255,26 +249,6 @@ class ComputerTool(BaseAnthropicTool):
                 return x, y
         except requests.exceptions.RequestException as e:
             raise ToolError(f"An error occurred while trying to execute the command: {str(e)}")
-
-    async def screenshot(self):
-        if not hasattr(self, 'target_dimension'):
-            screenshot = self.padding_image(screenshot)
-            self.target_dimension = MAX_SCALING_TARGETS["WXGA"]
-        width, height = self.target_dimension["width"], self.target_dimension["height"]
-        screenshot, path = get_screenshot(resize=True, target_width=width, target_height=height)
-        time.sleep(0.7) # avoid async error as actions take time to complete
-        return ToolResult(base64_image=base64.b64encode(path.read_bytes()).decode())
-
-    def padding_image(self, screenshot):
-        """Pad the screenshot to 16:10 aspect ratio, when the aspect ratio is not 16:10."""
-        _, height = screenshot.size
-        new_width = height * 16 // 10
-
-        padding_image = Image.new("RGB", (new_width, height), (255, 255, 255))
-        # padding to top left
-        padding_image.paste(screenshot, (0, 0))
-        return padding_image
-
     def scale_coordinates(self, source: ScalingSource, x: int, y: int):
         """Scale coordinates to a target maximum resolution."""
         if not self._scaling_enabled:
@@ -306,20 +280,15 @@ class ComputerTool(BaseAnthropicTool):
             return round(x / x_scaling_factor), round(y / y_scaling_factor)
         # scale down
         return round(x * x_scaling_factor), round(y * y_scaling_factor)
-
+        
     def get_screen_size(self):
         """Return width and height of the screen"""
         try:
-            response = requests.post(
-                f"http://localhost:5000/execute",
-                headers={'Content-Type': 'application/json'},
-                json={"command": ["python", "-c", "import pyautogui; print(pyautogui.size())"]},
-                timeout=90
+            # 使用 tool.execute_command 替代 requests.post
+            response = tool.execute_command(
+                ["python", "-c", "import pyautogui; print(pyautogui.size())"]
             )
-            if response.status_code != 200:
-                raise ToolError(f"Failed to get screen size. Status code: {response.status_code}")
-            
-            output = response.json()['output'].strip()
+            output = response['output'].strip()
             match = re.search(r'Size\(width=(\d+),\s*height=(\d+)\)', output)
             if not match:
                 raise ToolError(f"Could not parse screen size from output: {output}")

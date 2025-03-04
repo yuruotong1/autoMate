@@ -1,9 +1,9 @@
 from pathlib import Path
 from uuid import uuid4
-import requests
 from PIL import Image
 from .base import BaseAnthropicTool, ToolError
 from io import BytesIO
+from util import tool
 
 OUTPUT_DIR = "./tmp/outputs"
 
@@ -14,12 +14,9 @@ def get_screenshot(resize: bool = False, target_width: int = 1920, target_height
     path = output_dir / f"screenshot_{uuid4().hex}.png"
     
     try:
-        response = requests.get('http://localhost:5000/screenshot')
-        if response.status_code != 200:
-            raise ToolError(f"Failed to capture screenshot: HTTP {response.status_code}")
-        
-        # (1280, 800)
-        screenshot = Image.open(BytesIO(response.content))
+        # 使用 tool.capture_screen_with_cursor 替代 requests.get
+        img_io = tool.capture_screen_with_cursor()
+        screenshot = Image.open(img_io)
         
         if resize and screenshot.size != (target_width, target_height):
             screenshot = screenshot.resize((target_width, target_height))
