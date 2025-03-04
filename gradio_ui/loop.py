@@ -16,7 +16,6 @@ from anthropic.types.beta import (
 from gradio_ui.tools import ToolResult
 
 from gradio_ui.agent.llm_utils.omniparserclient import OmniParserClient
-from gradio_ui.agent.anthropic_agent import AnthropicActor
 from gradio_ui.agent.vlm_agent import VLMAgent
 from gradio_ui.executor.anthropic_executor import AnthropicExecutor
 
