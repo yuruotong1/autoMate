@@ -31,7 +31,7 @@ def run():
          # 等待 server_process 打印出 "Started server process"
         while True:
             output = server_process.stdout.readline()
-            if "Started server process" in output:
+            if "Omniparser initialized" in output:
                 print("Omniparseer服务启动成功...")
                 break
             if server_process.poll() is not None:
