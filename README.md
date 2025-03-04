@@ -29,6 +29,17 @@ python main.py
 ## 问题
 可以通过`pip list`查看pytorch版本，然后从[官网]([官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本。如果cuda不匹配就无法使用GPU，这会导致运行过程非常卡。比如如果`pip list`查看的 torch 版本为 2.6.0，那么它只支持cuda版本为11.8、12.4和12.6，请升级或者降级你的cuda版本到这几个版本。
 
+如果启动时报：“显卡驱动不适配，请根据readme安装合适版本的 torch”。那么你需要：
+1. 卸载当前PyTorch版本
+```shell
+pip uninstall torch torchvision torchaudio
+```
+2. 安装支持CUDA 12.6（你自己的cuda版本）的PyTorch版本，访问PyTorch官网(https://pytorch.org/get-started/locally/)
+然后复制网站生成的安装命令，类似于：
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+```
+
 ## 🤝 参与共建
 
 请参考[贡献指南](https://s0soyusc93k.feishu.cn/wiki/ZE7KwtRweicLbNkHSdMcBMTxngg?from=from_copylink).
