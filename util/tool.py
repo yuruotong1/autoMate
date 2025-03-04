@@ -49,3 +49,5 @@ def capture_screen_with_cursor():
     screenshot.save(img_io, 'PNG')
     img_io.seek(0)
     return img_io
+
+
