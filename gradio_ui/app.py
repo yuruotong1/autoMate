@@ -231,7 +231,8 @@ def process_input(user_input, state):
         api_key=state["api_key"],
         only_n_most_recent_images=state["only_n_most_recent_images"],
         max_tokens=16384,
-        omniparser_url=args.omniparser_server_url
+        omniparser_url=args.omniparser_server_url,
+        base_url = state["base_url"]
     ):  
         if loop_msg is None or state.get("stop"):
             yield state['chatbot_messages']
@@ -348,12 +349,16 @@ def run():
 
         def update_api_key(api_key_value, state):
             state["api_key"] = api_key_value
+        
+        def update_base_url(base_url, state):
+            state["base_url"] = base_url
 
         def clear_chat(state):
             # Reset message-related state
             state["messages"] = []
             state["responses"] = {}
             state["tools"] = {}
+            state["base_url"] = ""
             state['chatbot_messages'] = []
             return state['chatbot_messages']
 
@@ -362,6 +367,7 @@ def run():
         chatbot.clear(fn=clear_chat, inputs=[state], outputs=[chatbot])
         submit_button.click(process_input, [chat_input, state], chatbot)
         stop_button.click(stop_app, [state], None)
+        base_url.chage(fn=update_base_url, inputs=[base_url, state], outputs=None)
     demo.launch(server_name="0.0.0.0", server_port=7888)
     
 if __name__ == "__main__":

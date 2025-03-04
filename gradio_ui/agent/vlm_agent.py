@@ -31,29 +31,15 @@ class VLMAgent:
     def __init__(
         self,
         model: str, 
-        provider: str, 
         api_key: str,
         output_callback: Callable, 
         api_response_callback: Callable,
         max_tokens: int = 4096,
+        base_url:str = "",
         only_n_most_recent_images: int | None = None,
         print_usage: bool = True,
     ):
-        if model == "omniparser + gpt-4o":
-            self.model = "gpt-4o-2024-11-20"
-        elif model == "omniparser + R1":
-            self.model = "deepseek-r1-distill-llama-70b"
-        elif model == "omniparser + qwen2.5vl":
-            self.model = "qwen2.5-vl-72b-instruct"
-        elif model == "omniparser + o1":
-            self.model = "o1"
-        elif model == "omniparser + o3-mini":
-            self.model = "o3-mini"
-        else:
-            raise ValueError(f"Model {model} not supported")
-        
-
-        self.provider = provider
+        self.base_url = base_url
         self.api_key = api_key
         self.api_response_callback = api_response_callback
         self.max_tokens = max_tokens
@@ -98,7 +84,7 @@ class VLMAgent:
                 model_name=self.model,
                 api_key=self.api_key,
                 max_tokens=self.max_tokens,
-                provider_base_url="https://api.openai.com/v1",
+                provider_base_url=self.base_url,
                 temperature=0,
             )
             print(f"oai token usage: {token_usage}")
@@ -127,7 +113,7 @@ class VLMAgent:
                 model_name=self.model,
                 api_key=self.api_key,
                 max_tokens=min(2048, self.max_tokens),
-                provider_base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+                provider_base_url=self.base_url,
                 temperature=0,
             )
             print(f"qwen token usage: {token_usage}")
