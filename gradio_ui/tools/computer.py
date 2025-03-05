@@ -521,6 +521,7 @@ class ComputerTool(BaseAnthropicTool):
             response = tool.execute_command(
                 ["python", "-c", "import pyautogui; print(pyautogui.size())"]
             )
+            
             output = response['output'].strip()
             match = re.search(r'Size\(width=(\d+),\s*height=(\d+)\)', output)
             if not match:

@@ -2,56 +2,56 @@
 
 <img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
-<p><b>🤖 AI驱动的本地自动化工具 | 让电脑自己会干活</b></p>
+<p><b>🤖 AI-Powered Local Automation Tool | Let Your Computer Work for You</b></p>
 
->"让繁琐自动化，把时间还给生活"
+[简体中文](./README_CN.md)
+
+>"Automate the tedious, reclaim your time for life"
 
 ![](./resources/autoMate.png)
 
 
 </div>
 
-## 💫 重新定义你与电脑的关系
+## 💫 Redefining Your Relationship with Computers
 
-深夜加班处理重复性工作让你疲惫不堪？琐碎任务占用了你的创造力和宝贵时间？
+Tired of working late nights on repetitive tasks? Frustrated by mundane activities consuming your creativity and precious time?
 
-autoMate，不仅仅是一款普通工具，它是AGI第三阶段的智能助手，你的数字同事，始终高效运转，帮你重获工作与生活的平衡。
+autoMate is not just another tool - it's your intelligent digital colleague for the AGI era, working tirelessly to help you restore balance between work and life.
 
+**Let automation create more possibilities for your life.**
 
-**让自动化为你的生活创造更多可能。**
+## 💡 Project Overview
+autoMate is a revolutionary AI+RPA automation tool built on OmniParser, turning AI into your "digital employee" that can:
 
+- 📊 Automatically operate your computer interface and complete complex workflows
+- 🔍 Intelligently understand screen content, simulating human vision and operations
+- 🧠 Make autonomous decisions and take actions based on task requirements
+- 💻 Support local deployment to protect your data security and privacy
 
-## 💡 项目简介
-autoMate 是一款革命性的AI+RPA自动化工具，基于OmniParser构建，让AI成为你的"数字员工"，它能够
+Unlike traditional RPA tools with complicated rule settings, autoMate leverages large language models to complete complex automation processes with just natural language task descriptions. Say goodbye to repetitive work and focus on what truly creates value!
 
-- 📊 自动操作您的电脑界面，完成复杂的工作流程
-- 🔍 智能理解屏幕内容，模拟人类视觉和操作
-- 🧠 自主决策，根据任务需求进行判断并采取行动
-- 💻 支持本地化部署，保护您的数据安全和隐私
+## 🌟 Why autoMate Will Transform Your Work
 
-不同于传统RPA工具的繁琐规则设置，autoMate借助大模型的能力，只需用自然语言描述任务，AI就能完成复杂的自动化流程。从此告别重复性工作，专注于真正创造价值的事情！
+> "Before using autoMate, I spent 3 hours daily processing reports; now I only need 10 minutes to set up tasks and can focus on what really matters." - Feedback from a finance manager.
 
-## 🌟 为什么autoMate会改变你的工作方式
+When you first see autoMate automatically completing tasks that used to occupy hours of your time, you'll experience an indescribable sense of relief. This isn't just about efficiency - it's about liberating your creativity.
 
-> "在我使用autoMate之前，我每天花费3小时处理报表；现在，我只需10分钟设置任务，然后去做真正重要的事。"一位yy出来的财务经理的反馈。
+Imagine: waking up every morning to find that last night's data organization, report generation, and email responses have all been completed, leaving you only with work that truly requires your wisdom and creativity. This is the future autoMate brings to you.
 
-当你第一次看到autoMate自动完成那些曾经占用你数小时的工作时，你会有一种难以描述的释然。这不仅仅是效率的提升，更是对创造力的解放。
+## ✨ Features
 
-想象一下：每天早上醒来，发现昨晚安排的数据整理、报表生成、邮件回复都已完成，等待你的只有真正需要你智慧和创造力的工作。这就是autoMate带给你的未来。
+- 🔮 No-Code Automation - Use natural language to describe tasks, no programming knowledge required
+- 🖥️ Full Interface Control - Support operations on any visual interface, not limited to specific software
+- 🚅 Simplified Installation - Streamlined installation process compared to official version, supports Chinese environment, one-click deployment
+- 🔒 Local Operation - Protect data security, no privacy concerns
+- 🌐 Multi-Model Support - Compatible with mainstream large language models
+- 💎 Continuous Growth - Learns and adapts to your work habits and needs as you use it
 
-## ✨ 功能特点
+## 🚀 Quick Start
 
-- 🔮 无代码自动化 - 使用自然语言描述任务，无需编程知识
-- 🖥️ 全界面操控 - 支持任何可视化界面的操作，不限于特定软件
-- 🚅 简化安装 - 比官方版本更简洁的安装流程，支持中文环境，一键部署
-- 🔒 本地运行 - 保护数据安全，无需担心隐私泄露
-- 🌐 多模型支持 - 兼容主流大型语言模型
-- 💎 持续成长 - 随着你的使用，它会越来越了解你的工作习惯和需求
-
-## 🚀 快速开始
-
-### 📦 安装
-Clone项目，然后安装环境：
+### 📦 Installation
+Clone the project and set up the environment:
 
 ```bash
 git clone https://github.com/yuruotong1/autoMate.git
@@ -60,31 +60,30 @@ conda create -n "automate" python==3.12
 conda activate automate
 pip install -r requirements.txt
 ```
-### 🎮 启动应用
+### 🎮 Launch Application
 
 ```bash
 python main.py
 ```
-然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
+Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
 
+## 📝 FAQ
 
-## 📝常见问题
+### 🔧 CUDA Version Mismatch
+If you see the error: "GPU driver incompatible, please install appropriate torch version according to readme", it indicates a driver incompatibility. You can either:
 
-### 🔧CUDA版本不匹配问题
-如果启动时报：“显卡驱动不适配，请根据readme安装合适版本的 torch”，说明当前显卡驱动不适配。你可以不用管这条信息，只用CPU运行，但是会非常慢。你也可以：
+1. Run with CPU only (slower but functional)
+2. Check your torch version with `pip list`
+3. Check supported CUDA versions on the [official website](https://pytorch.org/get-started/locally/)
+4. Reinstall Nvidia drivers
 
-1. 运行`pip list`查看torch版本；
-2. 从[官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本；
-3. 重新安装Nvidia驱动。
+## 🤝 Contributing
 
+Every excellent open-source project embodies collective wisdom. autoMate's growth depends on your participation and contribution. Whether fixing bugs, adding features, or improving documentation, your efforts will help thousands of people break free from repetitive work.
 
-## 🤝 参与共建
+Join us in creating a more intelligent future.
 
-每一个优秀的开源项目都凝聚着集体的智慧。autoMate的成长离不开你的参与和贡献。无论是修复bug、添加功能，还是改进文档，你的每一份付出都将帮助成千上万的人摆脱重复性工作的束缚。
-
-加入我们，一起创造更加智能的未来。
-
-> 强烈推荐阅读 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)、[《如何向开源社区提问题》](https://github.com/seajs/seajs/issues/545) 和 [《如何有效地报告 Bug》](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs-cn.html)、[《如何向开源项目提交无法解答的问题》](https://zhuanlan.zhihu.com/p/25795393)，更好的问题更容易获得帮助。
+> Strongly recommend reading ["How To Ask Questions The Smart Way"](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way), ["How to Ask Questions to Open Source Community"](https://github.com/seajs/seajs/issues/545), ["How to Report Bugs Effectively"](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs.html), and ["How to Submit Unanswerable Questions to Open Source Projects"](https://zhuanlan.zhihu.com/p/25795393) for better support.
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
@@ -93,6 +92,6 @@ python main.py
 ---
 
 <div align="center">
-⭐ 每一个Star都是对创作者的鼓励，也是让更多人发现并受益于autoMate的机会 ⭐
-今天你的支持，就是我们明天前进的动力
+⭐ Every star is an encouragement to creators and an opportunity for more people to discover and benefit from autoMate ⭐
+Your support today is our motivation for tomorrow
 </div>
