@@ -1,6 +1,4 @@
 import os
-import logging
-import argparse
 import shlex
 import subprocess
 import threading
@@ -31,7 +29,6 @@ def execute_command(command, shell=False):
                 'returncode': result.returncode
             }
         except Exception as e:
-            logger.error("\n" + traceback.format_exc() + "\n")
             return {
                 'status': 'error',
                 'message': str(e)
