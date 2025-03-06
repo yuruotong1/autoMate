@@ -51,11 +51,6 @@ def download():
                 print(f"下载失败: {file}，正在重试...")
                 continue
     
-    # 重命名目录
-    old_path = weights_dir / "icon_caption"
-    new_path = weights_dir / "icon_caption_florence"
-    if old_path.exists() and not new_path.exists():
-        old_path.rename(new_path)
     print("下载完成")
 
 if __name__ == "__main__":

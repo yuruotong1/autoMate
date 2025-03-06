@@ -2,26 +2,40 @@ import argparse
 import subprocess
 import signal
 import sys
+import platform
 from gradio_ui import app
 from util import download_weights
 import time
 import torch
+
 def run():
     try:
         print("cuda is_available: ", torch.cuda.is_available())  # 应该返回True
+        print("MPS is_available: ", torch.backends.mps.is_available())
         print("cuda device_count", torch.cuda.device_count())  # 应该至少返回1
         print("cuda device_name", torch.cuda.get_device_name(0))  # 应该显示您的GPU名称
     except Exception:
         print("显卡驱动不适配，请根据readme安装合适版本的 torch！")
 
     # 启动 server.py 子进程，并捕获其输出
-    server_process = subprocess.Popen(
-        ["python", "./server.py"],
-        stdout=subprocess.PIPE,  # 捕获标准输出
-        stderr=subprocess.PIPE,
-        creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-        text=True
-    )
+    # Windows: 
+    if platform.system() == 'Windows':
+        server_process = subprocess.Popen(
+            ["python", "./server.py"],
+            stdout=subprocess.PIPE,  # 捕获标准输出
+            stderr=subprocess.PIPE,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+            text=True
+        )
+    else:
+        server_process = subprocess.Popen(
+            ["python", "./server.py"],
+            stdout=subprocess.PIPE,  # 捕获标准输出
+            stderr=subprocess.PIPE,
+            start_new_session=True,
+            text=True
+        )
+
 
     try:
         # 下载权重文件
