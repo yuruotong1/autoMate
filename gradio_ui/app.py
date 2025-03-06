@@ -21,6 +21,7 @@ from gradio_ui.tools import ToolResult
 import requests
 from requests.exceptions import RequestException
 import base64
+import pyautogui
 
 CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
@@ -159,7 +160,12 @@ def chatbot_output_callback(message, chatbot_state, hide_images=False, sender="b
 
 
 def process_input(user_input, state):
-    
+    # 使用Alt+F4快捷键，关闭gradio窗口
+    try:
+        pyautogui.hotkey('alt', 'f4')
+        print("已执行Alt+F4操作，关闭当前窗口")
+    except Exception as e:
+        print(f"执行Alt+F4时出错: {e}")
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
