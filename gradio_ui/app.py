@@ -159,6 +159,7 @@ def chatbot_output_callback(message, chatbot_state, hide_images=False, sender="b
 
 
 def process_input(user_input, state):
+    
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
