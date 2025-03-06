@@ -229,6 +229,7 @@ class ComputerTool(BaseAnthropicTool):
                 return x, y
         except requests.exceptions.RequestException as e:
             raise ToolError(f"An error occurred while trying to execute the command: {str(e)}")
+    
     async def screenshot(self):
         if not hasattr(self, 'target_dimension'):
             screenshot = self.padding_image(screenshot)
@@ -249,7 +250,6 @@ class ComputerTool(BaseAnthropicTool):
         return padding_image
 
     def scale_coordinates(self, source: ScalingSource, x: int, y: int):
-
         """Scale coordinates to a target maximum resolution."""
         if not self._scaling_enabled:
             return x, y
