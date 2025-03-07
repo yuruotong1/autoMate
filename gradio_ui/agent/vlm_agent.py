@@ -85,13 +85,12 @@ class VLMAgent:
             provider_base_url=self.base_url,
             temperature=0,
         )
-        self.total_token_usage += token_usage
         latency_vlm = time.time() - start
         self.output_callback(f"LLM: {latency_vlm:.2f}s, OmniParser: {latency_omniparser:.2f}s", sender="bot")
 
         print(f"llm_response: {vlm_response}")
         if self.print_usage:
-            print(f"Total token so far: {self.total_token_usage}. Total cost so far: $USD{self.total_cost:.5f}")
+            print(f"Total token so far: {token_usage}. Total cost so far: $USD{self.total_cost:.5f}")
         
         vlm_response_json = extract_data(vlm_response, "json")
         vlm_response_json = json.loads(vlm_response_json)
