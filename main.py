@@ -1,5 +1,6 @@
 import subprocess
 from threading import Thread
+import time
 import requests
 from gradio_ui import app
 from util import download_weights
@@ -28,8 +29,7 @@ def run():
         # 下载权重文件
         download_weights.download()
         print("启动Omniserver服务中，约5分钟左右，因为加载模型真的超级慢，请耐心等待！")
-        # 启动 Gradio UI
-         # 等待 server_process 打印出 "Started server process"
+        # 等待 server_process 打印出 "Started server process"
         while True:
             res = requests.get("http://127.0.0.1:8000/probe/")
             if res.status_code == 200 and res.json().get("message", None):
@@ -37,6 +37,7 @@ def run():
                 break
             if server_process.poll() is not None:
                 raise RuntimeError("Server process terminated unexpectedly")
+            time.sleep(5)
         
         stdout_thread = Thread(
             target=stream_reader,

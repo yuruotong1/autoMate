@@ -34,7 +34,6 @@ def run_oai_interleaved(messages: list, system: str, model_name: str, api_key: s
             
             final_messages.append(message)
 
-    
     elif isinstance(messages, str):
         final_messages = [{"role": "user", "content": messages}]
 
@@ -55,8 +54,18 @@ def run_oai_interleaved(messages: list, system: str, model_name: str, api_key: s
 
     try:
         text = response.json()['choices'][0]['message']['content']
+        text = delete_think_and_output_tags(text, model_name)
         token_usage = int(response.json()['usage']['total_tokens'])
         return text, token_usage
     except Exception as e:
         print(f"Error in interleaved openAI: {e}. This may due to your invalid API key. Please check the response: {response.json()} ")
         return response.json()
+    
+
+# 删除思考和输出标签
+def delete_think_and_output_tags(content: str, model_name: str):
+    final_answer = content
+    if "r1" in model_name:
+        final_answer = content.split('</think>\n')[-1] if '</think>' in content else content
+        final_answer = final_answer.replace("<output>", "").replace("</output>", "")
+    return final_answer
