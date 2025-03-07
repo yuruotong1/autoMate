@@ -316,6 +316,3 @@ def run():
         stop_button.click(stop_app, [state], None)
         base_url.change(fn=update_base_url, inputs=[base_url, state], outputs=None)
     demo.launch(server_name="0.0.0.0", server_port=7888)
-    
-if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7888)
