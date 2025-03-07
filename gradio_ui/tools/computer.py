@@ -10,6 +10,8 @@ from .screen_capture import get_screenshot
 import requests
 import re
 import pyautogui
+import pyperclip
+import platform
 
 OUTPUT_DIR = "./tmp/outputs"
 TYPING_DELAY_MS = 12
@@ -137,9 +139,12 @@ class ComputerTool(BaseAnthropicTool):
                 return ToolResult(output=f"Pressed keys: {text}")
             elif action == "type":
                 # default click before type TODO: check if this is needed
+                pyperclip.copy(text)
                 pyautogui.click()
-                pyautogui.typewrite(text, interval=TYPING_DELAY_MS / 1000)
-                pyautogui.press('enter')
+                if platform.system() == 'Darwin':
+                    pyautogui.hotkey('command', 'v', interval=0.1)
+                else: # TODO: double check what works on windows
+                    pyautogui.hotkey('ctrl', 'v')
                 screenshot_base64 = (await self.screenshot()).base64_image
                 return ToolResult(output=text, base64_image=screenshot_base64)
         if action in (
