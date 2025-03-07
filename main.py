@@ -27,11 +27,11 @@ def run():
     try:
         # 下载权重文件
         download_weights.download()
-        print("启动Omniserver服务中，约1分钟左右，请耐心等待！")
+        print("启动Omniserver服务中，约5分钟左右，因为加载模型真的超级慢，请耐心等待！")
         # 启动 Gradio UI
          # 等待 server_process 打印出 "Started server process"
         while True:
-            res = requests.get("http:127.0.0.1:8000/probe/")
+            res = requests.get("http://127.0.0.1:8000/probe/")
             if res.status_code == 200 and res.json().get("message", None):
                 print("Omniparser服务启动成功...")
                 break
@@ -53,12 +53,6 @@ def run():
         stderr_thread.start()
         app.run()
     finally:
-        # 确保在主进程退出时终止子进程
-        # 向server发送kill请求，优雅地关闭服务
-        try:
-            requests.get("http://localhost:8000/kill/", timeout=5)
-        except Exception as e:
-            print(f"发送关闭请求失败: {e}")
         if server_process.poll() is None:  # 如果进程还在运行
             server_process.terminate()  # 发送终止信号
             server_process.wait(timeout=8)  # 等待进程结束
