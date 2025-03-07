@@ -42,10 +42,8 @@ def run():
     try:
         # 下载权重文件
         download_weights.download()
-        print("启动Omniserver服务中，约5分钟左右，因为加载模型真的超级慢，请耐心等待！") 
-        # 等待 server_process 打印出 "Started server process"
-        start_time = time.time() 
-        while time.time() - start_time < 60: # 一分钟server启动超时
+        print("启动Omniserver服务中，因为加载模型真的超级慢，请耐心等待！") 
+        while True:
             try:
                 res = requests.get("http://127.0.0.1:8000/probe/", timeout=5)
                 if res.status_code == 200:
@@ -53,14 +51,10 @@ def run():
                     break
             except (requests.ConnectionError, requests.Timeout):
                 pass
-            
             if server_process.poll() is not None:
                 raise RuntimeError(f"服务器进程报错退出：{server_process.returncode}")
-            
             print("等待服务启动...")
             time.sleep(10)
-        else:
-            raise TimeoutError("服务器进程未能在一分钟内完成启动")
         
         app.run()
     finally:
