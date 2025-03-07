@@ -67,6 +67,9 @@ python main.py
 ```
 然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
 
+支持的厂商及模型可以参考这个[链接](./SUPPORT_MODEL.md)
+
+
 
 ## 📝常见问题
 
