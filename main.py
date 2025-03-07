@@ -24,34 +24,44 @@ def run():
         text=True
     )
 
+    stdout_thread = Thread(
+        target=stream_reader,
+        args=(server_process.stdout, "SERVER-OUT")
+    )
+
+    stderr_thread = Thread(
+        target=stream_reader,
+        args=(server_process.stderr, "SERVER-ERR")
+    )
+    stdout_thread.daemon = True
+    stderr_thread.daemon = True
+    stdout_thread.start()
+    stderr_thread.start()
+
 
     try:
         # 下载权重文件
         download_weights.download()
-        print("启动Omniserver服务中，约5分钟左右，因为加载模型真的超级慢，请耐心等待！")
+        print("启动Omniserver服务中，约5分钟左右，因为加载模型真的超级慢，请耐心等待！") 
         # 等待 server_process 打印出 "Started server process"
-        while True:
-            res = requests.get("http://127.0.0.1:8000/probe/")
-            if res.status_code == 200 and res.json().get("message", None):
-                print("Omniparser服务启动成功...")
-                break
+        start_time = time.time() 
+        while time.time() - start_time < 60: # 一分钟server启动超时
+            try:
+                res = requests.get("http://127.0.0.1:8000/probe/", timeout=5)
+                if res.status_code == 200:
+                    print("Omniparser服务启动成功...")
+                    break
+            except (requests.ConnectionError, requests.Timeout):
+                pass
+            
             if server_process.poll() is not None:
-                raise RuntimeError("Server process terminated unexpectedly")
-            time.sleep(5)
+                raise RuntimeError(f"服务器进程报错退出：{server_process.returncode}")
+            
+            print("等待服务启动...")
+            time.sleep(10)
+        else:
+            raise TimeoutError("服务器进程未能在一分钟内完成启动")
         
-        stdout_thread = Thread(
-            target=stream_reader,
-            args=(server_process.stdout, "SERVER-OUT")
-        )
-
-        stderr_thread = Thread(
-            target=stream_reader,
-            args=(server_process.stderr, "SERVER-ERR")
-        )
-        stdout_thread.daemon = True
-        stderr_thread.daemon = True
-        stdout_thread.start()
-        stderr_thread.start()
         app.run()
     finally:
         if server_process.poll() is None:  # 如果进程还在运行
