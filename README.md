@@ -8,7 +8,10 @@
 
 >"Automate the tedious, reclaim your time for life"
 
-![](./resources/autoMate.png)
+
+https://github.com/user-attachments/assets/35969270-873f-44d7-8b26-0944c76ba9f1
+
+
 
 
 </div>
