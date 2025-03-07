@@ -198,9 +198,9 @@ class VLMAgent:
 You are using a Windows device.
 You are able to use a mouse and keyboard to interact with the computer based on the given task and screenshot.
 You can only interact with the desktop GUI (no terminal or application menu access).
-
 You may be given some history plan and actions, this is the response from the previous loop.
 You should carefully consider your plan base on the task, screenshot, and history actions.
+
 
 Here is the list of all detected bounding boxes by IDs on the screen and their description:{screen_info}
 

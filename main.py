@@ -1,12 +1,10 @@
-import argparse
 import subprocess
-import signal
-import sys
-import platform
+from threading import Thread
+import requests
 from gradio_ui import app
 from util import download_weights
-import time
 import torch
+import socket
 
 def run():
     try:
@@ -17,45 +15,59 @@ def run():
     except Exception:
         print("显卡驱动不适配，请根据readme安装合适版本的 torch！")
 
-    # 启动 server.py 子进程，并捕获其输出
-    # Windows: 
-    if platform.system() == 'Windows':
-        server_process = subprocess.Popen(
-            ["python", "./server.py"],
-            stdout=subprocess.PIPE,  # 捕获标准输出
-            stderr=subprocess.PIPE,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-            text=True
-        )
-    else:
-        server_process = subprocess.Popen(
-            ["python", "./server.py"],
-            stdout=subprocess.PIPE,  # 捕获标准输出
-            stderr=subprocess.PIPE,
-            start_new_session=True,
-            text=True
-        )
+
+    server_process = subprocess.Popen(
+        ["python", "./omniserver.py"],
+        stdout=subprocess.PIPE,  # 捕获标准输出
+        stderr=subprocess.PIPE,
+        text=True
+    )
 
 
     try:
         # 下载权重文件
         download_weights.download()
-        print("启动Omniserver服务中，约40s左右，请耐心等待！")
+        print("启动Omniserver服务中，约5分钟左右，因为加载模型真的超级慢，请耐心等待！")
         # 启动 Gradio UI
          # 等待 server_process 打印出 "Started server process"
         while True:
-            output = server_process.stdout.readline()
-            if "Omniparser initialized" in output:
-                print("Omniparseer服务启动成功...")
+            res = requests.get("http://127.0.0.1:8000/probe/")
+            if res.status_code == 200 and res.json().get("message", None):
+                print("Omniparser服务启动成功...")
                 break
             if server_process.poll() is not None:
                 raise RuntimeError("Server process terminated unexpectedly")
+        
+        stdout_thread = Thread(
+            target=stream_reader,
+            args=(server_process.stdout, "SERVER-OUT")
+        )
+
+        stderr_thread = Thread(
+            target=stream_reader,
+            args=(server_process.stderr, "SERVER-ERR")
+        )
+        stdout_thread.daemon = True
+        stderr_thread.daemon = True
+        stdout_thread.start()
+        stderr_thread.start()
         app.run()
     finally:
-        # 确保在主进程退出时终止子进程
         if server_process.poll() is None:  # 如果进程还在运行
             server_process.terminate()  # 发送终止信号
-            server_process.wait(timeout=5)  # 等待进程结束
+            server_process.wait(timeout=8)  # 等待进程结束
 
+def stream_reader(pipe, prefix):
+    for line in pipe:
+        print(f"[{prefix}]", line, end="", flush=True)
+
+def is_port_occupied(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+    
 if __name__ == '__main__':
+    # 检测8000端口是否被占用
+    if is_port_occupied(8000):
+        print("8000端口被占用，请先关闭占用该端口的进程")
+        exit()
     run()

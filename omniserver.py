@@ -1,5 +1,5 @@
 '''
-python -m server --som_model_path ../../weights/icon_detect/model.pt --caption_model_name florence2 --caption_model_path ../../weights/icon_caption_florence --device cuda --BOX_TRESHOLD 0.05
+python -m omniparserserver --som_model_path ../../weights/icon_detect/model.pt --caption_model_name florence2 --caption_model_path ../../weights/icon_caption_florence --device cuda --BOX_TRESHOLD 0.05
 '''
 
 import sys
@@ -14,7 +14,7 @@ sys.path.append(root_dir)
 from util.omniparser import Omniparser
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='autoMate API')
+    parser = argparse.ArgumentParser(description='Omniparser API')
     parser.add_argument('--som_model_path', type=str, default='./weights/icon_detect/model.pt', help='Path to the som model')
     parser.add_argument('--caption_model_name', type=str, default='florence2', help='Name of the caption model')
     parser.add_argument('--caption_model_path', type=str, default='./weights/icon_caption', help='Path to the caption model')
@@ -45,7 +45,10 @@ async def parse(parse_request: ParseRequest):
 
 @app.get("/probe/")
 async def root():
-    return {"message": "API ready"}
+    return {"message": "Omniparser API ready"}
+
+
+
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host=args.host, port=args.port, reload=True)
+    uvicorn.run("omniserver:app", host=args.host, port=args.port, reload=True)

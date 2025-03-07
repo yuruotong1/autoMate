@@ -18,8 +18,6 @@ from gradio_ui.loop import (
     sampling_loop_sync,
 )
 from gradio_ui.tools import ToolResult
-import requests
-from requests.exceptions import RequestException
 import base64
 
 CONFIG_DIR = Path("~/.anthropic").expanduser()
