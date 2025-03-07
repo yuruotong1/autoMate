@@ -11,7 +11,6 @@ from anthropic.types import ToolResultBlockParam
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
 
 from gradio_ui.agent.llm_utils.oaiclient import run_oai_interleaved
-from gradio_ui.agent.llm_utils.groqclient import run_groq_interleaved
 from gradio_ui.agent.llm_utils.utils import is_image_path
 import time
 import re
@@ -77,55 +76,20 @@ class VLMAgent:
             planner_messages[-1]["content"].append(f"{OUTPUT_DIR}/screenshot_som_{screenshot_uuid}.png")
 
         start = time.time()
-        if "gpt" in self.model or "o1" in self.model or "o3-mini" in self.model:
-            vlm_response, token_usage = run_oai_interleaved(
-                messages=planner_messages,
-                system=system,
-                model_name=self.model,
-                api_key=self.api_key,
-                max_tokens=self.max_tokens,
-                provider_base_url=self.base_url,
-                temperature=0,
-            )
-            print(f"oai token usage: {token_usage}")
-            self.total_token_usage += token_usage
-            if 'gpt' in self.model:
-                self.total_cost += (token_usage * 2.5 / 1000000)  # https://openai.com/api/pricing/
-            elif 'o1' in self.model:
-                self.total_cost += (token_usage * 15 / 1000000)  # https://openai.com/api/pricing/
-            elif 'o3-mini' in self.model:
-                self.total_cost += (token_usage * 1.1 / 1000000)  # https://openai.com/api/pricing/
-        elif "r1" in self.model:
-            vlm_response, token_usage = run_groq_interleaved(
-                messages=planner_messages,
-                system=system,
-                model_name=self.model,
-                api_key=self.api_key,
-                max_tokens=self.max_tokens,
-            )
-            print(f"groq token usage: {token_usage}")
-            self.total_token_usage += token_usage
-            self.total_cost += (token_usage * 0.99 / 1000000)
-        elif "qwen" in self.model:
-            vlm_response, token_usage = run_oai_interleaved(
-                messages=planner_messages,
-                system=system,
-                model_name=self.model,
-                api_key=self.api_key,
-                max_tokens=min(2048, self.max_tokens),
-                provider_base_url=self.base_url,
-                temperature=0,
-            )
-            print(f"qwen token usage: {token_usage}")
-            self.total_token_usage += token_usage
-            self.total_cost += (token_usage * 2.2 / 1000000)  # https://help.aliyun.com/zh/model-studio/getting-started/models?spm=a2c4g.11186623.0.0.74b04823CGnPv7#fe96cfb1a422a
-        else:
-            raise ValueError(f"Model {self.model} not supported")
+        vlm_response, token_usage = run_oai_interleaved(
+            messages=planner_messages,
+            system=system,
+            model_name=self.model,
+            api_key=self.api_key,
+            max_tokens=self.max_tokens,
+            provider_base_url=self.base_url,
+            temperature=0,
+        )
+        self.total_token_usage += token_usage
         latency_vlm = time.time() - start
         self.output_callback(f"LLM: {latency_vlm:.2f}s, OmniParser: {latency_omniparser:.2f}s", sender="bot")
 
-        print(f"{vlm_response}")
-        
+        print(f"llm_response: {vlm_response}")
         if self.print_usage:
             print(f"Total token so far: {self.total_token_usage}. Total cost so far: $USD{self.total_cost:.5f}")
         
