@@ -181,7 +181,7 @@ def process_input(user_input, state):
         api_response_callback=partial(_api_response_callback, response_state=state["responses"]),
         api_key=state["api_key"],
         only_n_most_recent_images=state["only_n_most_recent_images"],
-        max_tokens=16384,
+        max_tokens=8000,
         omniparser_url=args.omniparser_server_url,
         base_url = state["base_url"]
     ):  

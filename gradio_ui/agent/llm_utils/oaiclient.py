@@ -4,6 +4,10 @@ import base64
 import requests
 from .utils import is_image_path, encode_image
 
+unsupported_vision_models = ["deepseek", "o3-mini"]
+def is_unsupported_vision_model(model_name: str):
+    return any(model in model_name for model in unsupported_vision_models)
+
 def run_oai_interleaved(messages: list, system: str, model_name: str, api_key: str, max_tokens=256, temperature=0, provider_base_url: str = "https://api.openai.com/v1"):    
     headers = {"Content-Type": "application/json",
                "Authorization": f"Bearer {api_key}"}
@@ -15,8 +19,7 @@ def run_oai_interleaved(messages: list, system: str, model_name: str, api_key: s
             if isinstance(item, dict):
                 for cnt in item["content"]:
                     if isinstance(cnt, str):
-                        if is_image_path(cnt) and 'o3-mini' not in model_name:
-                            # 03 mini does not support images
+                        if is_image_path(cnt) and not is_unsupported_vision_model(model_name):
                             base64_image = encode_image(cnt)
                             content = {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
                         else:
@@ -58,7 +61,7 @@ def run_oai_interleaved(messages: list, system: str, model_name: str, api_key: s
         token_usage = int(response.json()['usage']['total_tokens'])
         return text, token_usage
     except Exception as e:
-        print(f"Error in interleaved openAI: {e}. This may due to your invalid API key. Please check the response: {response.json()} ")
+        print(f"Error, llm response: {response.content}")
         return response.json()
     
 
