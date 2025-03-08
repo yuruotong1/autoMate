@@ -68,7 +68,7 @@ def run_oai_interleaved(messages: list, system: str, model_name: str, api_key: s
 # 删除思考和输出标签
 def delete_think_and_output_tags(content: str, model_name: str):
     final_answer = content
-    if "r1" in model_name:
+    if ("r1" in model_name) or ("reasoner" in model_name):
         final_answer = content.split('</think>\n')[-1] if '</think>' in content else content
         final_answer = final_answer.replace("<output>", "").replace("</output>", "")
     return final_answer

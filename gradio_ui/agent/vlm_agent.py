@@ -1,15 +1,12 @@
 import json
 from collections.abc import Callable
-from typing import cast, Callable
+from typing import Callable
 import uuid
 from PIL import Image, ImageDraw
 import base64
 from io import BytesIO
-
 from anthropic import APIResponse
-from anthropic.types import ToolResultBlockParam
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
-
 from gradio_ui.agent.llm_utils.oaiclient import run_oai_interleaved
 from gradio_ui.agent.llm_utils.utils import is_image_path
 import time
