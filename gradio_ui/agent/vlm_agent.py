@@ -217,7 +217,7 @@ IMPORTANT NOTES:
 1. You should only give a single action at a time.
 
 """
-        thinking_model = "r1" in self.model
+        thinking_model = ("r1" in self.model) or ("reasoner" in self.model)
         if not thinking_model:
             main_section += """
 2. You should give an analysis to the current screen, and reflect on what has been done by looking at the history, then describe your step-by-step thoughts on how to achieve the task.
