@@ -19,7 +19,7 @@ from gradio_ui.loop import (
 )
 from gradio_ui.tools import ToolResult
 import base64
-
+from xbrain.utils.config import Config
 CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
 
@@ -160,7 +160,9 @@ def process_input(user_input, state):
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
-
+    
+    config = Config()
+    config.set_openai_config(base_url=state["base_url"], api_key=state["api_key"], model=state["model"])
     # Append the user message to state["messages"]
     state["messages"].append(
         {

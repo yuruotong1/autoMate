@@ -1,17 +1,19 @@
 import json
+
+from pydantic import BaseModel, Field
 from gradio_ui.agent.base_agent import BaseAgent
+from xbrain.core.chat import run
 import platform
 import re
 class TaskRunAgent(BaseAgent):
     def __init__(self, config, task_plan: str, screen_info):
         super().__init__(config)
+        self.OUTPUT_DIR = "./tmp/outputs"
         device = self.get_device()
         self.SYSTEM_PROMPT = system_prompt.format(task_plan=task_plan, 
                                                   device=device, 
                                                   screen_info=screen_info)
-        self.OUTPUT_DIR = "./tmp/outputs"
 
-    
     def get_device(self):
         # 获取当前操作系统信息
         system = platform.system()
@@ -25,11 +27,9 @@ class TaskRunAgent(BaseAgent):
             device = system
         return device
     
-    def run(self):
-        res = self.chat([{"role": "user", "content": ""}])
-        res = self.extract_data(res, "json")
-        return json.loads(res)
-
+    def chat(self, task):
+        res = run([{"role": "user", "content": task}], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
+        return res
 
     def extract_data(self, input_string, data_type):
         # Regular expression to extract content starting from '```python' until the end if there are no closing backticks
@@ -39,6 +39,19 @@ class TaskRunAgent(BaseAgent):
         matches = re.findall(pattern, input_string, re.DOTALL)
         # Return the first match if exists, trimming whitespace and ignoring potential closing backticks
         return matches[0][0].strip() if matches else input_string
+
+class TaskRunAgentResponse(BaseModel):
+    reasoning: str = Field(description="描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。")
+    next_action: str = Field(description="一次一个操作，简短精确地描述它。")
+    action_type: str = Field(
+        description="选择一个操作类型",
+        json_schema_extra={
+            "enum": ["type", "left_click", "right_click", "double_click", 
+                    "hover", "scroll_up", "scroll_down", "wait"]
+        }
+    )
+    box_id: int = Field(description="要操作的框ID，当action_type为left_click、right_click、double_click、hover时提供，否则为None", default=None)
+    value: str = Field(description="仅当action_type为type时提供，否则为None", default=None)
 
 system_prompt = """
 ### 目标 ###
