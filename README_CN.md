@@ -80,6 +80,11 @@ python main.py
 2. 从[官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本；
 3. 重新安装Nvidia驱动。
 
+### 模型无法下载
+多半是被墙了，可以从百度网盘直接下载模型。
+
+通过网盘分享的文件：weights.zip
+链接: https://pan.baidu.com/s/1Tj8sZZK9_QI7whZV93vb0w?pwd=dyeu 提取码: dyeu
 
 ## 🤝 参与共建
 
