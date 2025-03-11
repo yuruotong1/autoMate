@@ -61,14 +61,16 @@ def sampling_loop_sync(
 
     while True:
         parsed_screen = parse_screen(vision_agent)
-        # tools_use_needed, vlm_response_json = actor(messages=messages, parsed_screen=parsed_screen)
-        tools_use_needed = task_run_agent(task_plan=plan, screen_info=parsed_screen)
+        tools_use_needed, vlm_response_json = task_run_agent(task_plan=plan, screen_info=parsed_screen)
         for message, tool_result_content in executor(tools_use_needed, messages):
             yield message
         if not tool_result_content:
             return messages
         
 def parse_screen(vision_agent: VisionAgent):
-    _, screenshot_path = get_screenshot()
-    parsed_screen = vision_agent(str(screenshot_path))
-    return parsed_screen
+    screenshot, screenshot_path = get_screenshot()
+    response_json = {}
+    response_json['parsed_content_list'] = vision_agent(str(screenshot_path))
+    response_json['width'] = screenshot.size[0]
+    response_json['height'] = screenshot.size[1]
+    return response_json

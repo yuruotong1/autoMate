@@ -67,37 +67,6 @@ class VisionAgent:
             print("图像描述模型加载成功")
         except Exception as e:
             print(f"加载图像描述模型失败: {e}")
-            print("尝试使用备用方法加载...")
-            
-            # 备用加载方法
-            try:
-                # 先加载到CPU，再转移到目标设备
-                self.caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_model_path, 
-                    torch_dtype=torch.float32,
-                    trust_remote_code=True
-                )
-                
-                # 如果是CUDA设备，尝试转换为float16
-                if self.device.type == 'cuda':
-                    try:
-                        self.caption_model = self.caption_model.to(dtype=torch.float16)
-                    except:
-                        print("转换为float16失败，使用float32")
-                
-                # 移动到目标设备
-                self.caption_model = self.caption_model.to(self.device)
-                print("使用备用方法加载成功")
-            except Exception as e2:
-                print(f"备用加载方法也失败: {e2}")
-                print("回退到CPU模式")
-                self.device = torch.device("cpu")
-                self.dtype = torch.float32
-                self.caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_model_path, 
-                    torch_dtype=torch.float32,
-                    trust_remote_code=True
-                ).to(self.device)
         
         # 设置提示词
         self.prompt = "<CAPTION>"
@@ -113,6 +82,15 @@ class VisionAgent:
         self.elements: List[UIElement] = []
         self.ocr_reader = easyocr.Reader(['en', 'ch_sim'])
 
+    def __call__(self, image_path: str) -> List[UIElement]:
+        """Process an image from file path."""
+        # image = self.load_image(image_source)
+        image = cv2.imread(image_path)
+        if image is None:
+            raise FileNotFoundError(f"Vision agent: 图片读取失败")
+
+        return self.analyze_image(image)
+    
     def _get_optimal_device_and_dtype(self):
         """确定最佳设备和数据类型"""
         if torch.cuda.is_available():
@@ -261,55 +239,7 @@ class VisionAgent:
                     torch.cuda.empty_cache()
                     
             except RuntimeError as e:
-                print(f"批次处理失败: {e}")
-                
-                # 如果是CUDA错误，尝试在CPU上处理
-                if "CUDA" in str(e) or "cuda" in str(e):
-                    print("尝试在CPU上处理此批次...")
-                    try:
-                        # 临时将模型移至CPU
-                        self.caption_model = self.caption_model.to("cpu")
-                        
-                        # 在CPU上处理
-                        inputs = self.caption_processor(
-                            images=batch, 
-                            text=[self.prompt] * len(batch), 
-                            return_tensors="pt"
-                        )
-                        
-                        with torch.no_grad():
-                            if 'florence' in self.caption_model.config.model_type:
-                                generated_ids = self.caption_model.generate(
-                                    input_ids=inputs["input_ids"],
-                                    pixel_values=inputs["pixel_values"],
-                                    max_new_tokens=20,
-                                    num_beams=1, 
-                                    do_sample=False
-                                )
-                            else:
-                                generated_ids = self.caption_model.generate(
-                                    **inputs, 
-                                    max_length=50,
-                                    num_beams=3,
-                                    early_stopping=True
-                                )
-                        
-                        texts = self.caption_processor.batch_decode(
-                            generated_ids, 
-                            skip_special_tokens=True
-                        )
-                        texts = [text.strip() for text in texts]
-                        generated_texts.extend(texts)
-                        
-                        # 处理完成后将模型移回原设备
-                        self.caption_model = self.caption_model.to(self.device)
-                    except Exception as cpu_e:
-                        print(f"CPU处理也失败: {cpu_e}")
-                        generated_texts.extend(["[描述生成失败]"] * len(batch))
-                else:
-                    # 非CUDA错误，直接添加占位符
-                    generated_texts.extend(["[描述生成失败]"] * len(batch))
-        
+                print(f"批次处理失败: {e}")    
         return generated_texts
 
     def _detect_objects(self, image: np.ndarray) -> tuple[list[np.ndarray], list]:
@@ -378,14 +308,6 @@ class VisionAgent:
             raise ValueError(error_msg) from e
 
 
-    def __call__(self, image_path: str) -> List[UIElement]:
-        """Process an image from file path."""
-        # image = self.load_image(image_source)
-        image = cv2.imread(image_path)
-        if image is None:
-            raise FileNotFoundError(f"Vision agent: 图片读取失败")
-
-        return self.analyze_image(image)
     
 
     
