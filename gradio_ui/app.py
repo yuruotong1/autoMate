@@ -14,6 +14,7 @@ from anthropic import APIResponse
 from anthropic.types import TextBlock
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock
 from anthropic.types.tool_use_block import ToolUseBlock
+from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.loop import (
     sampling_loop_sync,
 )
@@ -156,7 +157,7 @@ def chatbot_output_callback(message, chatbot_state, hide_images=False, sender="b
     # print(f"chatbot_output_callback chatbot_state: {concise_state} (truncated)")
 
 
-def process_input(user_input, state):
+def process_input(user_input, state, vision_agent):
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
@@ -185,7 +186,8 @@ def process_input(user_input, state):
         only_n_most_recent_images=state["only_n_most_recent_images"],
         max_tokens=8000,
         omniparser_url=args.omniparser_server_url,
-        base_url = state["base_url"]
+        base_url = state["base_url"],
+        vision_agent = vision_agent
     ):  
         if loop_msg is None or state.get("stop"):
             yield state['chatbot_messages']
@@ -314,7 +316,9 @@ def run():
         model.change(fn=update_model, inputs=[model, state], outputs=[api_key])
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)
         chatbot.clear(fn=clear_chat, inputs=[state], outputs=[chatbot])
-        submit_button.click(process_input, [chat_input, state], chatbot)
+        vision_agent = VisionAgent(yolo_model_path="./weights/icon_detect/model.pt",
+                               caption_model_path="./weights/icon_caption")
+        submit_button.click(process_input, [chat_input, state, vision_agent], chatbot)
         stop_button.click(stop_app, [state], None)
         base_url.change(fn=update_base_url, inputs=[base_url, state], outputs=None)
     demo.launch(server_name="0.0.0.0", server_port=7888)

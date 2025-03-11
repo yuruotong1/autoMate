@@ -12,7 +12,7 @@ import uvicorn
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_dir)
 # from util.omniparser import Omniparser
-from util.vision_agent import VisionAgent
+from gradio_ui.agent.vision_agent import VisionAgent
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Omniparser API')

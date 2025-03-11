@@ -32,8 +32,7 @@ class TaskRunAgent(BaseAgent):
     def __call__(self, task):
         res = run([{"role": "user", "content": task}], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
         response_message = BetaMessage(id=f'toolu_{uuid.uuid4()}', content=res, model='', role='assistant', type='message', stop_reason='tool_use', usage=BetaUsage(input_tokens=0, output_tokens=0))
-        vlm_response_json = self.extract_data(res, "json")
-        return response_message, vlm_response_json
+        return response_message
 
     def extract_data(self, input_string, data_type):
         # Regular expression to extract content starting from '```python' until the end if there are no closing backticks
