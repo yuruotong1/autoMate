@@ -15,18 +15,22 @@ class TaskRunAgent(BaseAgent):
         self.OUTPUT_DIR = "./tmp/outputs"
        
     def __call__(self, task_plan, parsed_screen):
+        screen_info = str(parsed_screen['parsed_content_list'])
         self.SYSTEM_PROMPT = system_prompt.format(task_plan=task_plan, 
                                                   device=self.get_device(), 
-                                                  screen_info=parsed_screen["parsed_content_list"])
+                                                  screen_info=screen_info)
+        
         screen_width, screen_height = parsed_screen['width'], parsed_screen['height']
         vlm_response = run([{"role": "user", "content": "next"}], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
         vlm_response_json = json.loads(vlm_response)
+        img_to_show_base64 = parsed_screen["image"]
         if "box_id" in vlm_response_json:
             try:
                 bbox = parsed_screen["parsed_content_list"][int(vlm_response_json["box_id"])]["bbox"]
                 vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 * screen_width), int((bbox[1] + bbox[3]) / 2 * screen_height)]
-                img_to_show_data = base64.b64decode(img_to_show_base64)
-                img_to_show = Image.open(BytesIO(img_to_show_data))
+                # img_to_show_data = base64.b64decode(img_to_show_base64)
+                # img_to_show = Image.open(BytesIO(img_to_show_data))
+                img_to_show = parsed_screen["image"]
                 draw = ImageDraw.Draw(img_to_show)
                 x, y = vlm_response_json["box_centroid_coordinate"] 
                 radius = 10
@@ -38,6 +42,14 @@ class TaskRunAgent(BaseAgent):
             except:
                 print(f"Error parsing: {vlm_response_json}")
                 pass
+        self.output_callback(f'<img src="data:image/png;base64,{img_to_show_base64}">', sender="bot")
+        self.output_callback(
+                    f'<details>'
+                    f'  <summary>Parsed Screen elemetns by OmniParser</summary>'
+                    f'  <pre>{screen_info}</pre>'
+                    f'</details>',
+                    sender="bot"
+                )
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
         if 'box_centroid_coordinate' in vlm_response_json:
             move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',

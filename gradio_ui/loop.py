@@ -28,28 +28,14 @@ def sampling_loop_sync(
     output_callback: Callable[[BetaContentBlock], None],
     tool_output_callback: Callable[[ToolResult, str], None],
     api_response_callback: Callable[[APIResponse[BetaMessage]], None],
-    api_key: str,
     only_n_most_recent_images: int | None = 0,
-    max_tokens: int = 4096,
-    omniparser_url: str,
-    base_url: str,
     vision_agent: VisionAgent
 ):
     """
     Synchronous agentic sampling loop for the assistant/tool interaction of computer use.
     """
     print('in sampling_loop_sync, model:', model)
-    # omniparser_client = OmniParserClient(url=f"http://{omniparser_url}/parse/")
     task_plan_agent = TaskPlanAgent()
-    # actor = VLMAgent(
-    #     model=model,
-    #     api_key=api_key,
-    #     base_url=base_url,
-    #     api_response_callback=api_response_callback,
-    #     output_callback=output_callback,
-    #     max_tokens=max_tokens,
-    #     only_n_most_recent_images=only_n_most_recent_images
-    # )
     executor = AnthropicExecutor(
         output_callback=output_callback,
         tool_output_callback=tool_output_callback,
@@ -73,4 +59,5 @@ def parse_screen(vision_agent: VisionAgent):
     response_json['parsed_content_list'] = vision_agent(str(screenshot_path))
     response_json['width'] = screenshot.size[0]
     response_json['height'] = screenshot.size[1]
+    response_json['image'] = screenshot
     return response_json
