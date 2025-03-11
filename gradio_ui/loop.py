@@ -61,7 +61,7 @@ def sampling_loop_sync(
 
     while True:
         parsed_screen = parse_screen(vision_agent)
-        tools_use_needed, vlm_response_json = task_run_agent(task_plan=plan, screen_info=parsed_screen)
+        tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen=parsed_screen)
         for message, tool_result_content in executor(tools_use_needed, messages):
             yield message
         if not tool_result_content:
