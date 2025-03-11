@@ -4,7 +4,7 @@
 <h1>autoMate</h1>
 <p><b>🤖 AI-Powered Local Automation Tool | Let Your Computer Work for You</b></p>
 
-[简体中文](./README_CN.md)
+[简体中文](./README_CN.md) | [日本語](./README_JA.md)
 
 >"Automate the tedious, reclaim your time for life"
 
