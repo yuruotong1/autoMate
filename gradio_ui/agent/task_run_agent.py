@@ -1,13 +1,12 @@
-import json
-
+import uuid
+from anthropic.types.beta import BetaMessage, BetaUsage
 from pydantic import BaseModel, Field
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 import platform
 import re
 class TaskRunAgent(BaseAgent):
-    def __init__(self, config, task_plan: str, screen_info):
-        super().__init__(config)
+    def __init__(self,task_plan: str, screen_info):
         self.OUTPUT_DIR = "./tmp/outputs"
         device = self.get_device()
         self.SYSTEM_PROMPT = system_prompt.format(task_plan=task_plan, 
@@ -27,9 +26,11 @@ class TaskRunAgent(BaseAgent):
             device = system
         return device
     
-    def chat(self, task):
+    def __call__(self, task):
         res = run([{"role": "user", "content": task}], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
-        return res
+        response_message = BetaMessage(id=f'toolu_{uuid.uuid4()}', content=res, model='', role='assistant', type='message', stop_reason='tool_use', usage=BetaUsage(input_tokens=0, output_tokens=0))
+        vlm_response_json = self.extract_data(res, "json")
+        return response_message, vlm_response_json
 
     def extract_data(self, input_string, data_type):
         # Regular expression to extract content starting from '```python' until the end if there are no closing backticks

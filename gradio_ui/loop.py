@@ -13,6 +13,8 @@ from anthropic.types.beta import (
     BetaMessage,
     BetaMessageParam
 )
+from gradio_ui.agent.task_plan_agent import TaskPlanAgent
+from gradio_ui.agent.task_run_agent import TaskRunAgent
 from gradio_ui.tools import ToolResult
 
 from gradio_ui.agent.llm_utils.omniparserclient import OmniParserClient
@@ -37,15 +39,17 @@ def sampling_loop_sync(
     """
     print('in sampling_loop_sync, model:', model)
     omniparser_client = OmniParserClient(url=f"http://{omniparser_url}/parse/")
-    actor = VLMAgent(
-        model=model,
-        api_key=api_key,
-        base_url=base_url,
-        api_response_callback=api_response_callback,
-        output_callback=output_callback,
-        max_tokens=max_tokens,
-        only_n_most_recent_images=only_n_most_recent_images
-    )
+    task_plan_agent = TaskPlanAgent()
+    task_plan_agent()
+    # actor = VLMAgent(
+    #     model=model,
+    #     api_key=api_key,
+    #     base_url=base_url,
+    #     api_response_callback=api_response_callback,
+    #     output_callback=output_callback,
+    #     max_tokens=max_tokens,
+    #     only_n_most_recent_images=only_n_most_recent_images
+    # )
     executor = AnthropicExecutor(
         output_callback=output_callback,
         tool_output_callback=tool_output_callback,
@@ -54,10 +58,13 @@ def sampling_loop_sync(
     tool_result_content = None
     
     print(f"Start the message loop. User messages: {messages}")
+    plan = task_plan_agent(messages[-1]["content"][0])
+    task_run_agent = TaskRunAgent()
 
     while True:
         parsed_screen = omniparser_client()
-        tools_use_needed, vlm_response_json = actor(messages=messages, parsed_screen=parsed_screen)
+        # tools_use_needed, vlm_response_json = actor(messages=messages, parsed_screen=parsed_screen)
+        task_run_agent(plan, parsed_screen)
         for message, tool_result_content in executor(tools_use_needed, messages):
             yield message
         if not tool_result_content:

@@ -6,7 +6,7 @@ class TaskPlanAgent(BaseAgent):
         self.SYSTEM_PROMPT = system_prompt
 
 
-    def run(self, user_task: str):
+    def __call__(self, user_task: str):
         return self.chat([{"role": "user", "content": user_task}])
 
 system_prompt = """

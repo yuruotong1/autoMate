@@ -1,6 +1,5 @@
 class BaseAgent:
-    def __init__(self, config, *args, **kwargs):
-        self.config = config
+    def __init__(self, *args, **kwargs):
         self.SYSTEM_PROMPT = ""
 
     
