@@ -42,12 +42,23 @@ class Sender(StrEnum):
     BOT = "assistant"
     TOOL = "tool"
 def setup_state(state):
+    # 如果存在config，则从config中加载数据
+    config = Config()
+    if config.OPENAI_API_KEY:
+        state["api_key"] = config.OPENAI_API_KEY
+    else:
+        state["api_key"] = ""
+    if config.OPENAI_BASE_URL:
+        state["base_url"] = config.OPENAI_BASE_URL
+    else:
+        state["base_url"] = "https://api.openai-next.com/v1"
+    if config.OPENAI_MODEL:
+        state["model"] = config.OPENAI_MODEL
+    else:
+        state["model"] = "gpt-4o"
+    
     if "messages" not in state:
         state["messages"] = []
-    if "model" not in state:
-        state["model"] = "gpt-4o"
-    if "api_key" not in state:
-        state["api_key"] = ""
     if "auth_validated" not in state:
         state["auth_validated"] = False
     if "responses" not in state:
@@ -60,8 +71,6 @@ def setup_state(state):
         state['chatbot_messages'] = []
     if 'stop' not in state:
         state['stop'] = False
-    if 'base_url' not in state: 
-        state['base_url'] = "https://api.openai-next.com/v1"
 
 async def main(state):
     """Render loop for Gradio"""
@@ -157,7 +166,7 @@ def chatbot_output_callback(message, chatbot_state, hide_images=False, sender="b
     # print(f"chatbot_output_callback chatbot_state: {concise_state} (truncated)")
 
 
-def process_input(user_input, state, vision_agent):
+def process_input(user_input, state, vision_agent_state):
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
@@ -176,6 +185,7 @@ def process_input(user_input, state, vision_agent):
     state['chatbot_messages'].append((user_input, None))  # 确保格式正确
     yield state['chatbot_messages']  # Yield to update the chatbot UI with the user's message
     # Run sampling_loop_sync with the chatbot_output_callback
+    agent = vision_agent_state["agent"]
     for loop_msg in sampling_loop_sync(
         model=state["model"],
         messages=state["messages"],
@@ -187,7 +197,7 @@ def process_input(user_input, state, vision_agent):
         max_tokens=8000,
         omniparser_url=args.omniparser_server_url,
         base_url = state["base_url"],
-        vision_agent = vision_agent
+        vision_agent = agent
     ):  
         if loop_msg is None or state.get("stop"):
             yield state['chatbot_messages']
@@ -248,14 +258,14 @@ def run():
                 with gr.Column():
                     model = gr.Textbox(
                         label="Model",
-                        value="gpt-4o",
+                        value=state.value["model"],
                         placeholder="输入模型名称",
                         interactive=True,
                     )
                 with gr.Column():
                     base_url = gr.Textbox(
                         label="Base URL",
-                        value="https://api.openai-next.com/v1",
+                        value=state.value["base_url"],
                         placeholder="输入基础 URL",
                         interactive=True
                     )
@@ -272,7 +282,7 @@ def run():
                 api_key = gr.Textbox(
                     label="API Key",
                     type="password",
-                    value=state.value.get("api_key", ""),
+                    value=state.value["api_key"],
                     placeholder="Paste your API key here",
                     interactive=True,
                 )
@@ -291,13 +301,8 @@ def run():
                     autoscroll=True,
                     height=580                )
 
-        def update_model(model_selection, state):
-            state["model"] = model_selection
-            api_key_update = gr.update(
-                placeholder="API Key",
-                value=state["api_key"]
-            )
-            return api_key_update
+        def update_model(model, state):
+            state["model"] = model
 
         def update_api_key(api_key_value, state):
             state["api_key"] = api_key_value
@@ -313,12 +318,13 @@ def run():
             state['chatbot_messages'] = []
             return state['chatbot_messages']
 
-        model.change(fn=update_model, inputs=[model, state], outputs=[api_key])
+        model.change(fn=update_model, inputs=[model, state], outputs=None)
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)
         chatbot.clear(fn=clear_chat, inputs=[state], outputs=[chatbot])
         vision_agent = VisionAgent(yolo_model_path="./weights/icon_detect/model.pt",
-                               caption_model_path="./weights/icon_caption")
-        submit_button.click(process_input, [chat_input, state, vision_agent], chatbot)
+                                 caption_model_path="./weights/icon_caption")
+        vision_agent_state = gr.State({"agent": vision_agent})
+        submit_button.click(process_input, [chat_input, state, vision_agent_state], chatbot)
         stop_button.click(stop_app, [state], None)
         base_url.change(fn=update_base_url, inputs=[base_url, state], outputs=None)
     demo.launch(server_name="0.0.0.0", server_port=7888)

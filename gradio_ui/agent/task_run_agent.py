@@ -6,9 +6,7 @@ from xbrain.core.chat import run
 import platform
 import re
 class TaskRunAgent(BaseAgent):
-    def __init__(self):
-        print("TaskRunAgent initialized without a task")
-    def __call__(self,task_plan: str, screen_info):
+    def __call__(self, task_plan: str, screen_info):
         self.OUTPUT_DIR = "./tmp/outputs"
         device = self.get_device()
         self.SYSTEM_PROMPT = system_prompt.format(task_plan=task_plan, 

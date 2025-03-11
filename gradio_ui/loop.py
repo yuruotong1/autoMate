@@ -54,10 +54,7 @@ def sampling_loop_sync(
         output_callback=output_callback,
         tool_output_callback=tool_output_callback,
     )
-    
     tool_result_content = None
-    
-    print(f"Start the message loop. User messages: {messages}")
     plan = task_plan_agent(user_task = messages[-1]["content"][0].text)
     task_run_agent = TaskRunAgent()
 
@@ -65,7 +62,7 @@ def sampling_loop_sync(
     while True:
         parsed_screen = parse_screen(vision_agent)
         # tools_use_needed, vlm_response_json = actor(messages=messages, parsed_screen=parsed_screen)
-        tools_use_needed = task_run_agent(plan, parsed_screen)
+        tools_use_needed = task_run_agent(task_plan=plan, screen_info=parsed_screen)
         for message, tool_result_content in executor(tools_use_needed, messages):
             yield message
         if not tool_result_content:
@@ -73,7 +70,5 @@ def sampling_loop_sync(
         
 def parse_screen(vision_agent: VisionAgent):
     _, screenshot_path = get_screenshot()
-    screenshot_path = str(screenshot_path)
-    image_base64 = encode_image(screenshot_path)
-    parsed_screen = vision_agent(image_base64)
+    parsed_screen = vision_agent(str(screenshot_path))
     return parsed_screen
