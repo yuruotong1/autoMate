@@ -1,8 +1,8 @@
 from gradio_ui.agent.base_agent import BaseAgent
 
 class TaskPlanAgent(BaseAgent):
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self):
+        super().__init__()
         self.SYSTEM_PROMPT = system_prompt
 
 

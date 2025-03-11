@@ -29,7 +29,7 @@ def sampling_loop_sync(
     tool_output_callback: Callable[[ToolResult, str], None],
     api_response_callback: Callable[[APIResponse[BetaMessage]], None],
     api_key: str,
-    only_n_most_recent_images: int | None = 2,
+    only_n_most_recent_images: int | None = 0,
     max_tokens: int = 4096,
     omniparser_url: str,
     base_url: str
@@ -40,7 +40,6 @@ def sampling_loop_sync(
     print('in sampling_loop_sync, model:', model)
     omniparser_client = OmniParserClient(url=f"http://{omniparser_url}/parse/")
     task_plan_agent = TaskPlanAgent()
-    task_plan_agent()
     # actor = VLMAgent(
     #     model=model,
     #     api_key=api_key,
@@ -58,7 +57,7 @@ def sampling_loop_sync(
     tool_result_content = None
     
     print(f"Start the message loop. User messages: {messages}")
-    plan = task_plan_agent(messages[-1]["content"][0])
+    plan = task_plan_agent(user_task = messages[-1]["content"][0])
     task_run_agent = TaskRunAgent()
 
     while True:
