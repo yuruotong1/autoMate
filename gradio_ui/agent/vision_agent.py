@@ -88,7 +88,6 @@ class VisionAgent:
         image = cv2.imread(image_path)
         if image is None:
             raise FileNotFoundError(f"Vision agent: 图片读取失败")
-
         return self.analyze_image(image)
     
     def _get_optimal_device_and_dtype(self):

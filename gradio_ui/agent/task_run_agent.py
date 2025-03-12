@@ -22,28 +22,40 @@ class TaskRunAgent(BaseAgent):
                                                   screen_info=screen_info)
         
         screen_width, screen_height = parsed_screen['width'], parsed_screen['height']
-        vlm_response = run([{"role": "user", "content": "next"}], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
+        img_to_show = parsed_screen["image"]
+        buffered = BytesIO()
+        img_to_show.save(buffered, format="PNG")
+        img_to_show_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        vlm_response = run([
+            {
+                "role": "user", 
+                "content": [
+                    {"type": "text", "text": "图片是当前屏幕的截图，请根据图片以及解析出来的元素，确定下一步操作"},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{img_to_show_base64}"
+                        }
+                    }
+                ]
+            }
+        ], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
         vlm_response_json = json.loads(vlm_response)
         if "box_id" in vlm_response_json:
             try:
                 bbox = parsed_screen["parsed_content_list"][int(vlm_response_json["box_id"])].coordinates
-                # vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 * screen_width), int((bbox[1] + bbox[3]) / 2 * screen_height)]
                 vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
-
-                # img_to_show_data = base64.b64decode(img_to_show_base64)
-                # img_to_show = Image.open(BytesIO(img_to_show_data))
-                img_to_show = parsed_screen["image"]
-                draw = ImageDraw.Draw(img_to_show)
                 x, y = vlm_response_json["box_centroid_coordinate"] 
                 radius = 10
+                draw = ImageDraw.Draw(img_to_show)
                 draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill='red')
                 draw.ellipse((x - radius*3, y - radius*3, x + radius*3, y + radius*3), fill=None, outline='red', width=2)
                 buffered = BytesIO()
                 img_to_show.save(buffered, format="PNG")
                 img_to_show_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            except:
+            except Exception as e:
                 print(f"Error parsing: {vlm_response_json}")
-                pass
+                print(f"Error: {e}")
         self.output_callback(f'<img src="data:image/png;base64,{img_to_show_base64}">', sender="bot")
         self.output_callback(
                     f'<details>'
@@ -112,14 +124,12 @@ class TaskRunAgentResponse(BaseModel):
 
 system_prompt = """
 ### 目标 ###
-你正在使用{device}设备，请你根据【总体任务】、【历史操作记录】和【当前屏幕信息】确定【下一步操作】：
+你是一个自动化规划师，需要完成用户的任务。请你根据屏幕信息确定【下一步操作】，以完成任务：
 
-1. 结合【当前屏幕信息】、【历史操作记录】，思考一下当前处于【总体任务】的哪一阶段了，然后再确定【下一步操作】。
-
-你当前的【总体任务】是：
+你当前的任务是：
 {task_plan}
 
-以下是检测当前屏幕上所有的【当前屏幕信息】：
+以下是用yolo检测的当前屏幕上的所有元素：
 
 {screen_info}
 ##########
@@ -135,7 +145,7 @@ system_prompt = """
 8. 如果您收到登录信息页面或验证码页面的提示，或者您认为下一步操作需要用户许可，您应该在json字段中说"Next Action": "None"。
 9. 你只能使用鼠标和键盘与计算机进行交互。
 10. 你只能与桌面图形用户界面交互（无法访问终端或应用程序菜单）。
-11. 如果当前屏幕没有显示任何可操作的元素，并且当前屏幕不能下滑，请选择None，退出操作。
+11. 如果当前屏幕没有显示任何可操作的元素，并且当前屏幕不能下滑，请返回None。
 
 ##########
 ### 输出格式 ###

@@ -2,8 +2,14 @@ from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
 class TaskPlanAgent(BaseAgent):
+    def __init__(self,  output_callback):
+        self.output_callback = output_callback
+    
     def __call__(self, user_task: str):
-        return run([{"role": "user", "content": user_task}], user_prompt=self.SYSTEM_PROMPT)
+        self.output_callback("正在规划任务中...", sender="bot")
+        response = run([{"role": "user", "content": user_task}], user_prompt=system_prompt)
+        self.output_callback(response, sender="bot")
+        return response
 
 system_prompt = """
 ### 目标 ###
