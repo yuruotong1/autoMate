@@ -1,10 +1,8 @@
 """
 Agentic sampling loop that calls the Anthropic API and local implenmentation of anthropic-defined computer use tools.
 """
-import base64
 from collections.abc import Callable
-from time import time
-
+from time import sleep
 import cv2
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.tools.screen_capture import get_screenshot
@@ -54,7 +52,7 @@ def sampling_loop_sync(
     while True:
         parsed_screen = parse_screen(vision_agent)
         tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen=parsed_screen)
-        time.sleep(1)
+        sleep(2)
         for message, tool_result_content in executor(tools_use_needed, messages):
             yield message
         if not tool_result_content:
