@@ -11,7 +11,8 @@ from xbrain.core.chat import run
 import platform
 import re
 class TaskRunAgent(BaseAgent):
-    def __init__(self):
+    def __init__(self, output_callback):
+        self.output_callback = output_callback
         self.OUTPUT_DIR = "./tmp/outputs"
        
     def __call__(self, task_plan, parsed_screen):
@@ -23,11 +24,12 @@ class TaskRunAgent(BaseAgent):
         screen_width, screen_height = parsed_screen['width'], parsed_screen['height']
         vlm_response = run([{"role": "user", "content": "next"}], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
         vlm_response_json = json.loads(vlm_response)
-        img_to_show_base64 = parsed_screen["image"]
         if "box_id" in vlm_response_json:
             try:
-                bbox = parsed_screen["parsed_content_list"][int(vlm_response_json["box_id"])]["bbox"]
-                vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 * screen_width), int((bbox[1] + bbox[3]) / 2 * screen_height)]
+                bbox = parsed_screen["parsed_content_list"][int(vlm_response_json["box_id"])].coordinates
+                # vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 * screen_width), int((bbox[1] + bbox[3]) / 2 * screen_height)]
+                vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
+
                 # img_to_show_data = base64.b64decode(img_to_show_base64)
                 # img_to_show = Image.open(BytesIO(img_to_show_data))
                 img_to_show = parsed_screen["image"]
@@ -98,16 +100,15 @@ class TaskRunAgent(BaseAgent):
 
 class TaskRunAgentResponse(BaseModel):
     reasoning: str = Field(description="描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。")
-    next_action: str = Field(description="一次一个操作，简短精确地描述它。")
-    action_type: str = Field(
-        description="选择一个操作类型",
+    next_action: str = Field(
+        description="选择一个操作类型，如果找不到合适的操作，请选择None",
         json_schema_extra={
             "enum": ["type", "left_click", "right_click", "double_click", 
-                    "hover", "scroll_up", "scroll_down", "wait"]
+                    "hover", "scroll_up", "scroll_down", "wait", "None"]
         }
     )
-    box_id: int = Field(description="要操作的框ID，当action_type为left_click、right_click、double_click、hover时提供，否则为None", default=None)
-    value: str = Field(description="仅当action_type为type时提供，否则为None", default=None)
+    box_id: int = Field(description="要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None", default=None)
+    value: str = Field(description="仅当next_action为type时提供，否则为None", default=None)
 
 system_prompt = """
 ### 目标 ###
@@ -134,20 +135,20 @@ system_prompt = """
 8. 如果您收到登录信息页面或验证码页面的提示，或者您认为下一步操作需要用户许可，您应该在json字段中说"Next Action": "None"。
 9. 你只能使用鼠标和键盘与计算机进行交互。
 10. 你只能与桌面图形用户界面交互（无法访问终端或应用程序菜单）。
-
+11. 如果当前屏幕没有显示任何可操作的元素，并且当前屏幕不能下滑，请选择None，退出操作。
 
 ##########
 ### 输出格式 ###
 ```json
 {{
-    "Reasoning": str, # 描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。
-    "Next Action": "action_type, action description" | "None" # 一次一个操作，简短精确地描述它。
-    "Box ID": n,
+    "reasoning": str, # 描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。
+    "next_action": "action_type, action description" | "None" # 一次一个操作，简短精确地描述它。
+    "box_id": n,
     "value": "xxx" # 仅当操作为type时提供value字段，否则不包括value键
 }}
 ```
 
-【Next Action】仅包括下面之一：
+【next_action】仅包括下面之一：
 - type：输入一串文本。
 - left_click：将鼠标移动到框ID并左键单击。
 - right_click：将鼠标移动到框ID并右键单击。

@@ -42,7 +42,7 @@ def sampling_loop_sync(
     )
     tool_result_content = None
     plan = task_plan_agent(user_task = messages[-1]["content"][0].text)
-    task_run_agent = TaskRunAgent()
+    task_run_agent = TaskRunAgent(output_callback=output_callback)
 
 
     while True:
