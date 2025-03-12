@@ -78,6 +78,7 @@ python main.py
 
 1. 运行`pip list`查看torch版本；
 2. 从[官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本；
+3. 卸载已安装的 torch 和 torchvision；
 3. 复制官方的 torch 安装命令，重新安装适合自己 cuda 版本的 torch。
 
 比如我的 cuda 版本为 12.4，需要按照如下命令来安装 torch；

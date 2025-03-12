@@ -10,6 +10,7 @@ import time
 from pydantic import BaseModel
 import base64
 from PIL import Image
+
 class UIElement(BaseModel):
     element_id: int
     coordinates: list[float]
@@ -28,8 +29,7 @@ class VisionAgent:
         # 确定可用的设备和最佳数据类型
         self.device, self.dtype = self._get_optimal_device_and_dtype()
         print(f"使用设备: {self.device}, 数据类型: {self.dtype}")
-
-        # os.environ['HF_ENDPOINT'] = 'https://huggingface.co'
+        
         # 加载YOLO模型
         self.yolo_model = YOLO(yolo_model_path)
         
@@ -42,11 +42,27 @@ class VisionAgent:
         # 根据设备类型加载模型
         try:
             print(f"正在加载图像描述模型: {caption_model_path}")
-            self.caption_model = AutoModelForCausalLM.from_pretrained(
-                caption_model_path, 
-                torch_dtype=self.dtype,
-                trust_remote_code=True
-            ).to(self.device)
+            if self.device.type == 'cuda':
+                # CUDA设备使用float16
+                self.caption_model = AutoModelForCausalLM.from_pretrained(
+                    caption_model_path, 
+                    torch_dtype=torch.float16,
+                    trust_remote_code=True
+                ).to(self.device)
+            elif self.device.type == 'mps':
+                # MPS设备使用float32（MPS对float16支持有限）
+                self.caption_model = AutoModelForCausalLM.from_pretrained(
+                    caption_model_path, 
+                    torch_dtype=torch.float32,
+                    trust_remote_code=True
+                ).to(self.device)
+            else:
+                # CPU使用float32
+                self.caption_model = AutoModelForCausalLM.from_pretrained(
+                    caption_model_path, 
+                    torch_dtype=torch.float32,
+                    trust_remote_code=True
+                ).to(self.device)
             
             print("图像描述模型加载成功")
         except Exception as e:
@@ -59,9 +75,9 @@ class VisionAgent:
         if self.device.type == 'cuda':
             self.batch_size = 128  # CUDA设备使用较大批处理大小
         elif self.device.type == 'mps':
-            self.batch_size = 64   # MPS设备使用中等批处理大小
+            self.batch_size = 32   # MPS设备使用中等批处理大小
         else:
-            self.batch_size = 32   # CPU使用较小批处理大小
+            self.batch_size = 16   # CPU使用较小批处理大小
 
         self.elements: List[UIElement] = []
         self.ocr_reader = easyocr.Reader(['en', 'ch_sim'])
@@ -72,7 +88,6 @@ class VisionAgent:
         image = cv2.imread(image_path)
         if image is None:
             raise FileNotFoundError(f"Vision agent: 图片读取失败")
-
         return self.analyze_image(image)
     
     def _get_optimal_device_and_dtype(self):
@@ -118,8 +133,7 @@ class VisionAgent:
         """
         self._reset_state()
 
-        element_crops, boxes, annotated_image = self._detect_objects(image)
-        cv2.imwrite("annotated_image.jpg", annotated_image)
+        element_crops, boxes = self._detect_objects(image)
         start = time.time()
         element_texts = self._extract_text(element_crops)
         end = time.time()
@@ -138,7 +152,7 @@ class VisionAgent:
                                     )
             self.elements.append(new_element)
 
-        return self.elements, annotated_image
+        return self.elements
 
     def _extract_text(self, images: np.ndarray) -> list[str]:
         """
@@ -199,8 +213,8 @@ class VisionAgent:
                         generated_ids = self.caption_model.generate(
                             input_ids=inputs["input_ids"],
                             pixel_values=inputs["pixel_values"],
-                            max_new_tokens=128,
-                            num_beams=4, 
+                            max_new_tokens=20,
+                            num_beams=5, 
                             do_sample=False
                         )
                     else:
@@ -232,16 +246,6 @@ class VisionAgent:
         results = self.yolo_model(image)[0]
         detections = sv.Detections.from_ultralytics(results)
         boxes = detections.xyxy
-        box_annotator = sv.BoxAnnotator()
-        label_annotator = sv.LabelAnnotator()
-
-        labels = [
-            f"{idx}" for idx, box in enumerate(detections.xyxy)]
-
-        annotated_image = box_annotator.annotate(
-            scene=image, detections=detections)
-        annotated_image = label_annotator.annotate(
-            scene=annotated_image, detections=detections, labels=labels)
 
         if len(boxes) == 0:
             return []
@@ -275,7 +279,7 @@ class VisionAgent:
             element = image[y1:y2, x1:x2]
             element_crops.append(np.array(element))
 
-        return element_crops, filtered_boxes, annotated_image
+        return element_crops, filtered_boxes
     
     def load_image(self, image_source: str) -> np.ndarray:
         try:
@@ -301,3 +305,8 @@ class VisionAgent:
             # 生成更清晰的错误信息
             error_msg = f"输入既不是有效的文件路径，也不是有效的Base64图片数据"
             raise ValueError(error_msg) from e
+
+
+    
+
+    

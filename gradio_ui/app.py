@@ -7,7 +7,6 @@ from datetime import datetime
 from enum import StrEnum
 from functools import partial
 from pathlib import Path
-import time
 from typing import cast
 import argparse
 import gradio as gr
@@ -171,8 +170,6 @@ def process_input(user_input, state, vision_agent_state):
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
-    # wait 3 seconds
-    time.sleep(3)
     config = Config()
     config.set_openai_config(base_url=state["base_url"], api_key=state["api_key"], model=state["model"])
     # Append the user message to state["messages"]
