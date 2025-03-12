@@ -1,0 +1,7 @@
+{
+    "hf_endpoint": "https://huggingface.co",
+    "hf_hub_disable_symlinks_warning": true,
+    "hf_hub_disable_experimental_warning": true,
+    "hf_hub_disable_automatic_mirror": true,
+    "use_auth_token": false
+}

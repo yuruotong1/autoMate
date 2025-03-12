@@ -15,11 +15,7 @@ from anthropic.types.beta import (
 from gradio_ui.agent.task_plan_agent import TaskPlanAgent
 from gradio_ui.agent.task_run_agent import TaskRunAgent
 from gradio_ui.tools import ToolResult
-from gradio_ui.agent.llm_utils.utils import encode_image
-from gradio_ui.agent.llm_utils.omniparserclient import OmniParserClient
-from gradio_ui.agent.vlm_agent import VLMAgent
 from gradio_ui.executor.anthropic_executor import AnthropicExecutor
-from pathlib import Path
 import numpy as np
 from PIL import Image
 

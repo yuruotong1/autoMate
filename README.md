@@ -77,10 +77,15 @@ For supported vendors and models, please refer to this [link](./SUPPORT_MODEL.md
 ### 🔧 CUDA Version Mismatch
 If you see the error: "GPU driver incompatible, please install appropriate torch version according to readme", it indicates a driver incompatibility. You can either:
 
-1. Run with CPU only (slower but functional)
-2. Check your torch version with `pip list`
-3. Check supported CUDA versions on the [official website](https://pytorch.org/get-started/locally/)
-4. Reinstall Nvidia drivers
+1. Run pip list to check the torch version;
+2. Check supported CUDA versions on the official website;
+3. Copy the official torch installation command and reinstall torch for your CUDA version.
+
+For example, if your CUDA version is 12.4, install torch using this command:
+
+```bash
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+```
 
 ## 🤝 Contributing
 

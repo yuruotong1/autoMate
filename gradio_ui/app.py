@@ -297,7 +297,8 @@ def run():
                 chatbot = gr.Chatbot(
                     label="Chatbot History",
                     autoscroll=True,
-                    height=580                )
+                    height=580
+                    )
 
         def update_model(model, state):
             state["model"] = model

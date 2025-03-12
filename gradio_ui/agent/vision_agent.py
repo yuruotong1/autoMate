@@ -10,7 +10,6 @@ import time
 from pydantic import BaseModel
 import base64
 from PIL import Image
-
 class UIElement(BaseModel):
     element_id: int
     coordinates: list[float]
@@ -29,7 +28,8 @@ class VisionAgent:
         # 确定可用的设备和最佳数据类型
         self.device, self.dtype = self._get_optimal_device_and_dtype()
         print(f"使用设备: {self.device}, 数据类型: {self.dtype}")
-        
+
+        # os.environ['HF_ENDPOINT'] = 'https://huggingface.co'
         # 加载YOLO模型
         self.yolo_model = YOLO(yolo_model_path)
         
@@ -42,27 +42,6 @@ class VisionAgent:
         # 根据设备类型加载模型
         try:
             print(f"正在加载图像描述模型: {caption_model_path}")
-            # if self.device.type == 'cuda':
-            #     # CUDA设备使用float16
-            #     self.caption_model = AutoModelForCausalLM.from_pretrained(
-            #         caption_model_path, 
-            #         torch_dtype=torch.float16,
-            #         trust_remote_code=True
-            #     ).to(self.device)
-            # elif self.device.type == 'mps':
-            #     # MPS设备使用float32（MPS对float16支持有限）
-            #     self.caption_model = AutoModelForCausalLM.from_pretrained(
-            #         caption_model_path, 
-            #         torch_dtype=torch.float32,
-            #         trust_remote_code=True
-            #     ).to(self.device)
-            # else:
-            #     # CPU使用float32
-            #     self.caption_model = AutoModelForCausalLM.from_pretrained(
-            #         caption_model_path, 
-            #         torch_dtype=torch.float32,
-            #         trust_remote_code=True
-            #     ).to(self.device)
             self.caption_model = AutoModelForCausalLM.from_pretrained(
                 caption_model_path, 
                 torch_dtype=self.dtype,
@@ -220,8 +199,8 @@ class VisionAgent:
                         generated_ids = self.caption_model.generate(
                             input_ids=inputs["input_ids"],
                             pixel_values=inputs["pixel_values"],
-                            max_new_tokens=20,
-                            num_beams=1, 
+                            max_new_tokens=128,
+                            num_beams=4, 
                             do_sample=False
                         )
                     else:

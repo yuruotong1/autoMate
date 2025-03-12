@@ -1,8 +1,7 @@
 from pathlib import Path
 from uuid import uuid4
 from PIL import Image
-from .base import BaseAnthropicTool, ToolError
-from io import BytesIO
+from .base import ToolError
 from util import tool
 
 OUTPUT_DIR = "./tmp/outputs"

@@ -2,7 +2,6 @@ import os
 import shlex
 import subprocess
 import threading
-import traceback
 import pyautogui
 from PIL import Image
 from io import BytesIO

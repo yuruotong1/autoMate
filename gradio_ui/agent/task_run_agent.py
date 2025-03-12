@@ -1,9 +1,8 @@
 import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
-from PIL import Image, ImageDraw
+from PIL import ImageDraw
 import base64
-from gradio import Image
 from io import BytesIO
 from pydantic import BaseModel, Field
 from gradio_ui.agent.base_agent import BaseAgent
