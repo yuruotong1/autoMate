@@ -21,6 +21,8 @@ from gradio_ui.loop import (
 from gradio_ui.tools import ToolResult
 import base64
 from xbrain.utils.config import Config
+
+from util.download_weights import MODEL_DIR
 CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
 
@@ -51,7 +53,7 @@ def setup_state(state):
     if config.OPENAI_BASE_URL:
         state["base_url"] = config.OPENAI_BASE_URL
     else:
-        state["base_url"] = "https://api.openai-next.com/v1"
+        state["base_url"] = "https://api.openai.com/v1"
     if config.OPENAI_MODEL:
         state["model"] = config.OPENAI_MODEL
     else:
@@ -317,8 +319,8 @@ def run():
         model.change(fn=update_model, inputs=[model, state], outputs=None)
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)
         chatbot.clear(fn=clear_chat, inputs=[state], outputs=[chatbot])
-        vision_agent = VisionAgent(yolo_model_path="./weights/icon_detect/model.pt",
-                                 caption_model_path="./weights/icon_caption")
+        vision_agent = VisionAgent(yolo_model_path=os.path.join(MODEL_DIR, "icon_detect", "model.pt"),
+                                 caption_model_path=os.path.join(MODEL_DIR, "icon_caption"))
         vision_agent_state = gr.State({"agent": vision_agent})
         submit_button.click(process_input, [chat_input, state, vision_agent_state], chatbot)
         stop_button.click(stop_app, [state], None)
