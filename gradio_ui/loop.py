@@ -7,10 +7,7 @@ import cv2
 from gradio_ui.agent.verification_agent import VerificationAgent
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.tools.screen_capture import get_screenshot
-from anthropic import APIResponse
 from anthropic.types.beta import (
-    BetaContentBlock,
-    BetaMessage,
     BetaMessageParam
 )
 from gradio_ui.agent.task_plan_agent import TaskPlanAgent
@@ -26,33 +23,41 @@ def sampling_loop_sync(
     *,
     model: str,
     messages: list[BetaMessageParam],
-    output_callback: Callable[[BetaContentBlock], None],
-    tool_output_callback: Callable[[ToolResult, str], None],
     vision_agent: VisionAgent
 ):
     """
     Synchronous agentic sampling loop for the assistant/tool interaction of computer use.
     """
     print('in sampling_loop_sync, model:', model)
-    task_plan_agent = TaskPlanAgent(output_callback=output_callback)
-    executor = AnthropicExecutor(
-        output_callback=output_callback,
-        tool_output_callback=tool_output_callback,
-    )
-    tool_result_content = None
-    plan_list = task_plan_agent(user_task = messages[-1]["content"][0].text)
-    task_run_agent = TaskRunAgent(output_callback=output_callback)
-    for plan in plan_list:
-        parsed_screen = parse_screen(vision_agent)
-        tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen=parsed_screen)
+    task_plan_agent = TaskPlanAgent()
+    executor = AnthropicExecutor()
+    plan_list = task_plan_agent(messages=messages)
+    task_run_agent = TaskRunAgent()
+    verification_agent = VerificationAgent()
+    for plan in plan_list:      
+        yield execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
         sleep(2)
-        for message, tool_result_content in executor(tools_use_needed, messages):
-            yield message
-        if not tool_result_content:
-            return messages
-        sampling_loop_with_recovery(model, messages, vision_agent)
-    
-        
+        yield verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages)
+
+def verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages):
+    """verification agent will be called in the loop"""
+    while True:
+        # 验证结果
+        verification_result = verification_agent(plan["expected_result"], messages)
+        yield verification_result
+        # 如果验证成功，返回结果
+        if verification_result["verification_status"] == "success":
+            return
+        # 如果验证失败，执行补救措施
+        elif verification_result["verification_status"] == "error":
+            execute_task_plan(verification_result["remedy_measures"], vision_agent, task_run_agent, executor, messages)
+            yield 
+
+def execute_task_plan(plan, vision_agent, task_run_agent, executor, messages):
+    parsed_screen = parse_screen(vision_agent)
+    task_run_agent(task_plan=plan, parsed_screen=parsed_screen, messages=messages)
+    executor(messages)
+
 def parse_screen(vision_agent: VisionAgent):
     screenshot, screenshot_path = get_screenshot()
     response_json = {}
@@ -94,54 +99,3 @@ def draw_elements(screenshot, parsed_content_list):
     
     return pil_image
 
-def sampling_loop_with_recovery(model, messages, vision_agent, max_retries=3):
-    retries = 0
-    
-    while retries < max_retries:
-        # 执行原始操作
-        for message, tool_result_content in executor(tools_use_needed, messages):
-            yield message
-            
-        if not tool_result_content:
-            return messages
-            
-        # 验证结果
-        verification_result = verification_agent(plan["expected_result"])
-        
-        # 如果验证成功，返回结果
-        if verification_result["verification_status"] == "success":
-            messages.append({
-                "role": "system",
-                "content": "验证成功：操作达到预期结果"
-            })
-            return messages
-            
-        # 如果验证失败，执行补救措施
-        elif verification_result["verification_status"] == "error":
-            retries += 1
-            
-            # 添加验证失败消息
-            messages.append({
-                "role": "system",
-                "content": f"验证失败（第{retries}次尝试）：{verification_result.get('error_message', '未达到预期结果')}"
-            })
-            
-            if retries >= max_retries:
-                messages.append({
-                    "role": "system",
-                    "content": "达到最大重试次数，操作失败。"
-                })
-                return messages
-                
-            # 执行补救措施
-            recovery_plan = generate_recovery_plan(model, messages, verification_result)
-            messages.append({
-                "role": "system",
-                "content": f"正在执行补救措施：{recovery_plan['description']}"
-            })
-            
-            # 执行补救操作
-            for recovery_message, recovery_result in executor(recovery_plan["recovery_actions"], messages):
-                yield recovery_message
-                
-            # 继续循环，重新验证

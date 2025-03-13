@@ -1,16 +1,12 @@
+import json
 from pydantic import BaseModel, Field
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
 class TaskPlanAgent(BaseAgent):
-    def __init__(self,  output_callback):
-        self.output_callback = output_callback
-    
-    def __call__(self, user_task: str):
-        self.output_callback("Starting task planning...", sender="bot")
-        response = run([{"role": "user", "content": user_task}], user_prompt=system_prompt, response_format=TaskPlanResponse)
-        self.output_callback(response, sender="bot")
-        return response
+    def __call__(self, messages):
+        response = run(messages, user_prompt=system_prompt, response_format=TaskPlanResponse)
+        return json.loads(response)
 
 class Plan(BaseModel):
     expected_result: str = Field(description="操作后的预期状态")

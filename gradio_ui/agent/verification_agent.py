@@ -1,23 +1,24 @@
+import json
 from anthropic import BaseModel
 from pydantic import Field
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
-
 class VerificationAgent(BaseAgent):
-    def __init__(self, output_callback):
-        self.output_callback = output_callback
 
-    def __call__(self, expected_result):
-        response = run([{"role": "user", "content": expected_result}], user_prompt=prompt, response_format=VerificationResponse)
-        self.output_callback(response, sender="bot")
-        return response
+    def __call__(self, messages):
+        response = run(
+            messages, 
+            user_prompt=prompt, 
+            response_format=VerificationResponse
+        )
+        messages.append({"role": "assistant", "content": response})
+        return json.loads(response)
 
-class VerificationResponse(BaseModel):
+class VerificationResponse(BaseModel):  
     verification_status: str = Field(description="验证状态", json_schema_extra={"enum": ["success", "error"]})
     verification_method: str = Field(description="验证方法")
     evidence: str = Field(description="证据")
-    confidence: int = Field(description="置信度")
     failure_reason: str = Field(description="失败原因")
     remedy_measures: list[str] = Field(description="补救措施")
 
@@ -36,11 +37,9 @@ prompt = """
   "验证状态": "成功/失败",
   "验证方法": "使用的验证方法",
   "证据": "支持验证结果的具体证据",
-  "置信度": 0-100的数值,
   "失败原因": "如果失败，分析可能的原因",
   "补救措施": [
-    "建议的补救措施1",
-    "建议的补救措施2"
+    "再执行一次操作"
   ],
 }
 
@@ -74,7 +73,6 @@ prompt = """
   "verification_status": "success",
   "verification_method": "视觉验证+内容验证",
   "evidence": "1. 检测到欢迎消息'你好，用户名' 2. 导航栏显示用户头像 3. URL已变更为首页地址",
-  "confidence": 95,
   "failure_reason": "无",
   "remedy_measures": [],
 }

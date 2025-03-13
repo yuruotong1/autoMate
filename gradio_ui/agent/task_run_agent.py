@@ -10,11 +10,10 @@ from xbrain.core.chat import run
 import platform
 import re
 class TaskRunAgent(BaseAgent):
-    def __init__(self, output_callback):
-        self.output_callback = output_callback
+    def __init__(self):
         self.OUTPUT_DIR = "./tmp/outputs"
        
-    def __call__(self, task_plan, parsed_screen):
+    def __call__(self, task_plan, parsed_screen, messages):
         screen_info = str(parsed_screen['parsed_content_list'])
         self.SYSTEM_PROMPT = system_prompt.format(task_plan=str(task_plan), 
                                                   device=self.get_device(), 
@@ -23,20 +22,23 @@ class TaskRunAgent(BaseAgent):
         buffered = BytesIO()
         img_to_show.save(buffered, format="PNG")
         img_to_show_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        vlm_response = run([
-            {
-                "role": "user", 
-                "content": [
-                    {"type": "text", "text": "图片是当前屏幕的截图，请根据图片以及解析出来的元素，确定下一步操作"},
+        messages.append(
+            {"role": "user", 
+             "content": [
+                    {"type": "text", "text": "图片是当前屏幕的截图"},
                     {
                         "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/png;base64,{img_to_show_base64}"
-                        }
+                        "image_url": {"url": f"data:image/png;base64,{img_to_show_base64}"}
                     }
                 ]
             }
-        ], user_prompt=self.SYSTEM_PROMPT, response_format=TaskRunAgentResponse)
+        )
+        vlm_response = run(
+            messages,
+            user_prompt=self.SYSTEM_PROMPT, 
+            response_format=TaskRunAgentResponse
+        )
+        messages.append({"role": "assistant", "content": vlm_response})
         vlm_response_json = json.loads(vlm_response)
         if "box_id" in vlm_response_json:
             try:
@@ -53,14 +55,6 @@ class TaskRunAgent(BaseAgent):
             except Exception as e:
                 print(f"Error parsing: {vlm_response_json}")
                 print(f"Error: {e}")
-        self.output_callback(f'<img src="data:image/png;base64,{img_to_show_base64}">', sender="bot")
-        self.output_callback(
-                    f'<details>'
-                    f'  <summary>Parsed Screen elemetns by OmniParser</summary>'
-                    f'  <pre>{screen_info}</pre>'
-                    f'</details>',
-                    sender="bot"
-                )
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
         if 'box_centroid_coordinate' in vlm_response_json:
             move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',

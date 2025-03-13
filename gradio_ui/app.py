@@ -3,22 +3,13 @@ python app.py --windows_host_url localhost:8006 --omniparser_server_url localhos
 """
 
 import os
-from datetime import datetime
-from enum import StrEnum
-from functools import partial
 from pathlib import Path
-from typing import cast
 import argparse
 import gradio as gr
-from anthropic import APIResponse
-from anthropic.types import TextBlock
-from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock
-from anthropic.types.tool_use_block import ToolUseBlock
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.loop import (
     sampling_loop_sync,
 )
-from gradio_ui.tools import ToolResult
 import base64
 from xbrain.utils.config import Config
 
@@ -39,10 +30,6 @@ def parse_arguments():
 args = parse_arguments()
 
 
-class Sender(StrEnum):
-    USER = "user"
-    BOT = "assistant"
-    TOOL = "tool"
 def setup_state(state):
     # 如果存在config，则从config中加载数据
     config = Config()
@@ -69,8 +56,6 @@ def setup_state(state):
         state["tools"] = {}
     if "only_n_most_recent_images" not in state:
         state["only_n_most_recent_images"] = 2
-    if 'chatbot_messages' not in state:
-        state['chatbot_messages'] = []
     if 'stop' not in state:
         state['stop'] = False
 
@@ -102,104 +87,31 @@ def save_to_storage(filename: str, data: str) -> None:
     except Exception as e:
         print(f"Debug: Error saving {filename}: {e}")
 
-def _api_response_callback(response: APIResponse[BetaMessage], response_state: dict):
-    response_id = datetime.now().isoformat()
-    response_state[response_id] = response
-
-def _tool_output_callback(tool_output: ToolResult, tool_id: str, tool_state: dict):
-    tool_state[tool_id] = tool_output
-
-def chatbot_output_callback(message, chatbot_state, hide_images=False, sender="bot"):
-    def _render_message(message: str | BetaTextBlock | BetaToolUseBlock | ToolResult, hide_images=False):
-    
-        print(f"_render_message: {str(message)[:100]}")
-        
-        if isinstance(message, str):
-            return message
-        
-        is_tool_result = not isinstance(message, str) and (
-            isinstance(message, ToolResult)
-            or message.__class__.__name__ == "ToolResult"
-        )
-        if not message or (
-            is_tool_result
-            and hide_images
-            and not hasattr(message, "error")
-            and not hasattr(message, "output")
-        ):  # return None if hide_images is True
-            return
-        # render tool result
-        if is_tool_result:
-            message = cast(ToolResult, message)
-            if message.output:
-                return message.output
-            if message.error:
-                return f"Error: {message.error}"
-            if message.base64_image and not hide_images:
-                # somehow can't display via gr.Image
-                # image_data = base64.b64decode(message.base64_image)
-                # return gr.Image(value=Image.open(io.BytesIO(image_data)))
-                return f'<img src="data:image/png;base64,{message.base64_image}">'
-
-        elif isinstance(message, BetaTextBlock) or isinstance(message, TextBlock):
-            return f"Analysis: {message.text}"
-        elif isinstance(message, BetaToolUseBlock) or isinstance(message, ToolUseBlock):
-            # return f"Tool Use: {message.name}\nInput: {message.input}"
-            return f"Next I will perform the following action: {message.input}"
-        else:  
-            return message
-
-    def _truncate_string(s, max_length=500):
-        """Truncate long strings for concise printing."""
-        if isinstance(s, str) and len(s) > max_length:
-            return s[:max_length] + "..."
-        return s
-    # processing Anthropic messages
-    message = _render_message(message, hide_images)
-    
-    if sender == "bot":
-        chatbot_state.append((None, message))
-    else:
-        chatbot_state.append((message, None))
-    
-    # Create a concise version of the chatbot state for printing
-    concise_state = [(_truncate_string(user_msg), _truncate_string(bot_msg))
-                        for user_msg, bot_msg in chatbot_state]
-    # print(f"chatbot_output_callback chatbot_state: {concise_state} (truncated)")
-
-
 def process_input(user_input, state, vision_agent_state):
     # Reset the stop flag
     if state["stop"]:
         state["stop"] = False
     config = Config()
     config.set_openai_config(base_url=state["base_url"], api_key=state["api_key"], model=state["model"])
-    # Append the user message to state["messages"]
     state["messages"].append(
         {
-            "role": Sender.USER,
-            "content": [TextBlock(type="text", text=user_input)],
+            "role": "user",
+            "content": user_input
         }
     )
-
-    # Append the user's message to chatbot_messages with None for the assistant's reply
-    state['chatbot_messages'].append((user_input, None))  # 确保格式正确
-    yield state['chatbot_messages']  # Yield to update the chatbot UI with the user's message
-    # Run sampling_loop_sync with the chatbot_output_callback
+    yield state['messages'] 
     agent = vision_agent_state["agent"]
     for loop_msg in sampling_loop_sync(
         model=state["model"],
         messages=state["messages"],
-        output_callback=partial(chatbot_output_callback, chatbot_state=state['chatbot_messages'], hide_images=False),
-        tool_output_callback=partial(_tool_output_callback, tool_state=state["tools"]),
         vision_agent = agent
     ):  
         if loop_msg is None or state.get("stop"):
-            yield state['chatbot_messages']
+            yield state['messages']
             print("End of task. Close the loop.")
             break
             
-        yield state['chatbot_messages']  # Yield the updated chatbot_messages to update the chatbot UI
+        yield state['messages']
 
 def stop_app(state):
     state["stop"] = True
@@ -265,7 +177,7 @@ def run():
                         interactive=True
                     )
                 with gr.Column():
-                    only_n_images = gr.Slider(
+                    gr.Slider(
                         label="N most recent screenshots",
                         minimum=0,
                         maximum=10,
@@ -294,8 +206,8 @@ def run():
                 chatbot = gr.Chatbot(
                     label="Chatbot History",
                     autoscroll=True,
-                    height=580
-                    )
+                    height=580,
+                    type="messages")
 
         def update_model(model, state):
             state["model"] = model
@@ -311,8 +223,7 @@ def run():
             state["messages"] = []
             state["responses"] = {}
             state["tools"] = {}
-            state['chatbot_messages'] = []
-            return state['chatbot_messages']
+            return state['messages']
 
         model.change(fn=update_model, inputs=[model, state], outputs=None)
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)
