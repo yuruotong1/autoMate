@@ -16,11 +16,9 @@ class TaskRunAgent(BaseAgent):
        
     def __call__(self, task_plan, parsed_screen):
         screen_info = str(parsed_screen['parsed_content_list'])
-        self.SYSTEM_PROMPT = system_prompt.format(task_plan=task_plan, 
+        self.SYSTEM_PROMPT = system_prompt.format(task_plan=str(task_plan), 
                                                   device=self.get_device(), 
                                                   screen_info=screen_info)
-        
-        screen_width, screen_height = parsed_screen['width'], parsed_screen['height']
         img_to_show = parsed_screen["image"]
         buffered = BytesIO()
         img_to_show.save(buffered, format="PNG")

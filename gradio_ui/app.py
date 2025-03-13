@@ -192,8 +192,6 @@ def process_input(user_input, state, vision_agent_state):
         messages=state["messages"],
         output_callback=partial(chatbot_output_callback, chatbot_state=state['chatbot_messages'], hide_images=False),
         tool_output_callback=partial(_tool_output_callback, tool_state=state["tools"]),
-        api_response_callback=partial(_api_response_callback, response_state=state["responses"]),
-        only_n_most_recent_images=state["only_n_most_recent_images"],
         vision_agent = agent
     ):  
         if loop_msg is None or state.get("stop"):
