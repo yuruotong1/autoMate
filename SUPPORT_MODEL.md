@@ -1,5 +1,3 @@
 | Vendor-en | Vendor-ch | Model | base-url |
 | --- | --- | --- | --- |
-| Alibaba Cloud Bailian | 阿里云百炼 | deepseek-r1 | https://dashscope.aliyuncs.com/compatible-mode/v1 |
-| Alibaba Cloud Bailian | 阿里云百炼 | deepseek-v3 | https://dashscope.aliyuncs.com/compatible-mode/v1 |
-| deepseek | deepseek官方 | deepseek-chat | https://api.deepseek.com |
+| openainext | openainext | gpt-4o-2024-11-20 | https://api.openai-next.com/v1 |

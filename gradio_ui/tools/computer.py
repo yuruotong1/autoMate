@@ -1,6 +1,5 @@
 import base64
 import time
-from enum import StrEnum
 from typing import Literal, TypedDict
 from PIL import Image
 from util import tool
@@ -175,6 +174,8 @@ class ComputerTool(BaseAnthropicTool):
                     pyautogui.click()
                 elif action == "right_click":
                     pyautogui.rightClick()
+                    # 等待5秒，等待菜单弹出
+                    time.sleep(5)
                 elif action == "middle_click":
                     pyautogui.middleClick()
                 elif action == "double_click":

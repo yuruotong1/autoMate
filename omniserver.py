@@ -11,7 +11,8 @@ import argparse
 import uvicorn
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_dir)
-from util.omniparser import Omniparser
+# from util.omniparser import Omniparser
+from gradio_ui.agent.vision_agent import VisionAgent
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Omniparser API')
@@ -29,8 +30,10 @@ args = parse_arguments()
 config = vars(args)
 
 app = FastAPI()
-omniparser = Omniparser(config)
-
+# omniparser = Omniparser(config)
+yolo_model_path = config['som_model_path']
+caption_model_path = config['caption_model_path']
+vision_agent = VisionAgent(yolo_model_path=yolo_model_path, caption_model_path=caption_model_path)
 class ParseRequest(BaseModel):
     base64_image: str
 
@@ -38,10 +41,12 @@ class ParseRequest(BaseModel):
 async def parse(parse_request: ParseRequest):
     print('start parsing...')
     start = time.time()
-    dino_labled_img, parsed_content_list = omniparser.parse(parse_request.base64_image)
+    # dino_labled_img, parsed_content_list = omniparser.parse(parse_request.base64_image)
+    parsed_content_list = vision_agent(parse_request.base64_image)
+    
     latency = time.time() - start
     print('time:', latency)
-    return {"som_image_base64": dino_labled_img, "parsed_content_list": parsed_content_list, 'latency': latency}
+    return {"parsed_content_list": parsed_content_list, 'latency': latency}
 
 @app.get("/probe/")
 async def root():
