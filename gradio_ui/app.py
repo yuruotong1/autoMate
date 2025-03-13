@@ -101,17 +101,11 @@ def process_input(user_input, state, vision_agent_state):
     )
     yield state['messages'] 
     agent = vision_agent_state["agent"]
-    for loop_msg in sampling_loop_sync(
+    for _ in sampling_loop_sync(
         model=state["model"],
         messages=state["messages"],
         vision_agent = agent
-    ):  
-        if loop_msg is None or state.get("stop"):
-            yield state['messages']
-            print("End of task. Close the loop.")
-            break
-            
-        yield state['messages']
+    ):  yield state['messages']
 
 def stop_app(state):
     state["stop"] = True

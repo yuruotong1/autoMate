@@ -32,19 +32,22 @@ def sampling_loop_sync(
     task_plan_agent = TaskPlanAgent()
     executor = AnthropicExecutor()
     plan_list = task_plan_agent(messages=messages)
+    yield
     task_run_agent = TaskRunAgent()
     verification_agent = VerificationAgent()
     for plan in plan_list:      
-        yield execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
+        execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
+        yield
         sleep(2)
-        yield verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages)
+        verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages)
+        yield
 
 def verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages):
     """verification agent will be called in the loop"""
     while True:
         # 验证结果
         verification_result = verification_agent(plan["expected_result"], messages)
-        yield verification_result
+        yield
         # 如果验证成功，返回结果
         if verification_result["verification_status"] == "success":
             return
