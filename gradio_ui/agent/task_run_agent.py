@@ -34,7 +34,7 @@ class TaskRunAgent(BaseAgent):
         vlm_response_json = json.loads(vlm_response)
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
         if "box_id" in vlm_response_json:
-            bbox = parsed_screen_result["parsed_content_list"][int(vlm_response_json["box_id"])].coordinates
+            bbox = self.find_element_by_id(parsed_screen_result, vlm_response_json["box_id"]).coordinates
             box_centroid_coordinate = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
             move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',
                                             input={'action': 'mouse_move', 'coordinate': box_centroid_coordinate},
@@ -55,7 +55,12 @@ class TaskRunAgent(BaseAgent):
             response_content.append(sim_content_block)
         response_message = BetaMessage(id=f'toolu_{uuid.uuid4()}', content=response_content, model='', role='assistant', type='message', stop_reason='tool_use', usage=BetaUsage(input_tokens=0, output_tokens=0))
         return response_message, vlm_response_json
-
+    
+    def find_element_by_id(self, parsed_screen_result, box_id):
+        for element in parsed_screen_result["parsed_content_list"]:
+            if element.element_id == box_id:
+                return element
+        return None
 
     def get_device(self):
         # 获取当前操作系统信息
@@ -99,7 +104,7 @@ system_prompt = """
 你当前的任务是：
 {task_plan}
 
-以下是用yolo检测的当前屏幕上的所有元素：
+以下是用yolo检测的当前屏幕上的所有元素，图标左上角的数字为box_id：
 
 {screen_info}
 ##########

@@ -88,7 +88,7 @@ def draw_elements(screenshot, parsed_content_list):
     opencv_image = np.array(screenshot)
     opencv_image = cv2.cvtColor(opencv_image, cv2.COLOR_RGB2BGR)
     # draw bounding boxes
-    for idx, element in enumerate(parsed_content_list):
+    for element in parsed_content_list:
         bbox = element.coordinates
         x1, y1, x2, y2 = bbox
         # convert coordinates to integers
@@ -96,7 +96,7 @@ def draw_elements(screenshot, parsed_content_list):
         # draw rectangle
         cv2.rectangle(opencv_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
         # draw index number
-        cv2.putText(opencv_image, str(idx+1), (x1, y1-10), 
+        cv2.putText(opencv_image, str(element.element_id), (x1, y1-10), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     
     # convert opencv image format back to PIL format
