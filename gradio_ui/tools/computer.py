@@ -145,8 +145,7 @@ class ComputerTool(BaseAnthropicTool):
                     pyautogui.hotkey('ctrl', 'v')
                 # Copy old data back to clipboard
                 pyperclip.copy(clipboard_data)
-                screenshot_base64 = (await self.screenshot()).base64_image
-                return ToolResult(output=text, base64_image=screenshot_base64)
+                return ToolResult(output=text)
         if action in (
             "left_click",
             "right_click",
@@ -196,9 +195,6 @@ class ComputerTool(BaseAnthropicTool):
         raise ToolError(f"Invalid action: {action}")
     
     async def screenshot(self):
-        if not hasattr(self, 'target_dimension'):
-            screenshot = self.padding_image(screenshot)
-            self.target_dimension = MAX_SCALING_TARGETS["WXGA"]
         width, height = self.target_dimension["width"], self.target_dimension["height"]
         screenshot, path = get_screenshot(resize=True, target_width=width, target_height=height)
         time.sleep(0.7) # avoid async error as actions take time to complete

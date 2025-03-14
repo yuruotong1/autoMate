@@ -19,7 +19,7 @@ class VerificationAgent(BaseAgent):
              })
         response = run(
             messages, 
-            user_prompt=prompt.format(screen_info=str(parsed_screen_result['parsed_content_list'], action_list=str(Action))), 
+            user_prompt=prompt.format(screen_info=str(parsed_screen_result['parsed_content_list']), action_list=str(Action)), 
             response_format=VerificationResponse
         )
         return json.loads(response)
