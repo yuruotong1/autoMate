@@ -37,7 +37,7 @@ def sampling_loop_sync(
     for plan in plan_list:      
         execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
         yield
-        sleep(2)
+        sleep(5)
         yield from verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages)
         
 

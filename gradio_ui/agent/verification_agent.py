@@ -3,6 +3,8 @@ from pydantic import Field,BaseModel
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
+from gradio_ui.tools.computer import Action
+
 class VerificationAgent(BaseAgent):
     def __call__(self, messages, parsed_screen_result):
         messages.append(
@@ -17,7 +19,7 @@ class VerificationAgent(BaseAgent):
              })
         response = run(
             messages, 
-            user_prompt=prompt.format(screen_info=str(parsed_screen_result['parsed_content_list'])), 
+            user_prompt=prompt.format(screen_info=str(parsed_screen_result['parsed_content_list'], action_list=str(Action))), 
             response_format=VerificationResponse
         )
         return json.loads(response)
@@ -74,6 +76,12 @@ prompt = """
 - **模糊匹配**：允许近似匹配而非精确匹配
 - **超时设置**：指定验证的最长等待时间
 
+### 补救措施 ###
+补救措施建议如下：
+- 【推荐】可以再等待一段时间看看效果，因为上一个操作还没执行完成就开始了验证
+- 再一次操作
+- 检查是否存在其他验证方法，但是仅限于以下几个动作：
+{action_list}
 ### 例子 ###
 操作：点击"登录"按钮
 预期结果：登录成功并显示首页

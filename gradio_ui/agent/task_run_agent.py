@@ -1,3 +1,4 @@
+
 import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
@@ -6,6 +7,8 @@ from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 import platform
 import re
+
+from gradio_ui.tools.computer import Action
 class TaskRunAgent(BaseAgent):
     def __init__(self):
         self.OUTPUT_DIR = "./tmp/outputs"
@@ -90,8 +93,7 @@ class TaskRunAgentResponse(BaseModel):
     next_action: str = Field(
         description="选择一个操作类型，如果找不到合适的操作，请选择None",
         json_schema_extra={
-            "enum": ["type", "left_click", "right_click", "double_click", 
-                    "hover", "scroll_up", "scroll_down", "wait", "None"]
+            "enum": Action
         }
     )
     box_id: int = Field(description="要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None", default=None)
@@ -132,16 +134,6 @@ system_prompt = """
     "value": "xxx" # 仅当操作为type时提供value字段，否则不包括value键
 }}
 ```
-
-【next_action】仅包括下面之一：
-- type：输入一串文本。
-- left_click：将鼠标移动到框ID并左键单击。
-- right_click：将鼠标移动到框ID并右键单击。
-- double_click：将鼠标移动到框ID并双击。
-- hover：将鼠标移动到框ID。
-- scroll_up：向上滚动屏幕以查看之前的内容。
-- scroll_down：当所需按钮不可见或您需要查看更多内容时，向下滚动屏幕。
-- wait：等待1秒钟让设备加载或响应。
 
 ##########
 ### 案例 ###

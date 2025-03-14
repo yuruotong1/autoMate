@@ -28,7 +28,8 @@ Action = Literal[
     "hover",
     "wait",
     "scroll_up",
-    "scroll_down"
+    "scroll_down",
+    "None"
 ]
 
 class Resolution(TypedDict):
