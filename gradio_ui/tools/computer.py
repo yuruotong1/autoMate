@@ -14,7 +14,7 @@ TYPING_DELAY_MS = 12
 TYPING_GROUP_SIZE = 50
 
 
-Action = Literal[
+Action = [
     "key",
     "type",
     "mouse_move",
@@ -88,7 +88,7 @@ class ComputerTool(BaseAnthropicTool):
     async def __call__(
         self,
         *,
-        action: Action,
+        action,
         text: str | None = None,
         coordinate: tuple[int, int] | None = None,
         **kwargs,
