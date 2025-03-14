@@ -45,7 +45,8 @@ def verification_loop(vision_agent, verification_agent, executor, task_run_agent
     """verification agent will be called in the loop"""
     while True:
         # verification result
-        verification_result = verification_agent( messages)
+        parsed_screen_result = parsed_screen(vision_agent)
+        verification_result = verification_agent(messages, parsed_screen_result)
         yield
         # if verification success, return result
         if verification_result["verification_status"] == "success":

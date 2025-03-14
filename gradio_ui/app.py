@@ -19,7 +19,7 @@ CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
 
 INTRO_TEXT = '''
-基于 Omniparser 的自动化控制桌面工具！
+Base on Omniparser to control desktop!
 '''
 
 def parse_arguments():
@@ -127,7 +127,7 @@ def process_input(user_input, state, vision_agent_state):
                     # convert text to gradio text format
                     elif content["type"] == "text":
                         # agent response is json format and must contains reasoning
-                        if message["role"] == "assistant":
+                        if is_json_format(content["text"]):
                             content_json = json.loads(content["text"])
                             gradio_chatbox_content += f'<br/><h3>{content_json["reasoning"]}</h3>'
                             gradio_chatbox_content +=  f'<br/> <details> <summary>Detail</summary> <pre>{json.dumps(content_json, indent=4)}</pre> </details>'
@@ -141,10 +141,16 @@ def process_input(user_input, state, vision_agent_state):
             else:
                 state['chatbox_messages'].append({
                     "role": message["role"],
-                    "content": message["content"]
+                    "content": message["content"] if not is_json_format(message["content"]) else json.dumps(json.loads(message["content"]), indent=4)
                 })
         yield state['chatbox_messages']
                
+def is_json_format(text):
+    try:
+        json.loads(text)
+        return True
+    except:
+        return False
 
 def stop_app(state):
     state["stop"] = True
@@ -186,7 +192,7 @@ def run():
         header_image = get_header_image_base64()
         if header_image:
             gr.HTML(f'<img src="{header_image}" alt="autoMate Header" width="100%">', elem_classes="no-padding")
-            gr.HTML('<h1 style="text-align: center; font-weight: normal;">Omni<span style="font-weight: bold;">Tool</span></h1>')
+            gr.HTML('<h1 style="text-align: center; font-weight: normal;">autoMate</h1>')
         else:
             gr.Markdown("# autoMate")
 

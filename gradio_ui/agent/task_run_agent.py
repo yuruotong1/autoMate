@@ -31,7 +31,6 @@ class TaskRunAgent(BaseAgent):
             user_prompt=self.SYSTEM_PROMPT, 
             response_format=TaskRunAgentResponse
         )
-        messages.append({"role": "assistant", "content": vlm_response})
         vlm_response_json = json.loads(vlm_response)
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
         if 'box_centroid_coordinate' in vlm_response_json:

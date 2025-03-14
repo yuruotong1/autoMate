@@ -5,14 +5,22 @@ from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
 class VerificationAgent(BaseAgent):
-
-    def __call__(self, messages):
+    def __call__(self, messages, parsed_screen_result):
+        messages.append(
+            {"role": "user", 
+             "content": [
+                {"type": "text", "text": "Image is the screenshot of the current screen"},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{parsed_screen_result['base64_image']}"}
+                }
+             ]
+             })
         response = run(
             messages, 
-            user_prompt=prompt, 
+            user_prompt=prompt.format(screen_info=str(parsed_screen_result['parsed_content_list'])), 
             response_format=VerificationResponse
         )
-        messages.append({"role": "assistant", "content": response})
         return json.loads(response)
 
 class VerificationResponse(BaseModel):
@@ -25,6 +33,8 @@ class VerificationResponse(BaseModel):
 prompt = """
 ### 目标 ###
 你是自动化验证专家，负责确认每个操作后的预期结果是否达成，保证自动化流程可靠执行。
+以下是当前屏幕上的内容：
+{screen_info}
 
 ### 输入 ###
 1. 操作信息：刚执行的操作类型和参数
