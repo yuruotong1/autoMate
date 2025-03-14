@@ -123,14 +123,17 @@ def process_input(user_input, state, vision_agent_state):
                 for content in message["content"]:
                     # convert image_url to gradio image format
                     if content["type"] == "image_url":
-                        gradio_chatbox_content += f'<br/><img src="{content['image_url']["url"]}">'
+                        gradio_chatbox_content += f'<br/><img style="width: 100%;" src="{content['image_url']["url"]}">'
                     # convert text to gradio text format
                     elif content["type"] == "text":
                         # agent response is json format and must contains reasoning
                         if is_json_format(content["text"]):
                             content_json = json.loads(content["text"])
-                            gradio_chatbox_content += f'<br/><h3>{content_json["reasoning"]}</h3>'
-                            gradio_chatbox_content +=  f'<br/> <details> <summary>Detail</summary> <pre>{json.dumps(content_json, indent=4)}</pre> </details>'
+                            state['chatbox_messages'].append({
+                                "role": message["role"],
+                                "content": f'<h3>{content_json["reasoning"]}</h3>'
+                            })
+                            gradio_chatbox_content +=  f'<br/> <details> <summary>Detail</summary> <pre>{json.dumps(content_json, indent=4, ensure_ascii=False)}</pre> </details>'
                         else:
                             gradio_chatbox_content += content["text"]
 
@@ -139,9 +142,16 @@ def process_input(user_input, state, vision_agent_state):
                     "content": gradio_chatbox_content
                 })
             else:
+                if is_json_format(message["content"]):
+                    content_json = json.loads(message["content"])
+                    state['chatbox_messages'].append({
+                        "role": message["role"],
+                        "content": f'<h3>{content_json["reasoning"]}</h3>'
+                    })
+
                 state['chatbox_messages'].append({
                     "role": message["role"],
-                    "content": message["content"] if not is_json_format(message["content"]) else json.dumps(json.loads(message["content"]), indent=4)
+                    "content": message["content"] if not is_json_format(message["content"]) else json.dumps(json.loads(message["content"]), indent=4, ensure_ascii=False)
                 })
         yield state['chatbox_messages']
                
