@@ -2,7 +2,10 @@ import asyncio
 import json
 from typing import Any, cast
 from anthropic.types.beta import (
-    BetaMessageParam
+    BetaMessageParam,
+    BetaContentBlockParam,
+    BetaToolResultBlockParam,
+    BetaContentBlock
 )
 from gradio_ui.tools import ComputerTool, ToolCollection
 
@@ -13,13 +16,21 @@ class AnthropicExecutor:
             ComputerTool()
         )
 
-    def __call__(self,messages: list[BetaMessageParam]):
-        content = json.loads(messages[-1]["content"])
-        if content["next_action"] is not None:
-            # Run the asynchronous tool execution in a synchronous context
-            result = asyncio.run(self.tool_collection.run(
-                name=content["next_action"],
-                tool_input=cast(dict[str, Any], content["value"]),
-            ))
-            messages.append({"role": "assistant", "content": "tool result:\n"+str(result)})
-        return messages
+    def __call__(self, response, messages):
+        tool_result_content: list[str] = []
+        for content_block in cast(list[BetaContentBlock], response.content):
+            # Execute the tool
+            if content_block.type == "tool_use":
+                # Run the asynchronous tool execution in a synchronous context
+                result = asyncio.run(self.tool_collection.run(
+                    name=content_block.name,
+                    tool_input=cast(dict[str, Any], content_block.input),
+                ))
+                tool_result_content.append(
+                    str(result)
+                )
+        messages.append({"role": "assistant", "content": "Run tool result:\n"+str(tool_result_content)})
+        if not tool_result_content:
+            return messages
+        
+        return tool_result_content

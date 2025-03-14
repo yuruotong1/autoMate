@@ -2,6 +2,7 @@
 python app.py --windows_host_url localhost:8006 --omniparser_server_url localhost:8000
 """
 
+import json
 import os
 from pathlib import Path
 import argparse
@@ -48,6 +49,8 @@ def setup_state(state):
     
     if "messages" not in state:
         state["messages"] = []
+    if "chatbox_messages" not in state:
+        state["chatbox_messages"] = []
     if "auth_validated" not in state:
         state["auth_validated"] = False
     if "responses" not in state:
@@ -99,13 +102,49 @@ def process_input(user_input, state, vision_agent_state):
             "content": user_input
         }
     )
-    yield state['messages'] 
+    state["chatbox_messages"].append(
+          {
+            "role": "user",
+            "content": user_input
+        }
+    )
+    yield state['chatbox_messages'] 
     agent = vision_agent_state["agent"]
     for _ in sampling_loop_sync(
         model=state["model"],
         messages=state["messages"],
         vision_agent = agent
-    ):  yield state['messages']
+    ):
+        state['chatbox_messages'] = []
+        for message in state['messages']:
+            # convert message["content"] to gradio chatbox format
+            if type(message["content"]) is list:
+                gradio_chatbox_content = ""
+                for content in message["content"]:
+                    # convert image_url to gradio image format
+                    if content["type"] == "image_url":
+                        gradio_chatbox_content += f'<br/><img src="{content['image_url']["url"]}">'
+                    # convert text to gradio text format
+                    elif content["type"] == "text":
+                        # agent response is json format and must contains reasoning
+                        if message["role"] == "assistant":
+                            content_json = json.loads(content["text"])
+                            gradio_chatbox_content += f'<br/><h3>{content_json["reasoning"]}</h3>'
+                            gradio_chatbox_content +=  f'<br/> <details> <summary>Detail</summary> <pre>{json.dumps(content_json, indent=4)}</pre> </details>'
+                        else:
+                            gradio_chatbox_content += content["text"]
+
+                state['chatbox_messages'].append({
+                    "role": message["role"],
+                    "content": gradio_chatbox_content
+                })
+            else:
+                state['chatbox_messages'].append({
+                    "role": message["role"],
+                    "content": message["content"]
+                })
+        yield state['chatbox_messages']
+               
 
 def stop_app(state):
     state["stop"] = True
@@ -202,7 +241,7 @@ def run():
                     autoscroll=True,
                     height=580,
                     type="messages")
-
+                
         def update_model(model, state):
             state["model"] = model
 
@@ -215,9 +254,10 @@ def run():
         def clear_chat(state):
             # Reset message-related state
             state["messages"] = []
+            state["chatbox_messages"] = []
             state["responses"] = {}
             state["tools"] = {}
-            return state['messages']
+            return state["chatbox_messages"]
 
         model.change(fn=update_model, inputs=[model, state], outputs=None)
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)

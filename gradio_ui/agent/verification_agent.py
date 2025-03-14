@@ -15,10 +15,10 @@ class VerificationAgent(BaseAgent):
         messages.append({"role": "assistant", "content": response})
         return json.loads(response)
 
-class VerificationResponse(BaseModel):  
+class VerificationResponse(BaseModel):
     verification_status: str = Field(description="验证状态", json_schema_extra={"enum": ["success", "error"]})
     verification_method: str = Field(description="验证方法")
-    evidence: str = Field(description="证据")
+    reasoning: str = Field(description="描述您验证的逻辑")
     failure_reason: str = Field(description="失败原因")
     remedy_measures: list[str] = Field(description="补救措施")
 
@@ -72,7 +72,7 @@ prompt = """
 {
   "verification_status": "success",
   "verification_method": "视觉验证+内容验证",
-  "evidence": "1. 检测到欢迎消息'你好，用户名' 2. 导航栏显示用户头像 3. URL已变更为首页地址",
+  "reasoning": "1. 检测到欢迎消息'你好，用户名' 2. 导航栏显示用户头像 3. URL已变更为首页地址",
   "failure_reason": "无",
   "remedy_measures": [],
 }

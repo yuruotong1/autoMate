@@ -2,12 +2,9 @@ import base64
 import time
 from typing import Literal, TypedDict
 from PIL import Image
-from util import tool
 from anthropic.types.beta import BetaToolComputerUse20241022Param
 from .base import BaseAnthropicTool, ToolError, ToolResult
 from .screen_capture import get_screenshot
-import requests
-import re
 import pyautogui
 import pyperclip
 import platform
@@ -29,7 +26,9 @@ Action = Literal[
     "screenshot",
     "cursor_position",
     "hover",
-    "wait"
+    "wait",
+    "scroll_up",
+    "scroll_down"
 ]
 
 class Resolution(TypedDict):
@@ -65,7 +64,6 @@ class ComputerTool(BaseAnthropicTool):
 
     @property
     def options(self) -> ComputerToolOptions:
-        # 直接使用原始尺寸，不进行缩放
         return {
             "display_width_px": self.width,
             "display_height_px": self.height,
@@ -76,14 +74,12 @@ class ComputerTool(BaseAnthropicTool):
         return {"name": self.name, "type": self.api_type, **self.options}
 
 
-    def __init__(self, is_scaling: bool = False):
+    def __init__(self):
         super().__init__()
-        # Get screen width and height using Windows command
         self.display_num = None
         self.offset_x = 0
         self.offset_y = 0
-        self.width, self.height = self.get_screen_size()
-        print(f"screen size: {self.width}, {self.height}")
+        self.width, self.height = pyautogui.size()
         self.key_conversion = {"Page_Down": "pagedown",
                                "Page_Up": "pageup",
                                "Super_L": "win",
@@ -216,19 +212,3 @@ class ComputerTool(BaseAnthropicTool):
         # padding to top left
         padding_image.paste(screenshot, (0, 0))
         return padding_image
-
-   
-    def get_screen_size(self):
-        """Return width and height of the screen"""
-        try:
-            response = tool.execute_command(
-                ["python", "-c", "import pyautogui; print(pyautogui.size())"]
-            )
-            output = response['output'].strip()
-            match = re.search(r'Size\(width=(\d+),\s*height=(\d+)\)', output)
-            if not match:
-                raise ToolError(f"Could not parse screen size from output: {output}")
-            width, height = map(int, match.groups())
-            return width, height
-        except requests.exceptions.RequestException as e:
-            raise ToolError(f"An error occurred while trying to get screen size: {str(e)}")

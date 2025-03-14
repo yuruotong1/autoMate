@@ -1,9 +1,6 @@
 import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
-from PIL import ImageDraw
-import base64
-from io import BytesIO
 from pydantic import BaseModel, Field
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
@@ -13,22 +10,18 @@ class TaskRunAgent(BaseAgent):
     def __init__(self):
         self.OUTPUT_DIR = "./tmp/outputs"
        
-    def __call__(self, task_plan, parsed_screen, messages):
-        screen_info = str(parsed_screen['parsed_content_list'])
+    def __call__(self, task_plan, parsed_screen_result, messages):
+        screen_info = str(parsed_screen_result['parsed_content_list'])
         self.SYSTEM_PROMPT = system_prompt.format(task_plan=str(task_plan), 
                                                   device=self.get_device(), 
                                                   screen_info=screen_info)
-        img_to_show = parsed_screen["image"]
-        buffered = BytesIO()
-        img_to_show.save(buffered, format="PNG")
-        img_to_show_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
         messages.append(
             {"role": "user", 
              "content": [
-                    {"type": "text", "text": "图片是当前屏幕的截图"},
+                    {"type": "text", "text": "Image is the screenshot of the current screen"},
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"data:image/png;base64,{img_to_show_base64}"}
+                        "image_url": {"url": f"data:image/png;base64,{parsed_screen_result['base64_image']}"}
                     }
                 ]
             }
@@ -40,21 +33,6 @@ class TaskRunAgent(BaseAgent):
         )
         messages.append({"role": "assistant", "content": vlm_response})
         vlm_response_json = json.loads(vlm_response)
-        if "box_id" in vlm_response_json:
-            try:
-                bbox = parsed_screen["parsed_content_list"][int(vlm_response_json["box_id"])].coordinates
-                vlm_response_json["box_centroid_coordinate"] = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
-                x, y = vlm_response_json["box_centroid_coordinate"] 
-                radius = 10
-                draw = ImageDraw.Draw(img_to_show)
-                draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill='red')
-                draw.ellipse((x - radius*3, y - radius*3, x + radius*3, y + radius*3), fill=None, outline='red', width=2)
-                buffered = BytesIO()
-                img_to_show.save(buffered, format="PNG")
-                img_to_show_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            except Exception as e:
-                print(f"Error parsing: {vlm_response_json}")
-                print(f"Error: {e}")
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
         if 'box_centroid_coordinate' in vlm_response_json:
             move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',

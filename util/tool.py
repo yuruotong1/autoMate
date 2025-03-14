@@ -1,37 +1,8 @@
 import os
-import shlex
-import subprocess
-import threading
 import pyautogui
 from PIL import Image
 from io import BytesIO
 
-
-computer_control_lock = threading.Lock()
-def execute_command(command, shell=False):
-    """Local function to execute a command."""
-    with computer_control_lock:
-        if isinstance(command, str) and not shell:
-            command = shlex.split(command)
-
-        # Expand user directory
-        for i, arg in enumerate(command):
-            if arg.startswith("~/"):
-                command[i] = os.path.expanduser(arg)
-
-        try:
-            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell, text=True, timeout=120)
-            return {
-                'status': 'success',
-                'output': result.stdout,
-                'error': result.stderr,
-                'returncode': result.returncode
-            }
-        except Exception as e:
-            return {
-                'status': 'error',
-                'message': str(e)
-            }
 
 def capture_screen_with_cursor():
     """Local function to capture the screen with cursor."""

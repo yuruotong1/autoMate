@@ -1,18 +1,16 @@
 """
 Agentic sampling loop that calls the Anthropic API and local implenmentation of anthropic-defined computer use tools.
 """
-from collections.abc import Callable
+import base64
+from io import BytesIO
 from time import sleep
 import cv2
 from gradio_ui.agent.verification_agent import VerificationAgent
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.tools.screen_capture import get_screenshot
-from anthropic.types.beta import (
-    BetaMessageParam
-)
+from anthropic.types.beta import (BetaMessageParam)
 from gradio_ui.agent.task_plan_agent import TaskPlanAgent
 from gradio_ui.agent.task_run_agent import TaskRunAgent
-from gradio_ui.tools import ToolResult
 from gradio_ui.executor.anthropic_executor import AnthropicExecutor
 import numpy as np
 from PIL import Image
@@ -31,72 +29,76 @@ def sampling_loop_sync(
     print('in sampling_loop_sync, model:', model)
     task_plan_agent = TaskPlanAgent()
     executor = AnthropicExecutor()
-    plan_list = task_plan_agent(messages=messages)
-    yield
-    task_run_agent = TaskRunAgent()
     verification_agent = VerificationAgent()
+    task_run_agent = TaskRunAgent()
+    parsed_screen_result = parsed_screen(vision_agent)
+    plan_list = task_plan_agent(messages=messages, parsed_screen_result=parsed_screen_result)
+    yield
     for plan in plan_list:      
         execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
         yield
         sleep(2)
-        verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages)
+        verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages)
         yield
 
-def verification_loop(vision_agent, plan, verification_agent, executor, task_run_agent, messages):
+def verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages):
     """verification agent will be called in the loop"""
     while True:
-        # 验证结果
-        verification_result = verification_agent(plan["expected_result"], messages)
+        # verification result
+        verification_result = verification_agent( messages)
         yield
-        # 如果验证成功，返回结果
+        # if verification success, return result
         if verification_result["verification_status"] == "success":
             return
-        # 如果验证失败，执行补救措施
+        # if verification failed, execute remedy measures
         elif verification_result["verification_status"] == "error":
             execute_task_plan(verification_result["remedy_measures"], vision_agent, task_run_agent, executor, messages)
             yield 
 
 def execute_task_plan(plan, vision_agent, task_run_agent, executor, messages):
-    parsed_screen = parse_screen(vision_agent)
-    task_run_agent(task_plan=plan, parsed_screen=parsed_screen, messages=messages)
-    executor(messages)
+    parsed_screen_result = parsed_screen(vision_agent)
+    tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen_result=parsed_screen_result, messages=messages)
+    executor(tools_use_needed, messages)
 
-def parse_screen(vision_agent: VisionAgent):
+def parsed_screen(vision_agent: VisionAgent):
     screenshot, screenshot_path = get_screenshot()
     response_json = {}
     response_json['parsed_content_list'] = vision_agent(str(screenshot_path))
     response_json['width'] = screenshot.size[0]
     response_json['height'] = screenshot.size[1]
     response_json['image'] = draw_elements(screenshot, response_json['parsed_content_list'])
+    buffered = BytesIO()
+    response_json['image'].save(buffered, format="PNG")
+    response_json['base64_image'] = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return response_json
 
 def draw_elements(screenshot, parsed_content_list):
     """
-    将PIL图像转换为OpenCV兼容格式并绘制边界框
+    Convert PIL image to OpenCV compatible format and draw bounding boxes
     
     Args:
-        screenshot: PIL Image对象
-        parsed_content_list: 包含边界框信息的列表
+        screenshot: PIL Image object
+        parsed_content_list: list containing bounding box information
     
     Returns:
-        带有绘制边界框的PIL图像
+        PIL image with drawn bounding boxes
     """
-    # 将PIL图像转换为opencv格式
+    # convert PIL image to opencv format
     opencv_image = np.array(screenshot)
     opencv_image = cv2.cvtColor(opencv_image, cv2.COLOR_RGB2BGR)
-    # 绘制边界框
+    # draw bounding boxes
     for idx, element in enumerate(parsed_content_list):
         bbox = element.coordinates
         x1, y1, x2, y2 = bbox
-        # 转换坐标为整数
+        # convert coordinates to integers
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-        # 绘制矩形
+        # draw rectangle
         cv2.rectangle(opencv_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-        # 在矩形边框左上角绘制序号
+        # draw index number
         cv2.putText(opencv_image, str(idx+1), (x1, y1-10), 
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
     
-    # 将OpenCV图像格式转换回PIL格式
+    # convert opencv image format back to PIL format
     opencv_image = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(opencv_image)
     

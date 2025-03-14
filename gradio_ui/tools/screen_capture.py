@@ -13,10 +13,8 @@ def get_screenshot(resize: bool = False, target_width: int = 1920, target_height
     path = output_dir / f"screenshot_{uuid4().hex}.png"
     
     try:
-        # 使用 tool.capture_screen_with_cursor 替代 requests.get
         img_io = tool.capture_screen_with_cursor()
-        screenshot = Image.open(img_io)
-        
+        screenshot = Image.open(img_io)        
         if resize and screenshot.size != (target_width, target_height):
             screenshot = screenshot.resize((target_width, target_height))
         screenshot.save(path)
