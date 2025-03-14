@@ -11,10 +11,9 @@
 
 https://github.com/user-attachments/assets/35969270-873f-44d7-8b26-0944c76ba9f1
 
-
-
-
 </div>
+
+> Special Note: The autoMate project is still in a very early stage. Its current capabilities are limited and it's primarily for learning and communication purposes. However, we are continuously seeking breakthroughs and integrating the latest technologies!
 
 ## 💫 Redefining Your Relationship with Computers
 
@@ -32,15 +31,6 @@ autoMate is a revolutionary AI+RPA automation tool built on OmniParser, turning 
 - 🧠 Make autonomous decisions and take actions based on task requirements
 - 💻 Support local deployment to protect your data security and privacy
 
-Unlike traditional RPA tools with complicated rule settings, autoMate leverages large language models to complete complex automation processes with just natural language task descriptions. Say goodbye to repetitive work and focus on what truly creates value!
-
-## 🌟 Why autoMate Will Transform Your Work
-
-> "Before using autoMate, I spent 3 hours daily processing reports; now I only need 10 minutes to set up tasks and can focus on what really matters." - Feedback from a finance manager.
-
-When you first see autoMate automatically completing tasks that used to occupy hours of your time, you'll experience an indescribable sense of relief. This isn't just about efficiency - it's about liberating your creativity.
-
-Imagine: waking up every morning to find that last night's data organization, report generation, and email responses have all been completed, leaving you only with work that truly requires your wisdom and creativity. This is the future autoMate brings to you.
 
 ## ✨ Features
 
@@ -48,8 +38,7 @@ Imagine: waking up every morning to find that last night's data organization, re
 - 🖥️ Full Interface Control - Support operations on any visual interface, not limited to specific software
 - 🚅 Simplified Installation - Streamlined installation process compared to official version, supports Chinese environment, one-click deployment
 - 🔒 Local Operation - Protect data security, no privacy concerns
-- 🌐 Multi-Model Support - Compatible with mainstream large language models
-- 💎 Continuous Growth - Learns and adapts to your work habits and needs as you use it
+
 
 ## 🚀 Quick Start
 
@@ -75,17 +64,25 @@ For supported vendors and models, please refer to this [link](./SUPPORT_MODEL.md
 ## 📝 FAQ
 
 ### 🔧 CUDA Version Mismatch
-If you see the error: "GPU driver incompatible, please install appropriate torch version according to readme", it indicates a driver incompatibility. You can either:
+We recommend using an NVIDIA graphics card with at least 4GB of VRAM, although you can also run it on CPU (which will be very slow):
 
-1. Run pip list to check the torch version;
-2. Check supported CUDA versions on the official website;
-3. Copy the official torch installation command and reinstall torch for your CUDA version.
+1. Run `pip list` to check the torch version;
+2. Check supported CUDA versions on the [official website](https://pytorch.org/get-started/locally/);
+3. Uninstall the currently installed torch and torchvision;
+4. Copy the official torch installation command and reinstall torch for your CUDA version.
 
 For example, if your CUDA version is 12.4, install torch using this command:
 
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
+
+### Model Download Issues
+If you're having trouble downloading models (possibly due to network restrictions), you can download them directly from Baidu Cloud:
+
+File: weights.zip
+Link: https://pan.baidu.com/s/1Tj8sZZK9_QI7whZV93vb0w?pwd=dyeu
+Password: dyeu
 
 ## 🤝 Contributing
 
