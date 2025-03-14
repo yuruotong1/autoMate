@@ -125,7 +125,7 @@ def process_input(user_input, state, vision_agent_state):
                 for content in message["content"]:
                     # convert image_url to gradio image format
                     if content["type"] == "image_url":
-                        gradio_chatbox_content += f'<br/><img style="width: 100%;" src="{content['image_url']["url"]}">'
+                        gradio_chatbox_content += f'<br/><img style="width: 100%;" src="{content["image_url"]["url"]}">'
                     # convert text to gradio text format
                     elif content["type"] == "text":
                         # agent response is json format and must contains reasoning
