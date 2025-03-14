@@ -33,9 +33,11 @@ class TaskRunAgent(BaseAgent):
         )
         vlm_response_json = json.loads(vlm_response)
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
-        if 'box_centroid_coordinate' in vlm_response_json:
+        if "box_id" in vlm_response_json:
+            bbox = parsed_screen_result["parsed_content_list"][int(vlm_response_json["box_id"])].coordinates
+            box_centroid_coordinate = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
             move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',
-                                            input={'action': 'mouse_move', 'coordinate': vlm_response_json["box_centroid_coordinate"]},
+                                            input={'action': 'mouse_move', 'coordinate': box_centroid_coordinate},
                                             name='computer', type='tool_use')
             response_content.append(move_cursor_block)
 

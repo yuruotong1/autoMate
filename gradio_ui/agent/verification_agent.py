@@ -1,6 +1,5 @@
 import json
-from anthropic import BaseModel
-from pydantic import Field
+from pydantic import Field,BaseModel
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
@@ -43,7 +42,7 @@ prompt = """
 
 ### 输出格式 ###
 验证结果应采用以下JSON格式：
-{
+{{
   "验证状态": "成功/失败",
   "验证方法": "使用的验证方法",
   "证据": "支持验证结果的具体证据",
@@ -51,7 +50,7 @@ prompt = """
   "补救措施": [
     "再执行一次操作"
   ],
-}
+}}
 
 ### 验证方法 ###
 1. **视觉验证**：识别特定UI元素是否出现或消失
@@ -79,11 +78,11 @@ prompt = """
 操作：点击"登录"按钮
 预期结果：登录成功并显示首页
 验证输出：
-{
+{{
   "verification_status": "success",
   "verification_method": "视觉验证+内容验证",
   "reasoning": "1. 检测到欢迎消息'你好，用户名' 2. 导航栏显示用户头像 3. URL已变更为首页地址",
   "failure_reason": "无",
   "remedy_measures": [],
-}
+}}
 """

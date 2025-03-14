@@ -38,8 +38,8 @@ def sampling_loop_sync(
         execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
         yield
         sleep(2)
-        verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages)
-        yield
+        yield from verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages)
+        
 
 def verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages):
     """verification agent will be called in the loop"""
