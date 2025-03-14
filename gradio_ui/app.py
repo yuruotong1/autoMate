@@ -115,6 +115,8 @@ def process_input(user_input, state, vision_agent_state):
         messages=state["messages"],
         vision_agent = agent
     ):
+        if state["stop"]:
+            return
         state['chatbox_messages'] = []
         for message in state['messages']:
             # convert message["content"] to gradio chatbox format
