@@ -214,36 +214,42 @@ def run():
         with gr.Accordion("Settings", open=True): 
             with gr.Row():
                 with gr.Column():
-                    model = gr.Textbox(
-                        label="Model",
-                        value=state.value["model"],
-                        placeholder="输入模型名称",
-                        interactive=True,
-                    )
+                    with gr.Row():
+                        with gr.Column():
+                            model = gr.Textbox(
+                                label="Model",
+                                value=state.value["model"],
+                                placeholder="输入模型名称",
+                                interactive=True,
+                            )
+                        with gr.Column():
+                            base_url = gr.Textbox(
+                                label="Base URL",
+                                value=state.value["base_url"],
+                                placeholder="输入基础 URL",
+                                interactive=True
+                            )
+                    with gr.Row():
+                        api_key = gr.Textbox(
+                            label="API Key",
+                            type="password",
+                            value=state.value["api_key"],
+                            placeholder="Paste your API key here",
+                            interactive=True,
+                        )
+
                 with gr.Column():
-                    base_url = gr.Textbox(
-                        label="Base URL",
-                        value=state.value["base_url"],
-                        placeholder="输入基础 URL",
-                        interactive=True
-                    )
-                with gr.Column():
-                    gr.Slider(
-                        label="N most recent screenshots",
-                        minimum=0,
-                        maximum=10,
-                        step=1,
-                        value=2,
-                        interactive=True
-                    )
-            with gr.Row():
-                api_key = gr.Textbox(
-                    label="API Key",
-                    type="password",
-                    value=state.value["api_key"],
-                    placeholder="Paste your API key here",
-                    interactive=True,
-                )
+                        select_region_btn = gr.Button(value="Select Region", variant="primary")
+                        
+                        def select_screen_region(state):
+                            from util.screen_selector import ScreenSelector
+                            region = ScreenSelector().get_selection()
+                            if region:
+                                state["screen_region"] = region
+                                return f"Selected region: {region}"
+                            return "Selection cancelled"
+                    
+                        select_region_btn.click(fn=select_screen_region, inputs=[state], outputs=[gr.Textbox(label="Region Info")])
         with gr.Row():
             with gr.Column(scale=8):
                 chat_input = gr.Textbox(show_label=False, placeholder="Type a message to send to Omniparser + X ...", container=False)

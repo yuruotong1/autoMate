@@ -16,6 +16,7 @@ class TaskPlanAgent(BaseAgent):
                 ]
             }
         response = run(messages, user_prompt=system_prompt.format(screen_info=screen_info), response_format=TaskPlanResponse)
+        print("task_plan_agent response: ", response)
         return json.loads(response)
 
 class Plan(BaseModel):
