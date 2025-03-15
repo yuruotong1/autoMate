@@ -9,8 +9,7 @@
 >"面倒な作業を自動化し、生活のための時間を取り戻す"
 
 
-https://github.com/user-attachments/assets/35969270-873f-44d7-8b26-0944c76ba9f1
-
+https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 
 
