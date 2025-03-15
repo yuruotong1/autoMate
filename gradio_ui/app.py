@@ -138,6 +138,7 @@ def process_input(user_input, state, vision_agent_state):
         screen_region=state.get("screen_region", None)
     ):
         if state["stop"]:
+            state["chatbox_messages"].append({"role": "user", "content": "Stop !"})
             return
 
         # task_plan_agent first response

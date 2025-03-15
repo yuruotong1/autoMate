@@ -1,13 +1,6 @@
 from gradio_ui import app
 from util import download_weights
 import torch
-import signal
-import sys
-
-def signal_handler(*args):
-    print("Ctrl+C detected, exiting gracefully...")
-    sys.exit(0)
-
 def run():
     try:
         print("cuda is_available: ", torch.cuda.is_available())
@@ -19,10 +12,6 @@ def run():
 
     # download the weight files
     download_weights.download()   
-    
-    # Register signal handler for graceful shutdown
-    signal.signal(signal.SIGINT, signal_handler)
-    
     app.run()
 
 

@@ -3,7 +3,6 @@ Agentic sampling loop that calls the Anthropic API and local implenmentation of 
 """
 import base64
 from io import BytesIO
-import json
 import cv2
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.tools.screen_capture import get_screenshot
@@ -78,11 +77,56 @@ def draw_elements(screenshot, parsed_content_list):
         x1, y1, x2, y2 = bbox
         # convert coordinates to integers
         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-        # draw rectangle
-        cv2.rectangle(opencv_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
-        # draw index number
-        cv2.putText(opencv_image, str(element.element_id), (x1, y1-10), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        # Generate unique color for each element (using element_id as seed)
+        def get_distinct_color(element_id):
+            import hashlib
+            # Use id to generate unique but consistent color
+            hash_value = int(hashlib.md5(str(element_id).encode()).hexdigest(), 16)
+            r = (hash_value & 0xFF0000) >> 16
+            g = (hash_value & 0x00FF00) >> 8
+            b = hash_value & 0x0000FF
+            return (r, g, b)
+
+        # Use semi-transparent effect and unique color when drawing rectangle
+        color = get_distinct_color(element.element_id)
+        # Draw semi-transparent rectangle (assuming there's original rectangle drawing code)
+        cv2.rectangle(opencv_image, (x1, y1), (x2, y2), color, 1)  # Reduce thickness from 2 to 1
+
+        # Calculate the size of the bounding box
+        box_width = x2 - x1
+        box_height = y2 - y1
+        
+        # Dynamically adjust font size based on box size
+        # Smaller boxes get smaller text
+        base_font_size = 0.5
+        min_dimension = min(box_width, box_height)
+        if min_dimension < 30:
+            font_size = max(0.3, base_font_size * min_dimension / 30)
+        else:
+            font_size = base_font_size
+            
+        text = str(element.element_id)
+        (text_width, text_height), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_size, 1)
+        
+        # Position text at the top-left corner with small padding
+        text_x = x1 + 2
+        text_y = y1 + text_height + 2
+        
+        # Create transparent overlay for text background (alpha blending)
+        overlay = opencv_image.copy()
+        cv2.rectangle(overlay, 
+                     (text_x - 2, text_y - text_height - 2),
+                     (text_x + text_width + 2, text_y + 2),
+                     (0, 0, 0), -1)
+        
+        # Apply transparency (alpha value: 0.5)
+        alpha = 0.5
+        cv2.addWeighted(overlay, alpha, opencv_image, 1 - alpha, 0, opencv_image)
+        
+        # Place text at the top-left corner of the box
+        cv2.putText(opencv_image, text, 
+                    (text_x, text_y), 
+                    cv2.FONT_HERSHEY_SIMPLEX, font_size, color, 1)
     
     # convert opencv image format back to PIL format
     opencv_image = cv2.cvtColor(opencv_image, cv2.COLOR_BGR2RGB)
