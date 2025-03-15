@@ -21,7 +21,8 @@ def sampling_loop_sync(
     *,
     model: str,
     messages: list[BetaMessageParam],
-    vision_agent: VisionAgent
+    vision_agent: VisionAgent,
+    screen_region: tuple[int, int, int, int]
 ):
     """
     Synchronous agentic sampling loop for the assistant/tool interaction of computer use.
@@ -29,7 +30,6 @@ def sampling_loop_sync(
     print('in sampling_loop_sync, model:', model)
     task_plan_agent = TaskPlanAgent()
     executor = AnthropicExecutor()
-    verification_agent = VerificationAgent()
     task_run_agent = TaskRunAgent()
     parsed_screen_result = parsed_screen(vision_agent)
     plan_list = task_plan_agent(messages=messages, parsed_screen_result=parsed_screen_result)
@@ -37,32 +37,15 @@ def sampling_loop_sync(
     for plan in plan_list:      
         execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
         yield
-        sleep(5)
-        yield from verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages)
-        
 
-def verification_loop(vision_agent, verification_agent, executor, task_run_agent, messages):
-    """verification agent will be called in the loop"""
-    while True:
-        # verification result
-        parsed_screen_result = parsed_screen(vision_agent)
-        verification_result = verification_agent(messages, parsed_screen_result)
-        yield
-        # if verification success, return result
-        if verification_result["verification_status"] == "success":
-            return
-        # if verification failed, execute remedy measures
-        elif verification_result["verification_status"] == "error":
-            execute_task_plan(verification_result["remedy_measures"], vision_agent, task_run_agent, executor, messages)
-            yield 
-
+    
 def execute_task_plan(plan, vision_agent, task_run_agent, executor, messages):
     parsed_screen_result = parsed_screen(vision_agent)
     tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen_result=parsed_screen_result, messages=messages)
     executor(tools_use_needed, messages)
 
-def parsed_screen(vision_agent: VisionAgent):
-    screenshot, screenshot_path = get_screenshot()
+def parsed_screen(vision_agent: VisionAgent, screen_region: tuple[int, int, int, int] = None):
+    screenshot, screenshot_path = get_screenshot(screen_region)
     response_json = {}
     response_json['parsed_content_list'] = vision_agent(str(screenshot_path))
     response_json['width'] = screenshot.size[0]

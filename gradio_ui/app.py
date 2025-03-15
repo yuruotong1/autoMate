@@ -113,7 +113,8 @@ def process_input(user_input, state, vision_agent_state):
     for _ in sampling_loop_sync(
         model=state["model"],
         messages=state["messages"],
-        vision_agent = agent
+        vision_agent = agent,
+        screen_region=state.get("screen_region", None)
     ):
         if state["stop"]:
             return
@@ -219,14 +220,14 @@ def run():
                             model = gr.Textbox(
                                 label="Model",
                                 value=state.value["model"],
-                                placeholder="输入模型名称",
+                                placeholder="Input model name",
                                 interactive=True,
                             )
                         with gr.Column():
                             base_url = gr.Textbox(
                                 label="Base URL",
                                 value=state.value["base_url"],
-                                placeholder="输入基础 URL",
+                                placeholder="input base url",
                                 interactive=True
                             )
                     with gr.Row():
@@ -239,8 +240,7 @@ def run():
                         )
 
                 with gr.Column():
-                        select_region_btn = gr.Button(value="Select Region", variant="primary")
-                        
+                        select_region_btn = gr.Button(value="Select Screen Region", variant="primary")
                         def select_screen_region(state):
                             from util.screen_selector import ScreenSelector
                             region = ScreenSelector().get_selection()

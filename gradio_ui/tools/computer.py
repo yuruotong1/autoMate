@@ -23,7 +23,6 @@ Action = [
     "right_click",
     "middle_click",
     "double_click",
-    "screenshot",
     "cursor_position",
     "hover",
     "wait",
@@ -151,7 +150,6 @@ class ComputerTool(BaseAnthropicTool):
             "right_click",
             "double_click",
             "middle_click",
-            "screenshot",
             "cursor_position",
             "left_press",
         ):
@@ -159,8 +157,6 @@ class ComputerTool(BaseAnthropicTool):
                 raise ToolError(f"text is not accepted for {action}")
             if coordinate is not None:
                 raise ToolError(f"coordinate is not accepted for {action}")
-            if action == "screenshot":
-                return await self.screenshot()
             elif action == "cursor_position":
                 x, y = pyautogui.position()
                 # 直接返回原始坐标，不进行缩放
@@ -194,12 +190,6 @@ class ComputerTool(BaseAnthropicTool):
             return ToolResult(output=f"Performed {action}")
         raise ToolError(f"Invalid action: {action}")
     
-    async def screenshot(self):
-        width, height = self.target_dimension["width"], self.target_dimension["height"]
-        screenshot, path = get_screenshot(resize=True, target_width=width, target_height=height)
-        time.sleep(0.7) # avoid async error as actions take time to complete
-        return ToolResult(base64_image=base64.b64encode(path.read_bytes()).decode())
-
     def padding_image(self, screenshot):
         """Pad the screenshot to 16:10 aspect ratio, when the aspect ratio is not 16:10."""
         _, height = screenshot.size
