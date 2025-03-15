@@ -3,9 +3,7 @@ Agentic sampling loop that calls the Anthropic API and local implenmentation of 
 """
 import base64
 from io import BytesIO
-from time import sleep
 import cv2
-from gradio_ui.agent.verification_agent import VerificationAgent
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.tools.screen_capture import get_screenshot
 from anthropic.types.beta import (BetaMessageParam)
@@ -31,16 +29,16 @@ def sampling_loop_sync(
     task_plan_agent = TaskPlanAgent()
     executor = AnthropicExecutor()
     task_run_agent = TaskRunAgent()
-    parsed_screen_result = parsed_screen(vision_agent)
+    parsed_screen_result = parsed_screen(vision_agent, screen_region)
     plan_list = task_plan_agent(messages=messages, parsed_screen_result=parsed_screen_result)
     yield
     for plan in plan_list:      
-        execute_task_plan(plan, vision_agent, task_run_agent, executor, messages)
+        execute_task_plan(plan, vision_agent, task_run_agent, executor, messages, screen_region)
         yield
 
     
-def execute_task_plan(plan, vision_agent, task_run_agent, executor, messages):
-    parsed_screen_result = parsed_screen(vision_agent)
+def execute_task_plan(plan, vision_agent, task_run_agent, executor, messages, screen_region):
+    parsed_screen_result = parsed_screen(vision_agent, screen_region)
     tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen_result=parsed_screen_result, messages=messages)
     executor(tools_use_needed, messages)
 
