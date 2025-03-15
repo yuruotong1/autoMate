@@ -3,7 +3,7 @@ from enum import Enum
 import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, create_model
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 import platform
@@ -34,7 +34,7 @@ class TaskRunAgent(BaseAgent):
         vlm_response = run(
             messages,
             user_prompt=system_prompt, 
-            response_format=TaskRunAgentResponse
+            response_format=create_dynamic_response_model(parsed_screen_result)
         )
         vlm_response_json = json.loads(vlm_response)
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
@@ -66,24 +66,42 @@ class TaskRunAgent(BaseAgent):
             if element.element_id == box_id:
                 return element
         return None
+    
 
-class TaskRunAgentResponse(BaseModel):
-    reasoning: str = Field(description="描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。")
-    next_action: str = Field(
-        description="选择一个操作类型，如果找不到合适的操作，请选择None",
-        json_schema_extra={
-            "enum": Action
-        }
+def create_dynamic_response_model(parsed_screen_result):
+    available_box_ids = [item.element_id for item in parsed_screen_result['parsed_content_list']]
+    task_run_agent_response = create_model(
+        'TaskRunAgentResponse',
+        reasoning = (str, Field(
+            description="描述当前屏幕上的内容，考虑历史记录，然后说出你要这么做的理由。"
+        )),
+        next_action = (str, Field(
+            description="选择一个操作类型，如果找不到合适的操作，请选择None",
+            json_schema_extra={
+                "enum": Action
+                }
+        )),
+        box_id = (int, Field(
+            description="要操作的框ID",
+            json_schema_extra={
+                "enum": available_box_ids
+            }
+        )),
+        value = (str, Field(
+            description="仅当next_action为type时提供，否则为None"
+        )),
+        current_task_id = (int, Field(
+            description="请判断一下，你正在完成第几个任务，第一个任务是0"
+        ))
     )
-    box_id: int = Field(description="要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None")
-    value: str = Field(description="仅当next_action为type时提供，否则为None")
-    current_task_id: int = Field(description="请判断一下，你正在完成第几个任务，第一个任务是0")
+    return task_run_agent_response
+
 
 prompt = """
 ### 目标 ###
-你是一个任务执行者，需要执行之前assistant返回的任务列表。请你根据屏幕信息确定next_action，如果任务完成，把next_action设置为None：
+你是一个任务执行者。请你根据屏幕截图和【所有元素】确定接下来要做什么，如果任务完成把next_action设置为None：
 
-以下是当前屏幕上的所有元素，图标左上角的数字为box_id：
+以下是当前屏幕上的【所有元素】，caption和text是辅助你理解当前屏幕内容的，你的决策主要依靠这两个信息截图仅限参考，图标左上角的数字为box_id：
 {screen_info}
 
 请根据以下任务列表判断一下你正在执行第几个任务（current_task_id），第一个任务是0，任务列表如下：
@@ -91,6 +109,7 @@ prompt = """
 ##########
 
 ### 注意 ###
+- box_id 要严格参考【所有元素】中的box_id给出。
 - 每次应该只给出一个操作，告诉我要对哪个box_id进行操作、输入什么内容或者滚动或者其他操作。
 - 应该对当前屏幕进行分析，通过查看历史记录反思已完成的工作，然后描述您如何实现任务的逐步思考。
 - 避免连续多次选择相同的操作/元素，如果发生这种情况，反思自己，可能出了什么问题，并预测不同的操作。
