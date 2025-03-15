@@ -57,6 +57,8 @@ def setup_state(state):
         state["responses"] = {}
     if "tools" not in state:
         state["tools"] = {}
+    if "tasks" not in state:
+        state["tasks"] = []
     if "only_n_most_recent_images" not in state:
         state["only_n_most_recent_images"] = 2
     if 'stop' not in state:
@@ -78,17 +80,6 @@ def load_from_storage(filename: str) -> str | None:
     except Exception as e:
         print(f"Debug: Error loading {filename}: {e}")
     return None
-
-def save_to_storage(filename: str, data: str) -> None:
-    """Save data to a file in the storage directory."""
-    try:
-        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        file_path = CONFIG_DIR / filename
-        file_path.write_text(data)
-        # Ensure only user can read/write the file
-        file_path.chmod(0o600)
-    except Exception as e:
-        print(f"Debug: Error saving {filename}: {e}")
 
 def format_json_content(json_content):
     """Format JSON content with reasoning and details"""
@@ -137,8 +128,7 @@ def process_input(user_input, state, vision_agent_state):
     # Add user message
     state["messages"].append({"role": "user", "content": user_input})
     state["chatbox_messages"].append({"role": "user", "content": user_input})
-    yield state["chatbox_messages"]
-    
+    yield state["chatbox_messages"], []
     # Process with agent
     agent = vision_agent_state["agent"]
     for _ in sampling_loop_sync(
@@ -149,7 +139,23 @@ def process_input(user_input, state, vision_agent_state):
     ):
         if state["stop"]:
             return
-            
+
+        # task_plan_agent first response
+        if len(state["messages"]) == 2:
+            task_list = json.loads(state["messages"][-1]["content"])["task_list"]
+            for task in task_list:
+                state["tasks"].append({
+                    "status": "⬜",
+                    "task": task
+                })
+        else:
+            # Reset all tasks to pending status
+            for i in range(len(state["tasks"])):
+                state["tasks"][i]["status"] = "⬜"
+            task_completed_number = json.loads(state["messages"][-1]["content"])["current_task_id"]
+            for i in range(task_completed_number+1):
+                state["tasks"][i]["status"] = "✅"
+                 
         # Rebuild chatbox messages from the original messages
         state["chatbox_messages"] = []
         
@@ -169,7 +175,9 @@ def process_input(user_input, state, vision_agent_state):
                 "content": formatted_content
             })
             
-        yield state["chatbox_messages"]
+        # 在返回结果前转换数据格式
+        tasks_2d = [[task["status"], task["task"]] for task in state["tasks"]]
+        yield state["chatbox_messages"], tasks_2d
 
 def is_json_format(text):
     try:
@@ -180,7 +188,7 @@ def is_json_format(text):
 
 def stop_app(state):
     state["stop"] = True
-    return "App stopped"
+    return
 
 def get_header_image_base64():
     try:
@@ -195,14 +203,7 @@ def get_header_image_base64():
         print(f"Failed to load header image: {e}")
         return None
 
-def update_task_list(state):
-        """Update task list with completed tasks marked"""
-        tasks = state.get("tasks", [])
-        task_status = []
-        for task in tasks:
-            status = "✅" if task.get("completed", False) else "⬜"
-            task_status.append([task.get("description", ""), status])
-        return task_status
+
 def run():
     with gr.Blocks(theme=gr.themes.Default()) as demo:
         gr.HTML("""
@@ -281,11 +282,11 @@ def run():
         with gr.Row():
             with gr.Column(scale=2):
                 task_list = gr.Dataframe(
-                    headers=["Status", "Task"],
+                    headers=["status", "task"],
                     datatype=["str", "str"],
                     value=[],
                     label="Task List",
-                    interactive=False                )
+                    interactive=False)
                 
             with gr.Column(scale=8):
                 chatbot = gr.Chatbot(
@@ -318,9 +319,9 @@ def run():
         vision_agent = VisionAgent(yolo_model_path=os.path.join(MODEL_DIR, "icon_detect", "model.pt"),
                                  caption_model_path=os.path.join(MODEL_DIR, "icon_caption"))
         vision_agent_state = gr.State({"agent": vision_agent})
-        submit_button.click(process_input, [chat_input, state, vision_agent_state], chatbot)
+        submit_button.click(process_input, [chat_input, state, vision_agent_state], [chatbot, task_list])
         stop_button.click(stop_app, [state], None)
         base_url.change(fn=update_base_url, inputs=[base_url, state], outputs=None)
 
-        
+
     demo.launch(server_name="0.0.0.0", server_port=7888)

@@ -13,7 +13,11 @@ https://github.com/user-attachments/assets/35969270-873f-44d7-8b26-0944c76ba9f1
 
 </div>
 
-> Special Note: The autoMate project is still in a very early stage. Its current capabilities are limited and it's primarily for learning and communication purposes. However, we are continuously seeking breakthroughs and integrating the latest technologies!
+> Special Note: The autoMate project is still in a very early stage. Its current capabilities are limited and it's primarily for learning and communication purposes. However, we are continuously seeking breakthroughs and integrating the latest technologies!If you have any question, add my wechat.
+
+<div align="center">
+<img src="./resources/wxchat.png" width="120" height="120" alt="autoMate logo">
+</div>
 
 ## 💫 Redefining Your Relationship with Computers
 

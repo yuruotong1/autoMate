@@ -1,10 +1,6 @@
 import asyncio
-import json
 from typing import Any, cast
 from anthropic.types.beta import (
-    BetaMessageParam,
-    BetaContentBlockParam,
-    BetaToolResultBlockParam,
     BetaContentBlock
 )
 from gradio_ui.tools import ComputerTool, ToolCollection
@@ -29,8 +25,5 @@ class AnthropicExecutor:
                 tool_result_content.append(
                     str(result)
                 )
-        messages.append({"role": "assistant", "content": "Run tool result:\n"+str(tool_result_content)})
-        if not tool_result_content:
-            return messages
         
         return tool_result_content

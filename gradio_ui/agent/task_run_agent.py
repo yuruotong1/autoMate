@@ -1,4 +1,5 @@
 
+from enum import Enum
 import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
@@ -13,11 +14,7 @@ class TaskRunAgent(BaseAgent):
     def __init__(self):
         self.OUTPUT_DIR = "./tmp/outputs"
        
-    def __call__(self, task_plan, parsed_screen_result, messages):
-        screen_info = str(parsed_screen_result['parsed_content_list'])
-        self.SYSTEM_PROMPT = system_prompt.format(task_plan=str(task_plan), 
-                                                  device=self.get_device(), 
-                                                  screen_info=screen_info)
+    def __call__(self, parsed_screen_result, messages):
         messages.append(
             {"role": "user", 
              "content": [
@@ -29,9 +26,14 @@ class TaskRunAgent(BaseAgent):
                 ]
             }
         )
+        task_list = json.loads(messages[1]['content'])['task_list']
+        # Convert task_list to a numbered format
+        formatted_task_list = "\n".join([f"{i}.{task}" for i, task in enumerate(task_list)])
+        screen_info = str([{"box_id": i.element_id, "caption": i.caption, "text": i.text} for i in parsed_screen_result['parsed_content_list']])
+        system_prompt = prompt.format(screen_info=screen_info, task_list=formatted_task_list)
         vlm_response = run(
             messages,
-            user_prompt=self.SYSTEM_PROMPT, 
+            user_prompt=system_prompt, 
             response_format=TaskRunAgentResponse
         )
         vlm_response_json = json.loads(vlm_response)
@@ -65,29 +67,6 @@ class TaskRunAgent(BaseAgent):
                 return element
         return None
 
-    def get_device(self):
-        # 获取当前操作系统信息
-        system = platform.system()
-        if system == "Windows":
-            device = f"Windows {platform.release()}"
-        elif system == "Darwin":
-            device = f"Mac OS {platform.mac_ver()[0]}"
-        elif system == "Linux":
-            device = f"Linux {platform.release()}"
-        else:
-            device = system
-        return device
-    
-
-    def extract_data(self, input_string, data_type):
-        # Regular expression to extract content starting from '```python' until the end if there are no closing backticks
-        pattern = f"```{data_type}" + r"(.*?)(```|$)"
-        # Extract content
-        # re.DOTALL allows '.' to match newlines as well
-        matches = re.findall(pattern, input_string, re.DOTALL)
-        # Return the first match if exists, trimming whitespace and ignoring potential closing backticks
-        return matches[0][0].strip() if matches else input_string
-
 class TaskRunAgentResponse(BaseModel):
     reasoning: str = Field(description="描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。")
     next_action: str = Field(
@@ -96,53 +75,55 @@ class TaskRunAgentResponse(BaseModel):
             "enum": Action
         }
     )
-    box_id: int = Field(description="要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None", default=None)
-    value: str = Field(description="仅当next_action为type时提供，否则为None", default=None)
+    box_id: int = Field(description="要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None")
+    value: str = Field(description="仅当next_action为type时提供，否则为None")
+    current_task_id: int = Field(description="请判断一下，你正在完成第几个任务，第一个任务是0")
 
-system_prompt = """
+prompt = """
 ### 目标 ###
-你是一个自动化规划师，需要完成用户的任务。请你根据屏幕信息确定【下一步操作】，以完成任务：
+你是一个任务执行者，需要执行之前assistant返回的任务列表。请你根据屏幕信息确定next_action，如果任务完成，把next_action设置为None：
 
-你当前的任务是：
-{task_plan}
-
-以下是用yolo检测的当前屏幕上的所有元素，图标左上角的数字为box_id：
-
+以下是当前屏幕上的所有元素，图标左上角的数字为box_id：
 {screen_info}
+
+请根据以下任务列表判断一下你正在执行第几个任务（current_task_id），第一个任务是0，任务列表如下：
+{task_list}
 ##########
 
 ### 注意 ###
-1. 每次应该只给出一个操作。
-2. 应该对当前屏幕进行分析，通过查看历史记录反思已完成的工作，然后描述您如何实现任务的逐步思考。
-3. 在"Next Action"中附上下一步操作预测。
-4. 不应包括其他操作，例如键盘快捷键。
-5. 当任务完成时，不要完成额外的操作。你应该在json字段中说"Next Action": "None"。
-6. 任务涉及购买多个产品或浏览多个页面。你应该将其分解为子目标，并按照说明的顺序一个一个地完成每个子目标。
-7. 避免连续多次选择相同的操作/元素，如果发生这种情况，反思自己，可能出了什么问题，并预测不同的操作。
-8. 如果您收到登录信息页面或验证码页面的提示，或者您认为下一步操作需要用户许可，您应该在json字段中说"Next Action": "None"。
-9. 你只能使用鼠标和键盘与计算机进行交互。
-10. 你只能与桌面图形用户界面交互（无法访问终端或应用程序菜单）。
-11. 如果当前屏幕没有显示任何可操作的元素，并且当前屏幕不能下滑，请返回None。
+- 每次应该只给出一个操作，告诉我要对哪个box_id进行操作、输入什么内容或者滚动或者其他操作。
+- 应该对当前屏幕进行分析，通过查看历史记录反思已完成的工作，然后描述您如何实现任务的逐步思考。
+- 避免连续多次选择相同的操作/元素，如果发生这种情况，反思自己，可能出了什么问题，并预测不同的操作。
+- 任务不是连续的，上一次是1下一次不一定是2，你要根据next_action进行判断。
+- current_task_id 要在任务列表中找到，不要随便写。
+- 当你觉得任务已经完成时，请一定把next_action设置为'None'，不然会重复执行。
 
 ##########
 ### 输出格式 ###
 ```json
 {{
-    "reasoning": str, # 描述当前屏幕上的内容，考虑历史记录，然后描述您如何实现任务的逐步思考，一次从可用操作中选择一个操作。
-    "next_action": "action_type, action description" | "None" # 一次一个操作，简短精确地描述它。
-    "box_id": n,
+    "reasoning": str, # 综合当前屏幕上的内容和历史记录，描述您是如何思考的。
+    "next_action": str, # 要执行的动作。
+    "box_id": int, # 要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None
     "value": "xxx" # 仅当操作为type时提供value字段，否则不包括value键
+    "current_task_id": int # 当前正在执行第几个任务，第一个任务是0
 }}
 ```
 
 ##########
 ### 案例 ###
+任务列表：
+0. 打开浏览器
+1. 搜索亚马逊
+2. 点击第一个搜索结果
+
 一个例子：
 ```json
 {{  
     "reasoning": "当前屏幕显示亚马逊的谷歌搜索结果，在之前的操作中，我已经在谷歌上搜索了亚马逊。然后我需要点击第一个搜索结果以转到amazon.com。",
     "next_action": "left_click",
-    "box_id": m
+    "box_id": 35,
+    "current_task_id": 0
 }}
 ```
 
@@ -151,8 +132,9 @@ system_prompt = """
 {{
     "reasoning": "当前屏幕显示亚马逊的首页。没有之前的操作。因此，我需要在搜索栏中输入"Apple watch"。",
     "next_action": "type",
-    "box_id": n,
-    "value": "Apple watch"
+    "box_id": 27,
+    "value": "Apple watch",
+    "current_task_id": 1
 }}
 ```
 
@@ -160,7 +142,8 @@ system_prompt = """
 ```json
 {{
     "reasoning": "当前屏幕没有显示'提交'按钮，我需要向下滚动以查看按钮是否可用。",
-    "next_action": "scroll_down"
+    "next_action": "scroll_down",
+    "current_task_id": 2
 }}
 """ 
 

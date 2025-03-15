@@ -3,9 +3,11 @@ from pydantic import BaseModel, Field
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
+from gradio_ui.tools.computer import Action
+
 class TaskPlanAgent(BaseAgent):
     def __call__(self, messages, parsed_screen_result):
-        screen_info = str(parsed_screen_result['parsed_content_list'])
+        screen_info = str([{"box_id": i.element_id, "caption": i.caption, "text": i.text} for i in parsed_screen_result['parsed_content_list']])
         messages[-1] =  {"role": "user", 
              "content": [
                     {"type": "text", "text": messages[-1]["content"]},
@@ -15,20 +17,14 @@ class TaskPlanAgent(BaseAgent):
                     }
                 ]
             }
-        response = run(messages, user_prompt=system_prompt.format(screen_info=screen_info), response_format=TaskPlanResponse)
+        response = run(messages, user_prompt=system_prompt.format(screen_info=screen_info, action_list=str(Action)), response_format=TaskPlanResponse)
         print("task_plan_agent response: ", response)
         return json.loads(response)
-
-class Plan(BaseModel):
-    expected_result: str = Field(description="操作后的预期状态")
-    error_handling: str = Field(description="操作失败时的替代方案")
-    action: str = Field(description="操作类型")
-    target_element: str = Field(description="操作目标元素")
 
 
 class TaskPlanResponse(BaseModel):
     reasoning: str = Field(description="描述您规划任务的逻辑")
-    task_plan: list[Plan] = Field(description="具体的操作步骤序列")
+    task_list: list[str] = Field(description="任务列表")
 
 
 system_prompt = """
@@ -46,59 +42,34 @@ system_prompt = """
 操作序列应采用以下JSON格式：
 [
   {{
-    "操作类型": "点击/输入/拖拽/等待/判断...",
-    "目标元素": "元素描述或坐标",
-    "参数": "具体参数，如文本内容",
-    "预期结果": "操作后的预期状态",
-    "错误处理": "操作失败时的替代方案"
+     "reasoning": "描述您规划任务的逻辑",
+     "task_plan": ["任务1", "任务2", "任务3"]
   }}
 ]
 
-### 操作类型说明 ###
-- 左键点击：在特定元素或坐标上执行点击
-- 右键点击：在特定元素或坐标上执行右键点击
-- 输入：在输入框中输入文本
-- 等待：等待特定元素出现或状态变化
-- 滚动：上下或左右滚动屏幕
+任务中的操作应该仅包含：
+{action_list}
+
+### 限制 ###
+
+- 不要说点击xx坐标，这样用户无法理解，应该说点击地址栏、搜索框、输入按钮等；
+
 
 ### 例子 ###
 输入：获取AI新闻
 输出：
 [
   {{
-    "操作类型": "点击",
-    "目标元素": "浏览器图标",
-    "参数": "无",
-    "预期结果": "浏览器打开",
-    "错误处理": "如未找到浏览器图标，尝试通过开始菜单搜索浏览器"
+    "reasoning": "看到有一个地址栏，所以应该在地址栏输入https://www.baidu.com",
+    "task_plan": ["在地址栏输入https://www.baidu.com"]
   }},
   {{
-    "操作类型": "输入",
-    "目标元素": "地址栏",
-    "参数": "https://www.baidu.com",
-    "预期结果": "百度首页加载完成",
-    "错误处理": "如连接失败，重试或尝试其他搜索引擎"
+    "reasoning": "这是百度页面，看到有一个搜索框，所以应该在搜索框输入AI最新新闻",
+    "task_plan": ["在搜索框输入AI最新新闻"]
   }},
   {{
-    "操作类型": "输入",
-    "目标元素": "搜索框",
-    "参数": "AI最新新闻",
-    "预期结果": "搜索框填充完成",
-    "错误处理": "如搜索框不可用，尝试刷新页面"
-  }},
-  {{
-    "操作类型": "点击",
-    "目标元素": "搜索按钮",
-    "参数": "无",
-    "预期结果": "显示搜索结果页",
-    "错误处理": "如点击无反应，尝试按回车键"
-  }},
-  {{
-    "操作类型": "判断",
-    "目标元素": "搜索结果列表",
-    "参数": "包含AI相关内容",
-    "预期结果": "找到相关新闻",
-    "错误处理": "如无相关结果，尝试修改搜索关键词"
+    "reasoning": "看到有一个搜索按钮，所以应该点击搜索按钮",
+    "task_plan": ["点击搜索按钮"]
   }}
 ]
 """

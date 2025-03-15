@@ -3,6 +3,7 @@ Agentic sampling loop that calls the Anthropic API and local implenmentation of 
 """
 import base64
 from io import BytesIO
+import json
 import cv2
 from gradio_ui.agent.vision_agent import VisionAgent
 from gradio_ui.tools.screen_capture import get_screenshot
@@ -21,7 +22,7 @@ def sampling_loop_sync(
     messages: list[BetaMessageParam],
     vision_agent: VisionAgent,
     screen_region: tuple[int, int, int, int]
-):
+    ):
     """
     Synchronous agentic sampling loop for the assistant/tool interaction of computer use.
     """
@@ -30,17 +31,20 @@ def sampling_loop_sync(
     executor = AnthropicExecutor()
     task_run_agent = TaskRunAgent()
     parsed_screen_result = parsed_screen(vision_agent, screen_region)
-    plan_list = task_plan_agent(messages=messages, parsed_screen_result=parsed_screen_result)
+    task_plan_agent(messages=messages, parsed_screen_result=parsed_screen_result)
     yield
-    for plan in plan_list:      
-        execute_task_plan(plan, vision_agent, task_run_agent, executor, messages, screen_region)
+    while True:    
+        execute_result = execute_task_plan(vision_agent, task_run_agent, executor, messages, screen_region)
+        if execute_result['next_action'] == 'None':
+            break
         yield
 
     
-def execute_task_plan(plan, vision_agent, task_run_agent, executor, messages, screen_region):
+def execute_task_plan(vision_agent, task_run_agent, executor, messages, screen_region):
     parsed_screen_result = parsed_screen(vision_agent, screen_region)
-    tools_use_needed, __ = task_run_agent(task_plan=plan, parsed_screen_result=parsed_screen_result, messages=messages)
+    tools_use_needed, vlm_response_json = task_run_agent(parsed_screen_result=parsed_screen_result, messages=messages)
     executor(tools_use_needed, messages)
+    return vlm_response_json
 
 def parsed_screen(vision_agent: VisionAgent, screen_region: tuple[int, int, int, int] = None):
     screenshot, screenshot_path = get_screenshot(screen_region)
