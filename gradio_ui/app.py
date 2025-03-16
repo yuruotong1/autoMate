@@ -63,11 +63,14 @@ def setup_state(state):
         state["only_n_most_recent_images"] = 2
     if 'stop' not in state:
         state['stop'] = False
-
-async def main(state):
-    """Render loop for Gradio"""
-    setup_state(state)
-    return "Setup completed"
+    # update state
+    return (
+        state["model"],      # model textbox
+        state["base_url"],   # base_url textbox
+        state["api_key"],    # api_key textbox
+        state["chatbox_messages"],  # chatbot
+        [[task["status"], task["task"]] for task in state["tasks"]]  # task_list
+    )
 
 def load_from_storage(filename: str) -> str | None:
     """Load data from a file in the storage directory."""
@@ -324,5 +327,9 @@ def run():
         stop_button.click(stop_app, [state], None)
         base_url.change(fn=update_base_url, inputs=[base_url, state], outputs=None)
 
-
-    demo.launch(server_name="0.0.0.0", server_port=7888)
+        demo.load(
+            setup_state, 
+            inputs=[state], 
+            outputs=[model, base_url, api_key, chatbot, task_list]
+        )
+        demo.launch(server_name="0.0.0.0", server_port=7888)
