@@ -18,13 +18,13 @@ class UIElement(BaseModel):
     text: Optional[str] = None
 
 class VisionAgent:
-    def __init__(self, yolo_model_path: str, caption_model_path: str = 'microsoft/Florence-2-base-ft'):
+    def __init__(self, yolo_model_path: str, caption_model_path: str):
         """
         Initialize the vision agent
         
         Parameters:
             yolo_model_path: Path to YOLO model
-            caption_model_path: Path to image caption model, default is Florence-2
+            caption_model_path: Path to image caption model
         """
         # determine the available device and the best dtype
         self.device, self.dtype = self._get_optimal_device_and_dtype()        
@@ -33,14 +33,15 @@ class VisionAgent:
         
         # load the image caption model and processor
         self.caption_processor = AutoProcessor.from_pretrained(
-            "processor", 
-            trust_remote_code=True
+            "weights/AI-ModelScope/Florence-2-base", 
+            trust_remote_code=True,
+            local_files_only=True
         )
         
         try:
             self.caption_model = AutoModelForCausalLM.from_pretrained(
                 caption_model_path, 
-                torch_dtype=torch.float32,
+                torch_dtype=self.dtype,
                 trust_remote_code=True
             ).to(self.device)
             
@@ -53,7 +54,7 @@ class VisionAgent:
         if self.device.type == 'cuda':
             self.batch_size = 128
         elif self.device.type == 'mps':
-            self.batch_size = 32
+            self.batch_size = 128
         else:
             self.batch_size = 16
 
