@@ -73,8 +73,6 @@ python main.py
 ```
 Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
 
-For supported vendors and models, please refer to this [link](./SUPPORT_MODEL.md)
-
 ## 📝 FAQ
 
 ### 🔧 CUDA Version Mismatch

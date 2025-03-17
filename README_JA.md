@@ -70,8 +70,6 @@ python main.py
 ```
 ブラウザで`http://localhost:7888/`を開き、APIキーと基本設定を構成してください。
 
-対応ベンダーとモデルについては、この[リンク](./SUPPORT_MODEL.md)をご参照ください。
-
 ## 📝 よくある質問
 
 ### 🔧 CUDAバージョンの不一致
@@ -88,8 +86,6 @@ python main.py
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
-### モデルのダウンロードの問題
-モデルのダウンロードに問題がある場合（ネットワーク制限などにより）、Baidu Cloudから直接ダウンロードできます：
 
 ファイル：weights.zip
 リンク：https://pan.baidu.com/s/1Tj8sZZK9_QI7whZV93vb0w?pwd=dyeu

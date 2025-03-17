@@ -70,9 +70,6 @@ python main.py
 ```
 然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
 
-支持的厂商及模型可以参考这个[链接](./SUPPORT_MODEL.md)
-
-
 
 ## 📝常见问题
 
@@ -90,11 +87,7 @@ python main.py
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
-### 模型无法下载
-多半是被墙了，可以从百度网盘直接下载模型。
 
-通过网盘分享的文件：weights.zip
-链接: https://pan.baidu.com/s/1Tj8sZZK9_QI7whZV93vb0w?pwd=dyeu 提取码: dyeu
 
 
 ## 🤝 参与共建
