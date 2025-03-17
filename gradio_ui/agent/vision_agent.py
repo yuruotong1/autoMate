@@ -18,7 +18,7 @@ class UIElement(BaseModel):
     text: Optional[str] = None
 
 class VisionAgent:
-    def __init__(self, yolo_model_path: str, caption_model_path: str = 'microsoft/Florence-2-base-ft'):
+    def __init__(self, yolo_model_path: str, caption_model_path: str, florence_model_path: str):
         """
         Initialize the vision agent
         
@@ -33,8 +33,9 @@ class VisionAgent:
         
         # load the image caption model and processor
         self.caption_processor = AutoProcessor.from_pretrained(
-            "microsoft/Florence-2-base", 
-            trust_remote_code=True
+            "microsoft/Florence-2-base-ft",
+            cache_dir=florence_model_path,
+            trust_remote_code=True,
         )
         
         # load the model according to the device type
