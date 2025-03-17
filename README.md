@@ -11,6 +11,13 @@
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
+Support Model:
+
+| Vendor-en | Vendor-ch | Model | base-url |
+| --- | --- | --- | --- |
+| openainext international| openainext 国际| gpt-4o-2024-11-20 | https://api.openai-next.com/v1 |
+
+|https://2233.ai/api yeka| https://2233.ai/api 野卡|gpt-4o,o1|https://api.gptsapi.net/v1
 
 
 </div>

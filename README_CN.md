@@ -8,6 +8,16 @@
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
+
+目前支持的模型:
+
+| Vendor-en | Vendor-ch | Model | base-url |
+| --- | --- | --- | --- |
+| openainext international| openainext 国际| gpt-4o-2024-11-20 | https://api.openai-next.com/v1 |
+
+|https://2233.ai/api yeka| https://2233.ai/api 野卡|gpt-4o,o1|https://api.gptsapi.net/v1
+
+
 </div>
 
 > 特别声明：autoMate 项目还处于非常早期阶段，目前的能力还不足以解决任何问题，当前仅限于学习和交流。不过我会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加vx好友，入群交流。
