@@ -8,6 +8,18 @@
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
+
+目前支持的模型:
+
+
+| Vendor| Model |
+| --- | --- |
+| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
+|[yeka](https://2233.ai/api)|gpt-4o,o1|
+|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
+
+
+
 </div>
 
 > 特别声明：autoMate 项目还处于非常早期阶段，目前的能力还不足以解决任何问题，当前仅限于学习和交流。不过我会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加vx好友，入群交流。
@@ -58,9 +70,6 @@ python main.py
 ```
 然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
 
-支持的厂商及模型可以参考这个[链接](./SUPPORT_MODEL.md)
-
-
 
 ## 📝常见问题
 
@@ -78,11 +87,7 @@ python main.py
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
-### 模型无法下载
-多半是被墙了，可以从百度网盘直接下载模型。
 
-通过网盘分享的文件：weights.zip
-链接: https://pan.baidu.com/s/1Tj8sZZK9_QI7whZV93vb0w?pwd=dyeu 提取码: dyeu
 
 
 ## 🤝 参与共建

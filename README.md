@@ -11,6 +11,14 @@
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
+Support Model:
+
+| Vendor| Model |
+| --- | --- |
+| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
+|[yeka](https://2233.ai/api)|gpt-4o,o1|
+|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
+
 
 
 </div>
@@ -64,8 +72,6 @@ pip install -r requirements.txt
 python main.py
 ```
 Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
-
-For supported vendors and models, please refer to this [link](./SUPPORT_MODEL.md)
 
 ## 📝 FAQ
 

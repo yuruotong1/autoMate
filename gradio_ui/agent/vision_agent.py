@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 import cv2
 import torch
@@ -56,11 +57,22 @@ class VisionAgent:
                 trust_remote_code=True,
                 local_files_only=True
             ).to(self.device)
+            "processor", 
+            trust_remote_code=True
+        )
+        
+        try:
+            self.caption_model = AutoModelForCausalLM.from_pretrained(
+                caption_model_path, 
+                torch_dtype=self.dtype,
+                trust_remote_code=True
+            ).to(self.device)
             
             # 不需要额外加载权重，因为权重已经包含在 florence_base_path 中
             
         except Exception as e:
             print(f"Model loading failed: {e}")
+            print(f"Model loading failed for path: {caption_model_path}")
             raise e
         self.prompt = "<CAPTION>"
         
