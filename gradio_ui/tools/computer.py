@@ -137,7 +137,6 @@ class ComputerTool(BaseAnthropicTool):
                 # Save user's old clipboard
                 clipboard_data = pyperclip.paste()
                 pyperclip.copy(text)
-                pyautogui.click()
                 if platform.system() == 'Darwin':
                     pyautogui.hotkey('command', 'v', interval=0.1)
                 else: # TODO: double check what works on windows

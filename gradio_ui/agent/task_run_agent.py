@@ -1,13 +1,9 @@
-
-from enum import Enum
 import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
-from pydantic import BaseModel, Field, create_model
+from pydantic import Field, create_model
 from gradio_ui.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
-import platform
-import re
 
 from gradio_ui.tools.computer import Action
 class TaskRunAgent(BaseAgent):
@@ -38,7 +34,7 @@ class TaskRunAgent(BaseAgent):
         )
         vlm_response_json = json.loads(vlm_response)
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
-        if "box_id" in vlm_response_json:
+        if "box_id" in vlm_response_json and vlm_response_json["next_action"] not in ["None", "key", "type", "scroll_down", "scroll_up","cursor_position", "wait"]:
             bbox = self.find_element_by_id(parsed_screen_result, vlm_response_json["box_id"]).coordinates
             box_centroid_coordinate = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
             move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',
@@ -116,6 +112,7 @@ prompt = """
 - 任务不是连续的，上一次是1下一次不一定是2，你要根据next_action进行判断。
 - current_task_id 要在任务列表中找到，不要随便写。
 - 当你觉得任务已经完成时，请一定把next_action设置为'None'，不然会重复执行。
+- 涉及到输入type、key操作时，其上一步操作一定是点击输入框操作。
 
 ##########
 ### 输出格式 ###
