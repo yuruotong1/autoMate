@@ -10,6 +10,8 @@ import time
 from pydantic import BaseModel
 import base64
 from PIL import Image
+from transformers import AutoConfig
+import os
 
 class UIElement(BaseModel):
     element_id: int
@@ -33,20 +35,32 @@ class VisionAgent:
         
         # load the image caption model and processor
         self.caption_processor = AutoProcessor.from_pretrained(
-            "weights/AI-ModelScope/Florence-2-base", 
+            "weights/AI-ModelScope/Florence-2-base-ft", 
+            trust_remote_code=True,
+            local_files_only=True
+        )
+        config = AutoConfig.from_pretrained(
+            "weights/AI-ModelScope/Florence-2-base-ft",  # 指向包含 configuration_florence2.py 的目录
             trust_remote_code=True,
             local_files_only=True
         )
         
         try:
+            # 修改：加载模型和权重都从 florence 目录
+            florence_base_path = "weights/AI-ModelScope/Florence-2-base-ft"
+            
+            # 直接从 florence 目录完整加载模型（包括权重）
             self.caption_model = AutoModelForCausalLM.from_pretrained(
-                caption_model_path, 
+                florence_base_path,  # 这里使用包含代码和权重的完整目录
                 torch_dtype=self.dtype,
-                trust_remote_code=True
+                trust_remote_code=True,
+                local_files_only=True
             ).to(self.device)
             
+            # 不需要额外加载权重，因为权重已经包含在 florence_base_path 中
+            
         except Exception as e:
-            print(f"Model loading failed for path: {caption_model_path}")
+            print(f"Model loading failed: {e}")
             raise e
         self.prompt = "<CAPTION>"
         
