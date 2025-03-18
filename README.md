@@ -11,15 +11,6 @@
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
-Support Model:
-
-| Vendor| Model |
-| --- | --- |
-| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
-|[yeka](https://2233.ai/api)|gpt-4o,o1|
-|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
-
-
 
 </div>
 
@@ -73,6 +64,17 @@ python main.py
 ```
 Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
 
+
+Support model:
+
+
+| Vendor| Model |
+| --- | --- |
+| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
+|[yeka](https://2233.ai/api)|gpt-4o,o1|
+|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
+
+
 ## 📝 FAQ
 
 ### 🔧 CUDA Version Mismatch
@@ -86,23 +88,16 @@ We recommend using an NVIDIA graphics card with at least 4GB of VRAM, although y
 For example, if your CUDA version is 12.4, install torch using this command:
 
 ```bash
+pip3 uninstall -y torch torchvision
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
-### Model Download Issues
-If you're having trouble downloading models (possibly due to network restrictions), you can download them directly from Baidu Cloud:
-
-File: weights.zip
-Link: https://pan.baidu.com/s/1Tj8sZZK9_QI7whZV93vb0w?pwd=dyeu
-Password: dyeu
 
 ## 🤝 Contributing
 
 Every excellent open-source project embodies collective wisdom. autoMate's growth depends on your participation and contribution. Whether fixing bugs, adding features, or improving documentation, your efforts will help thousands of people break free from repetitive work.
 
 Join us in creating a more intelligent future.
-
-> Strongly recommend reading ["How To Ask Questions The Smart Way"](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way), ["How to Ask Questions to Open Source Community"](https://github.com/seajs/seajs/issues/545), ["How to Report Bugs Effectively"](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs.html), and ["How to Submit Unanswerable Questions to Open Source Projects"](https://zhuanlan.zhihu.com/p/25795393) for better support.
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />

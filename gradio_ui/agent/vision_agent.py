@@ -21,7 +21,7 @@ class UIElement(BaseModel):
     text: Optional[str] = None
 
 class VisionAgent:
-    def __init__(self, yolo_model_path: str, caption_model_path: str):
+    def __init__(self, yolo_model_path: str, florence_model_path: str):
         """
         Initialize the vision agent
         
@@ -36,43 +36,24 @@ class VisionAgent:
         
         # load the image caption model and processor
         self.caption_processor = AutoProcessor.from_pretrained(
-            "weights/AI-ModelScope/Florence-2-base-ft", 
+            florence_model_path, 
             trust_remote_code=True,
             local_files_only=True
         )
-        config = AutoConfig.from_pretrained(
-            "weights/AI-ModelScope/Florence-2-base-ft",  # 指向包含 configuration_florence2.py 的目录
-            trust_remote_code=True,
-            local_files_only=True
-        )
+
         
-        try:
-            # 修改：加载模型和权重都从 florence 目录
-            florence_base_path = "weights/AI-ModelScope/Florence-2-base-ft"
-            
-            # 直接从 florence 目录完整加载模型（包括权重）
+        try:            
             self.caption_model = AutoModelForCausalLM.from_pretrained(
-                florence_base_path,  # 这里使用包含代码和权重的完整目录
+                florence_model_path,  # 这里使用包含代码和权重的完整目录
                 torch_dtype=self.dtype,
                 trust_remote_code=True,
                 local_files_only=True
-            ).to(self.device)
-            "processor", 
-            trust_remote_code=True
-        )
-        
-        try:
-            self.caption_model = AutoModelForCausalLM.from_pretrained(
-                caption_model_path, 
-                torch_dtype=self.dtype,
-                trust_remote_code=True
             ).to(self.device)
             
             # 不需要额外加载权重，因为权重已经包含在 florence_base_path 中
             
         except Exception as e:
             print(f"Model loading failed: {e}")
-            print(f"Model loading failed for path: {caption_model_path}")
             raise e
         self.prompt = "<CAPTION>"
         

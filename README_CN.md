@@ -9,17 +9,6 @@
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 
-目前支持的模型:
-
-
-| Vendor| Model |
-| --- | --- |
-| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
-|[yeka](https://2233.ai/api)|gpt-4o,o1|
-|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
-
-
-
 </div>
 
 > 特别声明：autoMate 项目还处于非常早期阶段，目前的能力还不足以解决任何问题，当前仅限于学习和交流。不过我会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加vx好友，入群交流。
@@ -71,6 +60,18 @@ python main.py
 然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
 
 
+目前支持的模型如下:
+
+
+| Vendor| Model |
+| --- | --- |
+| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
+|[yeka](https://2233.ai/api)|gpt-4o,o1|
+|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
+
+
+
+
 ## 📝常见问题
 
 ### 🔧CUDA版本不匹配问题
@@ -84,10 +85,9 @@ python main.py
 比如我的 cuda 版本为 12.4，需要按照如下命令来安装 torch；
 
 ```bash
+pip3 uninstall -y torch torchvision
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
-
-
 
 
 ## 🤝 参与共建
@@ -95,8 +95,6 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 每一个优秀的开源项目都凝聚着集体的智慧。autoMate的成长离不开你的参与和贡献。无论是修复bug、添加功能，还是改进文档，你的每一份付出都将帮助成千上万的人摆脱重复性工作的束缚。
 
 加入我们，一起创造更加智能的未来。
-
-> 强烈推荐阅读 [《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way)、[《如何向开源社区提问题》](https://github.com/seajs/seajs/issues/545) 和 [《如何有效地报告 Bug》](http://www.chiark.greenend.org.uk/%7Esgtatham/bugs-cn.html)、[《如何向开源项目提交无法解答的问题》](https://zhuanlan.zhihu.com/p/25795393)，更好的问题更容易获得帮助。
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />

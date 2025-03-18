@@ -14,7 +14,7 @@ from gradio_ui.loop import (
 import base64
 from xbrain.utils.config import Config
 
-from util.download_weights import OMNI_PARSER_MODEL_DIR
+from util.download_weights import OMNI_PARSER_DIR, FLORENCE_DIR
 CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
 
@@ -320,8 +320,8 @@ def run():
         model.change(fn=update_model, inputs=[model, state], outputs=None)
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)
         chatbot.clear(fn=clear_chat, inputs=[state], outputs=[chatbot])
-        vision_agent = VisionAgent(yolo_model_path=os.path.join(OMNI_PARSER_MODEL_DIR, "icon_detect", "model.pt"),
-                                  caption_model_path=os.path.join(OMNI_PARSER_MODEL_DIR, "icon_caption"))
+        vision_agent = VisionAgent(yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt"),
+                                  florence_model_path=FLORENCE_DIR)
         vision_agent_state = gr.State({"agent": vision_agent})
         submit_button.click(process_input, [chat_input, state, vision_agent_state], [chatbot, task_list])
         stop_button.click(stop_app, [state], None)
