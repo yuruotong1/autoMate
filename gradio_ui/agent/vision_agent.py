@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 import cv2
 import torch
@@ -18,7 +19,7 @@ class UIElement(BaseModel):
     text: Optional[str] = None
 
 class VisionAgent:
-    def __init__(self, yolo_model_path: str, caption_model_path: str, florence_model_path: str):
+    def __init__(self, yolo_model_path: str, caption_model_path: str):
         """
         Initialize the vision agent
         
@@ -33,36 +34,19 @@ class VisionAgent:
         
         # load the image caption model and processor
         self.caption_processor = AutoProcessor.from_pretrained(
-            "microsoft/Florence-2-base-ft",
-            cache_dir=florence_model_path,
-            trust_remote_code=True,
+            "processor", 
+            trust_remote_code=True
         )
         
-        # load the model according to the device type
         try:
-            if self.device.type == 'cuda':
-                # CUDA device uses float16
-                self.caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_model_path, 
-                    torch_dtype=torch.float16,
-                    trust_remote_code=True
-                ).to(self.device)
-            elif self.device.type == 'mps':
-                # MPS device uses float32 (MPS has limited support for float16)
-                self.caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_model_path, 
-                    torch_dtype=torch.float32,
-                    trust_remote_code=True
-                ).to(self.device)
-            else:
-                # CPU uses float32
-                self.caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_model_path, 
-                    torch_dtype=torch.float32,
-                    trust_remote_code=True
-                ).to(self.device)
+            self.caption_model = AutoModelForCausalLM.from_pretrained(
+                caption_model_path, 
+                torch_dtype=self.dtype,
+                trust_remote_code=True
+            ).to(self.device)
             
         except Exception as e:
+            print(f"Model loading failed for path: {caption_model_path}")
             raise e
         self.prompt = "<CAPTION>"
         
