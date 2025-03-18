@@ -332,4 +332,18 @@ def run():
             inputs=[state], 
             outputs=[model, base_url, api_key, chatbot, task_list]
         )
-        demo.launch(server_name="0.0.0.0", server_port=7888)
+        demo.launch(server_name="0.0.0.0", quiet=True, server_port=7888, prevent_thread_lock=True)
+
+        BLUE = "\033[34m"
+        BOLD = "\033[1m"
+        UNDERLINE = "\033[4m"
+        RESET = "\033[0m"
+
+        print(f"\n\n🚀 Server is running at: {BLUE}{BOLD}{UNDERLINE}http://127.0.0.1:7888{RESET}")
+    
+        import time
+        try:
+            while True:
+                time.sleep(1) 
+        except KeyboardInterrupt:
+            print("\n💤 closing server")
