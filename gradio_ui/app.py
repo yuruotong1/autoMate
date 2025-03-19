@@ -157,8 +157,12 @@ def process_input(user_input, state, vision_agent_state):
             for i in range(len(state["tasks"])):
                 state["tasks"][i]["status"] = "⬜"
             task_completed_number = json.loads(state["messages"][-1]["content"])["current_task_id"]
-            for i in range(task_completed_number+1):
-                state["tasks"][i]["status"] = "✅"
+            if task_completed_number > len(state["tasks"]) + 1:
+                for i in range(len(state["tasks"])):
+                    state["tasks"][i]["status"] = "✅"
+            else:
+                for i in range(task_completed_number + 1):
+                    state["tasks"][i]["status"] = "✅"
                  
         # Rebuild chatbox messages from the original messages
         state["chatbox_messages"] = []

@@ -70,7 +70,6 @@ Support model:
 
 | Vendor| Model |
 | --- | --- |
-| [openainext](https://api.openai-next.com) | gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20 |
 |[yeka](https://2233.ai/api)|gpt-4o,o1|
 |openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
 
