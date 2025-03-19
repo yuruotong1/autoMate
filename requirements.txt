@@ -1,6 +1,6 @@
-torch
+# torch
+# torchvision
 easyocr
-torchvision
 supervision==0.18.0
 transformers
 ultralytics==8.3.70

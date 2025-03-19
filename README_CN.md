@@ -4,6 +4,8 @@
 <h1>autoMate</h1>
 <p><b>🤖 AI驱动的本地自动化工具 | 让电脑自己会干活</b></p>
 
+[English](./README.md) | [日本語](./README_JA.md)
+
 >"让繁琐自动化，把时间还给生活"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
@@ -11,7 +13,7 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 </div>
 
-> 特别声明：autoMate 项目还处于非常早期阶段，目前的能力还不足以解决任何问题，当前仅限于学习和交流。不过我会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加vx好友，入群交流。
+> 特别声明：autoMate 项目还处于非常早期阶段，当前更多用于学习。我们会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加vx好友入群交流。
 
 <div align="center">
 <img src="./resources/wxchat.png" width="120" height="120" alt="autoMate logo">
@@ -36,21 +38,24 @@ autoMate 是一款革命性的AI+RPA自动化工具，基于OmniParser构建，�
 
 - 🔮 无代码自动化 - 使用自然语言描述任务，无需编程知识
 - 🖥️ 全界面操控 - 支持任何可视化界面的操作，不限于特定软件
-- 🚅 简化安装 - 比官方版本更简洁的安装流程，支持中文环境，一键部署
-
+- 🚅 简化安装 - 支持中文环境，一键部署
 
 
 ## 🚀 快速开始
 
 ### 📦 安装
-Clone项目，然后安装环境：
+强烈建议先安装miniConda，用miniconda安装依赖，网上有很多教程，实在不懂可以问AI。然后按照下面命令安装环境：
 
 ```bash
+# 把项目拉下来
 git clone https://github.com/yuruotong1/autoMate.git
 cd autoMate
+# 创建 python3.12 环境
 conda create -n "automate" python==3.12
+# 激活环境
 conda activate automate
-pip install -r requirements.txt
+# 安装相关依赖
+python install.py
 ```
 ### 🎮 启动应用
 
@@ -60,21 +65,24 @@ python main.py
 然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
 
 
-目前支持的模型如下:
+目前已经测试并且支持的模型如下:
 
 
 | Vendor| Model |
 | --- | --- |
 |[yeka](https://2233.ai/api)|gpt-4o,o1|
-|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27,|
-
-
+|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27|
 
 
 ## 📝常见问题
+### 支持什么模型？
+目前仅支持 OpenAI 系列模型，如果国内不能访问 OpenAI，建议使用[yeka](https://2233.ai/api)进行中转。
 
-### 🔧CUDA版本不匹配问题
-建议使用不少于 4G 显存的英伟达显卡运行，当然也可以用CPU运行，只是会非常慢：
+为什么目前不支持其他模型？我们用到了多模态+结构化输出能力，其他模型厂商很少能够同时支持这两个能力，如果适配其他模型的话，我们要对底层进行较大修改，效果也不能得到保证。但是我们正在积极寻找解决方案，一有更新会立即同步出来。
+
+
+### 为什么我的执行速度很慢?
+如果你的电脑没有NVIDIA独显的话，运行的会比较慢，因为我们会高频次调用OCR对视觉进行标注，这会消耗大量的GPU资源，我们也在积极进行优化和适配。建议使用不少于 4G 显存的英伟达显卡运行，并且版本和torch版本一致：
 
 1. 运行`pip list`查看torch版本；
 2. 从[官网](https://pytorch.org/get-started/locally/)查看支持的cuda版本；
