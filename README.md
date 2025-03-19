@@ -67,6 +67,8 @@ Then open `http://localhost:7888/` in your browser to configure your API key and
 
 The models that have been tested and are currently supported are as follows:
 
+> PS: The following are large language model providers that have been tested and confirmed to work. We have no business relationship with these providers, therefore we cannot guarantee after-sales service, feature assurance, or stability maintenance. Please consider carefully when using paid services.
+
 
 | Vendor| Model |
 | --- | --- |
