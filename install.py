@@ -46,24 +46,8 @@ def install_pytorch():
     subprocess.run(cmd, shell=True)
 
 def install_requirements():
-    # create a temporary requirements file, excluding torch and torchvision
-    with open('requirements.txt', 'r') as f:
-        requirements = f.readlines()
-    
-    # filter out torch and torchvision
-    filtered_requirements = [req for req in requirements 
-                           if not req.strip().startswith('torch') 
-                           and not req.strip().startswith('torchvision')]
-    
-    with open('temp_requirements.txt', 'w') as f:
-        f.writelines(filtered_requirements)
-    
-    # install other dependencies
-    print("Installing other dependencies...")
-    subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'temp_requirements.txt'])
-    
-    # delete temporary file
-    os.remove('temp_requirements.txt')
+    subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
+
 
 def adjust_python_env():
     # check if python is 3.12
