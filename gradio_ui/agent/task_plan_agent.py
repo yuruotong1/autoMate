@@ -7,7 +7,6 @@ from gradio_ui.tools.computer import Action
 
 class TaskPlanAgent(BaseAgent):
     def __call__(self, messages, parsed_screen_result):
-        screen_info = str([{"box_id": i.element_id, "caption": i.caption, "text": i.text} for i in parsed_screen_result['parsed_content_list']])
         messages[-1] =  {"role": "user", 
              "content": [
                     {"type": "text", "text": messages[-1]["content"]},
@@ -17,7 +16,7 @@ class TaskPlanAgent(BaseAgent):
                     }
                 ]
             }
-        response = run(messages, user_prompt=system_prompt.format(screen_info=screen_info, action_list=str(Action)), response_format=TaskPlanResponse)
+        response = run(messages, user_prompt=system_prompt.format(action_list=str(Action)), response_format=TaskPlanResponse)
         print("task_plan_agent response: ", response)
         return json.loads(response)
 
@@ -31,8 +30,6 @@ system_prompt = """
 ### 目标 ###
 你是自动化操作规划专家，根据屏幕内容和用户需求，规划精确可执行的操作序列。
 
-当前屏幕内容如下：
-{screen_info}
 
 ### 输入 ###
 1. 用户需求：文本描述形式的任务目标

@@ -1,8 +1,8 @@
 # torch
 # torchvision
-easyocr
+# easyocr
 supervision==0.18.0
-transformers
+# transformers
 ultralytics==8.3.70
 numpy==1.26.4
 gradio

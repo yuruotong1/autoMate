@@ -25,8 +25,7 @@ class TaskRunAgent(BaseAgent):
         task_list = json.loads(messages[1]['content'])['task_list']
         # Convert task_list to a numbered format
         formatted_task_list = "\n".join([f"{i}.{task}" for i, task in enumerate(task_list)])
-        screen_info = str([{"box_id": i.element_id, "caption": i.caption, "text": i.text} for i in parsed_screen_result['parsed_content_list']])
-        system_prompt = prompt.format(screen_info=screen_info, task_list=formatted_task_list)
+        system_prompt = prompt.format(task_list=formatted_task_list)
         vlm_response = run(
             messages,
             user_prompt=system_prompt, 
@@ -34,14 +33,35 @@ class TaskRunAgent(BaseAgent):
         )
         vlm_response_json = json.loads(vlm_response)
         response_content = [BetaTextBlock(text=vlm_response_json["reasoning"], type='text')]
-        if "box_id" in vlm_response_json and vlm_response_json["next_action"] not in ["None", "key", "type", "scroll_down", "scroll_up","cursor_position", "wait"]:
-            bbox = self.find_element_by_id(parsed_screen_result, vlm_response_json["box_id"]).coordinates
-            box_centroid_coordinate = [int((bbox[0] + bbox[2]) / 2 ), int((bbox[1] + bbox[3]) / 2 )]
-            move_cursor_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',
-                                            input={'action': 'mouse_move', 'coordinate': box_centroid_coordinate},
-                                            name='computer', type='tool_use')
-            response_content.append(move_cursor_block)
-
+        # Handle cursor movement based on box_id
+        if "box_id" in vlm_response_json:
+            action_types_without_cursor = ["None", "key", "type", "scroll_down", "scroll_up", "cursor_position", "wait"]
+            
+            if vlm_response_json["box_id"] != -1 and vlm_response_json["next_action"] not in action_types_without_cursor:
+                # Move cursor to the center of the identified element
+                element = self.find_element_by_id(parsed_screen_result, vlm_response_json["box_id"])
+                bbox = element.coordinates
+                box_centroid_coordinate = [
+                    int((bbox[0] + bbox[2]) / 2),
+                    int((bbox[1] + bbox[3]) / 2)
+                ]
+                move_cursor_block = BetaToolUseBlock(
+                    id=f'toolu_{uuid.uuid4()}',
+                    input={'action': 'mouse_move', 'coordinate': box_centroid_coordinate},
+                    name='computer', 
+                    type='tool_use'
+                )
+                response_content.append(move_cursor_block)
+            
+            elif vlm_response_json["box_id"] == -1 and len(vlm_response_json["coordinates"]) == 2:
+                # Move cursor to specified coordinates
+                move_cursor_block = BetaToolUseBlock(
+                    id=f'toolu_{uuid.uuid4()}',
+                    input={'action': 'mouse_move', 'coordinate': vlm_response_json["coordinates"]},
+                    name='computer', 
+                    type='tool_use'
+                )
+                response_content.append(move_cursor_block)
         if vlm_response_json["next_action"] == "None":
             print("Task paused/completed.")
         elif vlm_response_json["next_action"] == "type":
@@ -66,6 +86,7 @@ class TaskRunAgent(BaseAgent):
 
 def create_dynamic_response_model(parsed_screen_result):
     available_box_ids = [item.element_id for item in parsed_screen_result['parsed_content_list']]
+    available_box_ids.append(-1)
     task_run_agent_response = create_model(
         'TaskRunAgentResponse',
         reasoning = (str, Field(
@@ -78,10 +99,13 @@ def create_dynamic_response_model(parsed_screen_result):
                 }
         )),
         box_id = (int, Field(
-            description="要操作的框ID",
+            description="要操作的框ID，如果框ID不存在就返回-1",
             json_schema_extra={
                 "enum": available_box_ids
             }
+        )),
+        coordinates = (list[int], Field(
+            description="当 box_id 为-1时，直接返回要操作对象的坐标，只返回x,y这2个整数"
         )),
         value = (str, Field(
             description="仅当next_action为type时提供，否则为None"
@@ -97,15 +121,12 @@ prompt = """
 ### 目标 ###
 你是一个任务执行者。请你根据屏幕截图和【所有元素】确定接下来要做什么，如果任务完成把next_action设置为None：
 
-以下是当前屏幕上的【所有元素】，caption和text是辅助你理解当前屏幕内容的，你的决策主要依靠这两个信息截图仅限参考，图标左上角的数字为box_id：
-{screen_info}
-
 请根据以下任务列表判断一下你正在执行第几个任务（current_task_id），第一个任务是0，任务列表如下：
 {task_list}
 ##########
 
 ### 注意 ###
-- box_id 要严格参考【所有元素】中的box_id给出。
+- 要结合用户传入的屏幕图片观察其中的 box_id 框框和标号，确定要操作哪一个box_id，如果没有合适的请返回-1，然后通过coordinates给出要操作对象的坐标。
 - 每次应该只给出一个操作，告诉我要对哪个box_id进行操作、输入什么内容或者滚动或者其他操作。
 - 应该对当前屏幕进行分析，通过查看历史记录反思已完成的工作，然后描述您如何实现任务的逐步思考。
 - 避免连续多次选择相同的操作/元素，如果发生这种情况，反思自己，可能出了什么问题，并预测不同的操作。
@@ -122,7 +143,8 @@ prompt = """
     "next_action": str, # 要执行的动作。
     "box_id": int, # 要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None
     "value": "xxx" # 仅当操作为type时提供value字段，否则不包括value键
-    "current_task_id": int # 当前正在执行第几个任务，第一个任务是0
+    "current_task_id": int # 当前正在执行第几个任务，第一个任务是0,
+    "coordinates": list[int] # 仅当box_id为-1时提供，返回要操作对象的坐标，只返回x,y这2个整数
 }}
 ```
 

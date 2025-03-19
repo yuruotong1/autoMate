@@ -324,8 +324,7 @@ def run():
         model.change(fn=update_model, inputs=[model, state], outputs=None)
         api_key.change(fn=update_api_key, inputs=[api_key, state], outputs=None)
         chatbot.clear(fn=clear_chat, inputs=[state], outputs=[chatbot])
-        vision_agent = VisionAgent(yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt"),
-                                  florence_model_path=FLORENCE_DIR)
+        vision_agent = VisionAgent(yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt"))
         vision_agent_state = gr.State({"agent": vision_agent})
         submit_button.click(process_input, [chat_input, state, vision_agent_state], [chatbot, task_list])
         stop_button.click(stop_app, [state], None)
