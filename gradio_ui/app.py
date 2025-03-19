@@ -14,7 +14,7 @@ from gradio_ui.loop import (
 import base64
 from xbrain.utils.config import Config
 
-from util.download_weights import OMNI_PARSER_DIR, FLORENCE_DIR
+from util.download_weights import OMNI_PARSER_DIR
 CONFIG_DIR = Path("~/.anthropic").expanduser()
 API_KEY_FILE = CONFIG_DIR / "api_key"
 
