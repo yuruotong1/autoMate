@@ -3,3 +3,5 @@ weights**
 .conda**
 .venv
 tmp**
+build**
+dist**

@@ -6,7 +6,7 @@ from io import BytesIO
 
 def capture_screen_with_cursor():
     """Local function to capture the screen with cursor."""
-    cursor_path = os.path.join(os.path.dirname(__file__),"..","resources", "cursor.png")
+    cursor_path = os.path.join(os.path.dirname(__file__),"..","imgs", "cursor.png")
     screenshot = pyautogui.screenshot()
     cursor_x, cursor_y = pyautogui.position()
     cursor = Image.open(cursor_path)

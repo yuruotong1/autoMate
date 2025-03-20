@@ -10,6 +10,7 @@ def download():
     snapshot_download(
         'AI-ModelScope/OmniParser-v2.0',
         cache_dir='weights',
+        allow_file_pattern=['icon_detect/model.pt']
         )
     
 if __name__ == "__main__":

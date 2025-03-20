@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-<img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
+<img src="./imgs/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 <p><b>🤖 AIで動くローカル自動化ツール | コンピューターに自ら仕事をさせる</b></p>
 
@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 > 特別声明：autoMateプロジェクトはまだ非常に初期段階にあり、現在は主に学習目的で使用されています。私たちは常にブレークスルーを求め、最新技術を取り入れています！質問がある場合は、WeChat友達追加してグループチャットに参加することもできます。
 
 <div align="center">
-<img src="./resources/wxchat.png" width="120" height="120" alt="autoMate logo">
+<img src="./imgs/wxchat.png" width="120" height="120" alt="autoMate logo">
 </div>
 
 

@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-<img src="./resources/logo.png" width="120" height="120" alt="autoMate logo">
+<img src="./imgs/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
 <p><b>🤖 AI驱动的本地自动化工具 | 让电脑自己会干活</b></p>
 
@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 > 特别声明：autoMate 项目还处于非常早期阶段，当前更多用于学习。我们会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加vx好友入群交流。
 
 <div align="center">
-<img src="./resources/wxchat.png" width="120" height="120" alt="autoMate logo">
+<img src="./imgs/wxchat.png" width="120" height="120" alt="autoMate logo">
 </div>
 
 
