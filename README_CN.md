@@ -43,6 +43,9 @@ autoMate 是一款革命性的AI+RPA自动化工具，基于OmniParser构建，�
 
 ## 🚀 快速开始
 
+### 📥 直接使用
+可以直接从 github release 下载可执行文件使用。
+
 ### 📦 安装
 强烈建议先安装miniConda，用miniconda安装依赖，网上有很多教程，实在不懂可以问AI。然后按照下面命令安装环境：
 
@@ -57,13 +60,14 @@ conda activate automate
 # 安装相关依赖
 python install.py
 ```
-### 🎮 启动应用
+安装完成后可以使用命令行启动应用：
 
 ```bash
 python main.py
 ```
 然后在浏览器中打开`http://localhost:7888/`，配置您的API密钥和基本设置。
 
+### 🔔 注意
 
 目前已经测试并且支持的模型如下：
 

@@ -43,6 +43,9 @@ autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
 
 ## 🚀 Quick Start
 
+### 📥 Direct Use
+You can directly download the executable file from GitHub release to use.
+
 ### 📦 Installation
 It is strongly recommended to install miniConda first and use miniconda to install dependencies. There are many tutorials online; if you're still confused, you can ask AI. Then install the environment according to the following commands:
 
@@ -57,14 +60,14 @@ conda activate automate
 # Install dependencies
 python install.py
 ```
-### 🎮 Launch Application
+Launch Application
 
 ```bash
 python main.py
 ```
 Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
 
-
+### 🔔 Notice
 The models that have been tested and are currently supported are as follows:
 
 > PS: The following are large language model providers that have been tested and confirmed to work. We have no business relationship with these providers, therefore we cannot guarantee after-sales service, feature assurance, or stability maintenance. Please consider carefully when using paid services.
