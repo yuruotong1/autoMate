@@ -1,9 +1,24 @@
 import subprocess
 import sys
 from util import download_weights
+import urllib.request
+import urllib.error
 
 def install_requirements():
-    subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
+    # Check if Google is accessible
+    try:
+        # Try to connect to Google with a timeout of 3 seconds
+        urllib.request.urlopen('https://www.google.com', timeout=3)
+        # If successful, install normally
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt'])
+    except (urllib.error.URLError, TimeoutError):
+        print("Using Tsinghua mirror")
+        subprocess.run([
+            sys.executable, '-m', 'pip', 'install', 
+            '-r', 'requirements.txt', 
+            '-i', 'https://pypi.tuna.tsinghua.edu.cn/simple'
+        ])
+
 
 def adjust_python_env():
     # check if python is 3.12
