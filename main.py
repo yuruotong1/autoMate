@@ -1,5 +1,4 @@
 from gradio_ui import app
-import torch
 import os
 from util import download_weights
 os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
