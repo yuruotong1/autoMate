@@ -13,6 +13,7 @@ from gradio_ui.loop import (
 )
 import base64
 from xbrain.utils.config import Config
+import platform
 
 from util.download_weights import OMNI_PARSER_DIR
 CONFIG_DIR = Path("~/.anthropic").expanduser()
@@ -210,6 +211,11 @@ def get_header_image_base64():
     except Exception as e:
         print(f"Failed to load header image: {e}")
         return None
+    
+def _get_region(queue):
+    from util.screen_selector import ScreenSelector
+    region = ScreenSelector().get_selection()
+    queue.put(region)
 
 
 def run():
@@ -277,8 +283,27 @@ def run():
                                 state["screen_region"] = region
                                 return f"Selected region: {region}"
                             return "Selection cancelled"
-                    
-                        select_region_btn.click(fn=select_screen_region, inputs=[state], outputs=[gr.Textbox(label="Region Info")])
+
+                        def select_screen_region_mac(state):
+                            import multiprocessing as mp
+                            ctx = mp.get_context('spawn')
+                            queue = ctx.Queue()
+                            
+                            p = ctx.Process(target=_get_region, args=(queue,))
+                            p.start()
+                            p.join()  
+                            
+                            region = queue.get() if not queue.empty() else None
+                            
+                            if region:
+                                state["screen_region"] = region
+                                return f"Selected region: {region}"
+                            return "Selection cancelled"
+
+                        if platform.system() == 'Darwin':
+                            select_region_btn.click(fn=select_screen_region_mac, inputs=[state], outputs=[gr.Textbox(label="Region Info")])
+                        else:
+                            select_region_btn.click(fn=select_screen_region_mac, inputs=[state], outputs=[gr.Textbox(label="Region Info")])
         with gr.Row():
             with gr.Column(scale=8):
                 chat_input = gr.Textbox(show_label=False, placeholder="Type a message to send to Omniparser + X ...", container=False)
