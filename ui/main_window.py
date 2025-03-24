@@ -7,7 +7,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem,
                            QTextEdit, QSplitter, QMessageBox, QHeaderView, QDialog, QSystemTrayIcon)
-from PyQt6.QtCore import Qt, pyqtSlot, QSize
+from PyQt6.QtCore import Qt, pyqtSlot, QSize, QTimer
 from PyQt6.QtGui import QPixmap, QIcon, QTextCursor, QTextCharFormat, QColor
 
 from xbrain.utils.config import Config
@@ -123,10 +123,16 @@ class MainWindow(QMainWindow):
         # First unregister any existing hotkey
         if self.hotkey_handler:
             try:
-                keyboard.unhook_all()
+                keyboard.unhook(self.hotkey_handler)
                 self.hotkey_handler = None
             except:
                 pass
+        
+        # 确保所有旧的热键处理器都被清除
+        try:
+            keyboard.unhook_all_hotkeys()
+        except:
+            pass
         
         # Get the current hotkey from state
         hotkey = self.state.get("stop_hotkey", DEFAULT_STOP_HOTKEY)
@@ -136,20 +142,57 @@ class MainWindow(QMainWindow):
             return
             
         try:
-            # Register new hotkey
-            self.hotkey_handler = keyboard.add_hotkey(hotkey, self.handle_stop_hotkey)
+            # Register new hotkey with suppress=False to ensure it doesn't block the key
+            self.hotkey_handler = keyboard.add_hotkey(hotkey, self.handle_stop_hotkey, suppress=False)
             print(f"Registered stop hotkey: {hotkey}")
         except Exception as e:
             print(f"Error registering hotkey '{hotkey}': {e}")
+            # Try with a different method if the first fails
+            try:
+                keyboard.unhook_all()  # Clear all previous hotkeys
+                self.hotkey_handler = keyboard.add_hotkey(hotkey, self.handle_stop_hotkey, suppress=False)
+                print(f"Registered stop hotkey (alternate method): {hotkey}")
+            except Exception as e2:
+                print(f"All attempts to register hotkey '{hotkey}' failed: {e2}")
     
     def handle_stop_hotkey(self):
         """Handle stop hotkey press"""
         print("Stop hotkey pressed!")
+        
+        # 使用静态标志防止重复触发
+        if hasattr(self, '_stop_processing') and self._stop_processing:
+            return
+        
+        self._stop_processing = True
         self.state["stop"] = True
         
-        # Show brief notification
+        # 显示通知
         if hasattr(self, 'tray_icon') and self.tray_icon is not None:
-            self.tray_icon.showMessage("autoMate", "Stopping automation...", QSystemTrayIcon.MessageIcon.Information, 1000)
+            self.tray_icon.showMessage("autoMate", "正在停止自动化...", QSystemTrayIcon.MessageIcon.Information, 2000)
+        
+        # 如果窗口最小化则恢复
+        if self.isMinimized():
+            self.showNormal()
+            self.activateWindow()
+        
+        # 更新UI显示停止状态
+        if hasattr(self, 'chat_display'):
+            self.chat_display.append("<span style='color:red'>⚠️ 操作已被热键停止</span>")
+        
+        # 确保工作线程知道停止
+        if hasattr(self, 'worker') and self.worker is not None:
+            if self.worker.isRunning():
+                pass
+        
+        # 使用定时器延迟重置标志，防止短时间内重复处理
+        QTimer.singleShot(2000, self._reset_stop_flag)
+        
+        # 确保热键注册后仍然可用
+        self.register_stop_hotkey()
+
+    def _reset_stop_flag(self):
+        """重置停止标志，允许下次热键事件处理"""
+        self._stop_processing = False
     
     def apply_theme(self):
         """Apply the current theme to the application"""
@@ -288,10 +331,36 @@ class MainWindow(QMainWindow):
         # Clear input box
         self.chat_input.clear()
         
-        # Show hotkey reminder
+        # Show hotkey reminder with auto-close functionality
         hotkey = self.state.get("stop_hotkey", DEFAULT_STOP_HOTKEY)
-        QMessageBox.information(self, "Automation Starting", 
-                               f"Automation will start now. You can press {hotkey} to stop at any time.")
+        msgBox = QMessageBox(self)
+        msgBox.setIcon(QMessageBox.Icon.Information)
+        msgBox.setWindowTitle("Automation Starting")
+        msgBox.setText(f"Automation will start now. You can press {hotkey} to stop at any time.")
+        msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+        
+        # Timer to auto-close after 3 seconds
+        QTimer.singleShot(3000, msgBox.accept)
+        
+        # Add countdown display
+        self.countdown_timer = QTimer(self)
+        self.countdown_time = 3
+        
+        # Update text with countdown
+        def update_countdown():
+            self.countdown_time -= 1
+            msgBox.setText(f"Automation will start now. You can press {hotkey} to stop at any time.\n\nThis window will close in {self.countdown_time} seconds...")
+            if self.countdown_time <= 0:
+                self.countdown_timer.stop()
+        
+        # Update text every second
+        self.countdown_timer.timeout.connect(update_countdown)
+        self.countdown_timer.start(1000)
+        
+        # Initial text with countdown
+        msgBox.setText(f"Automation will start now. You can press {hotkey} to stop at any time.\n\nThis window will close in {self.countdown_time} seconds...")
+        
+        msgBox.exec()
         
         # Minimize main window
         self.showMinimized()
@@ -363,7 +432,51 @@ class MainWindow(QMainWindow):
     def stop_process(self):
         """Stop processing"""
         self.state["stop"] = True
+        print("Stop button pressed!")
         
+        # Show notification
+        if hasattr(self, 'tray_icon') and self.tray_icon is not None:
+            self.tray_icon.showMessage("autoMate", "Stopping automation...", QSystemTrayIcon.MessageIcon.Information, 2000)
+        
+        # Update UI
+        if hasattr(self, 'chat_display'):
+            self.chat_display.append("<span style='color:red'>⚠️ Operation stopped by user</span>")
+        
+        # If a worker exists, make sure it knows to stop but keep the application running
+        if hasattr(self, 'worker') and self.worker is not None and self.worker.isRunning():
+            # Show message to user with auto-close functionality
+            msgBox = QMessageBox(self)
+            msgBox.setIcon(QMessageBox.Icon.Information)
+            msgBox.setWindowTitle("Automation Stopped")
+            msgBox.setText("The automation is being stopped. The application will remain running.")
+            msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
+            
+            # Timer to auto-close after 3 seconds
+            QTimer.singleShot(3000, msgBox.accept)
+            
+            # Add countdown display
+            self.countdown_timer = QTimer(self)
+            self.countdown_time = 3
+            
+            # Update text with countdown
+            def update_countdown():
+                self.countdown_time -= 1
+                msgBox.setText(f"The automation is being stopped. The application will remain running.\n\nThis window will close in {self.countdown_time} seconds...")
+                if self.countdown_time <= 0:
+                    self.countdown_timer.stop()
+            
+            # Update text every second
+            self.countdown_timer.timeout.connect(update_countdown)
+            self.countdown_timer.start(1000)
+            
+            # Initial text with countdown
+            msgBox.setText(f"The automation is being stopped. The application will remain running.\n\nThis window will close in {self.countdown_time} seconds...")
+            
+            msgBox.exec()
+            
+        # Make sure hotkey is still registered after stopping
+        self.register_stop_hotkey()
+    
     def clear_chat(self):
         """Clear chat history"""
         self.state["messages"] = []
@@ -382,6 +495,24 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'tray_icon') and self.tray_icon is not None and self.tray_icon.isVisible():
             self.hide()
             event.ignore()
+        # Check if this close event was triggered due to a hotkey stop
+        elif self.state.get("stop", False) and hasattr(self, 'worker') and self.worker is not None:
+            # Don't close the app, just stop the current task
+            self.state["stop"] = False  # Reset stop flag
+            event.ignore()
+        # Prevent automatic closure when worker is still running
+        elif hasattr(self, 'worker') and self.worker is not None and self.worker.isRunning():
+            # Ask user if they really want to exit
+            reply = QMessageBox.question(self, 'Exit Confirmation',
+                                       '自动化任务仍在运行中，确定要退出程序吗？',
+                                       QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
+                                       QMessageBox.StandardButton.No)
+            if reply == QMessageBox.StandardButton.Yes:
+                # Clean up on exit
+                keyboard.unhook_all()
+                event.accept()
+            else:
+                event.ignore()
         else:
             # Clean up on exit
             keyboard.unhook_all()

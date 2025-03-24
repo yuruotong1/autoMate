@@ -44,15 +44,23 @@ class AgentWorker(QThread):
         
         try:
             # Process with agent
-            for _ in sampling_loop_sync(
+            loop_iterator = sampling_loop_sync(
                 model=self.state["model"],
                 messages=self.state["messages"],
                 vision_agent=self.vision_agent,
                 screen_region=self.state.get("screen_region", None)
-            ):
+            )
+            
+            for _ in loop_iterator:
+                # 首先检查停止标志，如果停止则立即退出循环
                 if self.state["stop"]:
-                    self.state["chatbox_messages"].append({"role": "user", "content": "Stop!"})
-                    self.status_signal.emit("Operation stopped by user")
+                    # 添加停止消息
+                    self.state["chatbox_messages"].append({"role": "assistant", "content": "<span style='color:red'>⚠️ 操作已被用户停止</span>"})
+                    self.status_signal.emit("操作已被用户停止")
+                    # 更新UI
+                    self.update_signal.emit(self.state["chatbox_messages"], 
+                                      [[task["status"], task["task"]] for task in self.state["tasks"]])
+                    # 立即返回，不再继续处理
                     return
 
                 # task_plan_agent first response
@@ -87,6 +95,14 @@ class AgentWorker(QThread):
                     else:
                         for i in range(task_completed_number + 1):
                             self.state["tasks"][i]["status"] = "✅"
+                
+                # Check stop flag again
+                if self.state["stop"]:
+                    self.state["chatbox_messages"].append({"role": "assistant", "content": "<span style='color:red'>⚠️ Operation stopped by user</span>"})
+                    self.status_signal.emit("Operation stopped by user")
+                    self.update_signal.emit(self.state["chatbox_messages"], 
+                                        [[task["status"], task["task"]] for task in self.state["tasks"]])
+                    return
                          
                 # Reconstruct chat messages from original messages
                 self.state["chatbox_messages"] = []

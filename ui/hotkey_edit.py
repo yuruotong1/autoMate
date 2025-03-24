@@ -5,7 +5,7 @@ import keyboard
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QPushButton
 
 # Default stop hotkey
-DEFAULT_STOP_HOTKEY = "ctrl+k"
+DEFAULT_STOP_HOTKEY = "alt+f3"
 
 class HotkeyEdit(QWidget):
     """Widget for recording hotkey combinations"""
