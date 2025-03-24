@@ -1,9 +1,9 @@
 import json
 from pydantic import BaseModel, Field
-from gradio_ui.agent.base_agent import BaseAgent
+from auto_control.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
-from gradio_ui.tools.computer import Action
+from auto_control.tools.computer import Action
 
 class TaskPlanAgent(BaseAgent):
     def __call__(self, messages, parsed_screen_result):

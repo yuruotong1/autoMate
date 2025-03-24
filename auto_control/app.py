@@ -7,8 +7,8 @@ import os
 from pathlib import Path
 import argparse
 import gradio as gr
-from gradio_ui.agent.vision_agent import VisionAgent
-from gradio_ui.loop import (
+from auto_control.agent.vision_agent import VisionAgent
+from auto_control.loop import (
     sampling_loop_sync,
 )
 import base64
@@ -349,4 +349,4 @@ def run():
             while True:
                 time.sleep(1) 
         except KeyboardInterrupt:
-            print("\n💤 closing server")
+            print("\n�� closing server")

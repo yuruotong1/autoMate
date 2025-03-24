@@ -3,7 +3,7 @@ from typing import Any, cast
 from anthropic.types.beta import (
     BetaContentBlock
 )
-from gradio_ui.tools import ComputerTool, ToolCollection
+from auto_control.tools import ComputerTool, ToolCollection
 
 
 class AnthropicExecutor:

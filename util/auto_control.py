@@ -4,12 +4,12 @@ import time
 
 # Add the project root directory to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from gradio_ui.agent.vision_agent import VisionAgent
+from auto_control.agent.vision_agent import VisionAgent
 from util.download_weights import MODEL_DIR
 from pynput import mouse, keyboard
 
-# Now you can import from gradio_ui
-from gradio_ui.tools.screen_capture import get_screenshot
+# Now you can import from auto_control
+from auto_control.tools.screen_capture import get_screenshot
 
 class AutoControl:
     def __init__(self):
@@ -81,8 +81,7 @@ class AutoControl:
         if key == keyboard.Key.esc:
             
             print("self.auto_list", self.auto_list)
-            vision_agent = VisionAgent(yolo_model_path=os.path.join(MODEL_DIR, "icon_detect", "model.pt"),
-                                 caption_model_path=os.path.join(MODEL_DIR, "icon_caption"))
+            vision_agent = VisionAgent(yolo_model_path=os.path.join(MODEL_DIR, "icon_detect", "model.pt"))
             
             for item in self.auto_list:
                 element_list =vision_agent(str(item["path"]))

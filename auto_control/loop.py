@@ -4,12 +4,12 @@ Agentic sampling loop that calls the Anthropic API and local implenmentation of 
 import base64
 from io import BytesIO
 import cv2
-from gradio_ui.agent.vision_agent import VisionAgent
-from gradio_ui.tools.screen_capture import get_screenshot
+from auto_control.agent.vision_agent import VisionAgent
+from auto_control.tools.screen_capture import get_screenshot
 from anthropic.types.beta import (BetaMessageParam)
-from gradio_ui.agent.task_plan_agent import TaskPlanAgent
-from gradio_ui.agent.task_run_agent import TaskRunAgent
-from gradio_ui.executor.anthropic_executor import AnthropicExecutor
+from auto_control.agent.task_plan_agent import TaskPlanAgent
+from auto_control.agent.task_run_agent import TaskRunAgent
+from auto_control.executor.anthropic_executor import AnthropicExecutor
 import numpy as np
 from PIL import Image
 

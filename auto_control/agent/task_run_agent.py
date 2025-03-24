@@ -2,10 +2,10 @@ import json
 import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
 from pydantic import Field, create_model
-from gradio_ui.agent.base_agent import BaseAgent
+from auto_control.agent.base_agent import BaseAgent
 from xbrain.core.chat import run
 
-from gradio_ui.tools.computer import Action
+from auto_control.tools.computer import Action
 class TaskRunAgent(BaseAgent):
     def __init__(self):
         self.OUTPUT_DIR = "./tmp/outputs"

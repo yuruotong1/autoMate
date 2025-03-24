@@ -14,3 +14,5 @@ einops==0.8.0
 modelscope
 pynput
 lap
+pyqt6==6.8.1
+keyboard==0.13.5
