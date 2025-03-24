@@ -4,6 +4,13 @@ about: Create a bug report to help us improve
 title: '[BUG] '
 labels: bug
 assignees: ''
+
+validations:
+  required_fields:
+    - title
+  title:
+    required: true
+    pattern: "^\\[BUG\\].+$"
 ---
 
 ## Version Information
