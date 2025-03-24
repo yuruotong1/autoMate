@@ -156,43 +156,8 @@ class MainWindow(QMainWindow):
                 print(f"All attempts to register hotkey '{hotkey}' failed: {e2}")
     
     def handle_stop_hotkey(self):
-        """Handle stop hotkey press"""
-        print("Stop hotkey pressed!")
-        
-        # 使用静态标志防止重复触发
-        if hasattr(self, '_stop_processing') and self._stop_processing:
-            return
-        
-        self._stop_processing = True
-        self.state["stop"] = True
-        
-        # 显示通知
-        if hasattr(self, 'tray_icon') and self.tray_icon is not None:
-            self.tray_icon.showMessage("autoMate", "正在停止自动化...", QSystemTrayIcon.MessageIcon.Information, 2000)
-        
-        # 如果窗口最小化则恢复
-        if self.isMinimized():
-            self.showNormal()
-            self.activateWindow()
-        
-        # 更新UI显示停止状态
-        if hasattr(self, 'chat_display'):
-            self.chat_display.append("<span style='color:red'>⚠️ 操作已被热键停止</span>")
-        
-        # 确保工作线程知道停止
-        if hasattr(self, 'worker') and self.worker is not None:
-            if self.worker.isRunning():
-                pass
-        
-        # 使用定时器延迟重置标志，防止短时间内重复处理
-        QTimer.singleShot(2000, self._reset_stop_flag)
-        
-        # 确保热键注册后仍然可用
-        self.register_stop_hotkey()
-
-    def _reset_stop_flag(self):
-        """重置停止标志，允许下次热键事件处理"""
-        self._stop_processing = False
+        """Handle stop hotkey press - redirects to stop_process with hotkey flag"""
+        self.stop_process(from_hotkey=True)
     
     def apply_theme(self):
         """Apply the current theme to the application"""
@@ -429,54 +394,34 @@ class MainWindow(QMainWindow):
             self.task_table.setItem(i, 0, QTableWidgetItem(status))
             self.task_table.setItem(i, 1, QTableWidgetItem(task))
     
-    def stop_process(self):
-        """Stop processing"""
+    def stop_process(self, from_hotkey=False):
+        """Stop processing - handles both button click and hotkey press
+        
+        Args:
+            from_hotkey (bool): Whether this was triggered by a hotkey (True) or button (False)
+        """
         self.state["stop"] = True
-        print("Stop button pressed!")
+        if hasattr(self, 'worker') and self.worker is not None:
+            self.worker.terminate()
+        if self.isMinimized():
+            self.showNormal()
+            self.activateWindow()
         
-        # Show notification
-        if hasattr(self, 'tray_icon') and self.tray_icon is not None:
-            self.tray_icon.showMessage("autoMate", "Stopping automation...", QSystemTrayIcon.MessageIcon.Information, 2000)
-        
-        # Update UI
-        if hasattr(self, 'chat_display'):
-            self.chat_display.append("<span style='color:red'>⚠️ Operation stopped by user</span>")
-        
-        # If a worker exists, make sure it knows to stop but keep the application running
-        if hasattr(self, 'worker') and self.worker is not None and self.worker.isRunning():
-            # Show message to user with auto-close functionality
-            msgBox = QMessageBox(self)
-            msgBox.setIcon(QMessageBox.Icon.Information)
-            msgBox.setWindowTitle("Automation Stopped")
-            msgBox.setText("The automation is being stopped. The application will remain running.")
-            msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
-            
-            # Timer to auto-close after 3 seconds
-            QTimer.singleShot(3000, msgBox.accept)
-            
-            # Add countdown display
-            self.countdown_timer = QTimer(self)
-            self.countdown_time = 3
-            
-            # Update text with countdown
-            def update_countdown():
-                self.countdown_time -= 1
-                msgBox.setText(f"The automation is being stopped. The application will remain running.\n\nThis window will close in {self.countdown_time} seconds...")
-                if self.countdown_time <= 0:
-                    self.countdown_timer.stop()
-            
-            # Update text every second
-            self.countdown_timer.timeout.connect(update_countdown)
-            self.countdown_timer.start(1000)
-            
-            # Initial text with countdown
-            msgBox.setText(f"The automation is being stopped. The application will remain running.\n\nThis window will close in {self.countdown_time} seconds...")
-            
-            msgBox.exec()
-            
-        # Make sure hotkey is still registered after stopping
+        self.chat_display.append("<span style='color:red'>⚠️ Operation stopped by user</span>")
         self.register_stop_hotkey()
-    
+        # self.ask_for_teaching()
+
+    def ask_for_teaching(self):
+        """Ask for teaching"""
+        msgBox = QMessageBox(self)
+        msgBox.setIcon(QMessageBox.Icon.Information)
+        msgBox.setWindowTitle("Teaching")
+        msgBox.setText("Do you want to teach me how to do this?")
+        msgBox.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msgBox.setWindowModality(Qt.WindowModality.NonModal)
+
+        msgBox.exec()
+
     def clear_chat(self):
         """Clear chat history"""
         self.state["messages"] = []
