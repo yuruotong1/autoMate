@@ -5,7 +5,7 @@ import time
 # Add the project root directory to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from auto_control.agent.vision_agent import VisionAgent
-from util.download_weights import MODEL_DIR
+from util.download_weights import OMNI_PARSER_DIR
 from pynput import mouse, keyboard
 
 # Now you can import from auto_control
@@ -81,7 +81,7 @@ class AutoControl:
         if key == keyboard.Key.esc:
             
             print("self.auto_list", self.auto_list)
-            vision_agent = VisionAgent(yolo_model_path=os.path.join(MODEL_DIR, "icon_detect", "model.pt"))
+            vision_agent = VisionAgent(yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt"))
             
             for item in self.auto_list:
                 element_list =vision_agent(str(item["path"]))
@@ -118,6 +118,25 @@ class AutoControl:
             return True
         
         return False
+
+# User action monitoring module
+
+def start_monitoring():
+    """
+    Start monitoring user actions (keyboard and mouse)
+    """
+    print("Started monitoring user actions")
+    # Implementation for monitoring user actions
+    # This could use libraries like pynput, pyautogui, etc.
+    
+def stop_monitoring():
+    """
+    Stop monitoring user actions
+    """
+    print("Stopped monitoring user actions")
+    # Implementation to stop monitoring
+    
+# Additional functionality for processing recorded actions
 
 if __name__ == "__main__":
     auto_control = AutoControl()

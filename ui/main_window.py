@@ -2,15 +2,15 @@
 Main application window
 """
 import os
+import sys
 import keyboard
 from pathlib import Path
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                           QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem,
-                           QTextEdit, QSplitter, QMessageBox, QHeaderView, QDialog, QSystemTrayIcon)
+                           QLabel, QLineEdit, QPushButton, QSplitter, QMessageBox, 
+                           QDialog, QSystemTrayIcon, QApplication)
 from PyQt6.QtCore import Qt, pyqtSlot, QSize
-from PyQt6.QtGui import QPixmap, QIcon, QTextCursor, QTextCharFormat, QColor
+from PyQt6.QtGui import QPixmap, QIcon, QKeySequence, QShortcut
 
-from xbrain.utils.config import Config
 from auto_control.agent.vision_agent import VisionAgent
 from util.download_weights import OMNI_PARSER_DIR
 
@@ -19,6 +19,10 @@ from ui.settings_dialog import SettingsDialog
 from ui.agent_worker import AgentWorker
 from ui.tray_icon import StatusTrayIcon
 from ui.hotkey_edit import DEFAULT_STOP_HOTKEY
+from ui.task_panel import TaskPanel
+from ui.chat_panel import ChatPanel
+from ui.recording_manager import RecordingManager
+from ui.settings_manager import SettingsManager
 
 # Intro text for application
 INTRO_TEXT = '''
@@ -32,6 +36,9 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.args = args
         
+        # Initialize settings manager
+        self.settings_manager = SettingsManager()
+        
         # Initialize state
         self.state = self.setup_initial_state()
         
@@ -39,6 +46,9 @@ class MainWindow(QMainWindow):
         self.vision_agent = VisionAgent(
             yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt")
         )
+        
+        # Initialize recording manager
+        self.recording_manager = RecordingManager(self)
         
         # Setup UI and tray icon
         self.setup_tray_icon()
@@ -50,8 +60,6 @@ class MainWindow(QMainWindow):
         # Register hotkey handler
         self.hotkey_handler = None
         self.register_stop_hotkey()
-        
-        print("\n\n🚀 PyQt6 application launched")
     
     def setup_tray_icon(self):
         """Setup system tray icon"""
@@ -71,22 +79,25 @@ class MainWindow(QMainWindow):
     
     def setup_initial_state(self):
         """Set up initial state"""
-        config = Config()
-        return {
-            "api_key": config.OPENAI_API_KEY or "",
-            "base_url": config.OPENAI_BASE_URL or "https://api.openai.com/v1",
-            "model": config.OPENAI_MODEL or "gpt-4o",
-            "theme": "Light",
-            "stop_hotkey": DEFAULT_STOP_HOTKEY,
+        # Get settings from settings manager
+        settings = self.settings_manager.get_settings()
+        
+        # Create state dictionary with settings and chat state
+        state = {
+            # Apply settings
+            **settings,
+            
+            # Chat state
             "messages": [],
             "chatbox_messages": [],
             "auth_validated": False,
             "responses": {},
             "tools": {},
             "tasks": [],
-            "only_n_most_recent_images": 2,
             "stop": False
         }
+        
+        return state
     
     def register_stop_hotkey(self):
         """Register the global stop hotkey"""
@@ -184,28 +195,15 @@ class MainWindow(QMainWindow):
         # Main content area
         content_splitter = QSplitter(Qt.Orientation.Horizontal)
         
-        # Task list
-        task_widget = QWidget()
-        task_layout = QVBoxLayout(task_widget)
-        task_label = QLabel("Task List")
-        self.task_table = QTableWidget(0, 2)
-        self.task_table.setHorizontalHeaderLabels(["Status", "Task"])
-        self.task_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        task_layout.addWidget(task_label)
-        task_layout.addWidget(self.task_table)
+        # Task panel
+        self.task_panel = TaskPanel()
         
-        # Chat area
-        chat_widget = QWidget()
-        chat_layout = QVBoxLayout(chat_widget)
-        chat_label = QLabel("Chat History")
-        self.chat_display = QTextEdit()
-        self.chat_display.setReadOnly(True)
-        chat_layout.addWidget(chat_label)
-        chat_layout.addWidget(self.chat_display)
+        # Chat panel
+        self.chat_panel = ChatPanel()
         
         # Add to splitter
-        content_splitter.addWidget(task_widget)
-        content_splitter.addWidget(chat_widget)
+        content_splitter.addWidget(self.task_panel)
+        content_splitter.addWidget(self.chat_panel)
         content_splitter.setSizes([int(self.width() * 0.2), int(self.width() * 0.8)])
         
         # Add all components to main layout
@@ -224,28 +222,24 @@ class MainWindow(QMainWindow):
         
         if result == QDialog.DialogCode.Accepted:
             # Get and apply new settings
-            settings = dialog.get_settings()
+            new_settings = dialog.get_settings()
             
-            # Check if stop hotkey changed
-            old_hotkey = self.state.get("stop_hotkey", DEFAULT_STOP_HOTKEY)
-            new_hotkey = settings["stop_hotkey"]
+            # Update settings in settings manager
+            changes = self.settings_manager.update_settings(new_settings)
             
-            self.state["model"] = settings["model"]
-            self.state["base_url"] = settings["base_url"]
-            self.state["api_key"] = settings["api_key"]
-            self.state["stop_hotkey"] = new_hotkey
+            # Update state with new settings
+            self.state.update(new_settings)
             
-            # Update theme if changed
-            if settings["theme"] != self.state.get("theme", "Light"):
-                self.state["theme"] = settings["theme"]
+            # Apply theme change if needed
+            if changes["theme_changed"]:
                 self.apply_theme()
                 
-            if settings["screen_region"]:
-                self.state["screen_region"] = settings["screen_region"]
-                
             # Update hotkey if changed
-            if old_hotkey != new_hotkey:
+            if changes["hotkey_changed"]:
                 self.register_stop_hotkey()
+                
+            # Save settings to config
+            self.settings_manager.save_to_config()
     
     def process_input(self):
         """Process user input"""
@@ -285,43 +279,10 @@ class MainWindow(QMainWindow):
     def update_ui(self, chatbox_messages, tasks):
         """Update UI display"""
         # Update chat display
-        self.chat_display.clear()
-        
-        for msg in chatbox_messages:
-            role = msg["role"]
-            content = msg["content"]
-            
-            # Set different formats based on role
-            format = QTextCharFormat()
-            if role == "user":
-                format.setForeground(QColor(0, 0, 255))  # Blue for user
-                self.chat_display.append("You:")
-            else:
-                format.setForeground(QColor(0, 128, 0))  # Green for AI
-                self.chat_display.append("AI:")
-            
-            # Add content
-            cursor = self.chat_display.textCursor()
-            cursor.movePosition(QTextCursor.MoveOperation.End)
-            
-            # Special handling for HTML content
-            if "<" in content and ">" in content:
-                self.chat_display.insertHtml(content)
-                self.chat_display.append("")  # Add empty line
-            else:
-                self.chat_display.append(content)
-                self.chat_display.append("")  # Add empty line
-            
-            # Scroll to bottom
-            self.chat_display.verticalScrollBar().setValue(
-                self.chat_display.verticalScrollBar().maximum()
-            )
+        self.chat_panel.update_chat(chatbox_messages)
         
         # Update task table
-        self.task_table.setRowCount(len(tasks))
-        for i, (status, task) in enumerate(tasks):
-            self.task_table.setItem(i, 0, QTableWidgetItem(status))
-            self.task_table.setItem(i, 1, QTableWidgetItem(task))
+        self.task_panel.update_tasks(tasks)
     
     def stop_process(self):
         """Stop processing - handles both button click and hotkey press"""
@@ -331,9 +292,27 @@ class MainWindow(QMainWindow):
         if self.isMinimized():
             self.showNormal()
             self.activateWindow()
+        self.chat_panel.append_message("⚠️ Stopped by user", "red")
         
-        self.chat_display.append("<span style='color:red'>⚠️ Operation stopped by user</span>")
-        self.register_stop_hotkey()
+        # Use non-modal dialog
+        learn_dialog = QMessageBox(self)
+        learn_dialog.setIcon(QMessageBox.Icon.Question)
+        learn_dialog.setWindowTitle("Learning Opportunity")
+        learn_dialog.setText("Would you like to show the correct steps to improve the system?")
+        learn_dialog.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        learn_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        learn_dialog.setWindowModality(Qt.WindowModality.NonModal)
+        learn_dialog.show()
+        
+        # Connect signal to callback function
+        learn_dialog.buttonClicked.connect(self.handle_learn_dialog_response)
+    
+    def handle_learn_dialog_response(self, button):
+        if button.text() == "&Yes":
+            self.showMinimized()
+            self.recording_manager.start_demonstration()
+            # Update chat to show demonstration mode is active
+            self.chat_panel.append_message("📝 Demonstration mode activated. Please perform the correct actions.", "green")
     
     def clear_chat(self):
         """Clear chat history"""
@@ -343,27 +322,21 @@ class MainWindow(QMainWindow):
         self.state["tools"] = {}
         self.state["tasks"] = []
         
-        self.chat_display.clear()
-        self.task_table.setRowCount(0)
+        self.chat_panel.clear()
+        self.task_panel.clear()
     
     def closeEvent(self, event):
-        """Handle window close event"""
-        if hasattr(self, 'tray_icon') and self.tray_icon is not None and self.tray_icon.isVisible():
-            self.hide()
-            event.ignore()
-        elif self.state.get("stop", False) and hasattr(self, 'worker') and self.worker is not None:
-            self.state["stop"] = False
-            event.ignore()
-        elif hasattr(self, 'worker') and self.worker is not None and self.worker.isRunning():
-            reply = QMessageBox.question(self, 'Exit Confirmation',
-                                       '自动化任务仍在运行中，确定要退出程序吗？',
-                                       QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
-                                       QMessageBox.StandardButton.No)
-            if reply == QMessageBox.StandardButton.Yes:
-                keyboard.unhook_all()
-                event.accept()
-            else:
-                event.ignore()
-        else:
-            keyboard.unhook_all()
-            event.accept() 
+        keyboard.unhook_all()
+        event.accept() 
+        if hasattr(self, 'worker') and self.worker is not None:
+            self.worker.terminate()
+
+# 应用程序入口
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow(sys.argv)
+    window.show()
+    sys.exit(app.exec())  # 注意PyQt6中不需要括号
+
+if __name__ == "__main__":
+    main()
