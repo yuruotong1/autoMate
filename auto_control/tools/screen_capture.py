@@ -1,3 +1,4 @@
+import base64
 from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
@@ -8,7 +9,7 @@ from util import tool
 
 OUTPUT_DIR = "./tmp/outputs"
 
-def get_screenshot(screen_region=None, is_cursor=True):
+def get_screenshot(screen_region=None, is_cursor=True, is_base64=False):
     output_dir = Path(OUTPUT_DIR)
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"screenshot_{uuid4().hex}.png"
@@ -31,7 +32,10 @@ def get_screenshot(screen_region=None, is_cursor=True):
             black_mask.paste(region, (x1, y1, x2, y2))
             # Use the modified image as screenshot
             screenshot = black_mask
-        screenshot.save(path)
+        if is_base64:
+            screenshot.save(path)
+            with open(path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8'), path
         return screenshot, path
     except Exception as e:
         raise ToolError(f"Failed to capture screenshot: {str(e)}")

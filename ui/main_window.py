@@ -114,7 +114,6 @@ class MainWindow(QMainWindow):
                 self.hotkey_handler = None
             except:
                 pass
-        
         try:
             keyboard.unhook_all_hotkeys()
         except:
@@ -146,8 +145,25 @@ class MainWindow(QMainWindow):
     def _stop_process_main_thread(self):
         """在主线程中安全地执行停止处理"""
         self.state["stop"] = True
+        
+        # 停止 worker
         if hasattr(self, 'worker') and self.worker is not None:
             self.worker.terminate()
+        
+        # 停止录制/监听线程
+        if hasattr(self, 'recording_manager') and hasattr(self.recording_manager, 'listen_thread'):
+            if self.recording_manager.listen_thread is not None and self.recording_manager.listen_thread.isRunning():
+                # 停止监听线程
+                self.recording_manager.listen_thread.requestInterruption()
+                self.recording_manager.listen_thread.wait(1000)  # 等待最多1秒
+                if self.recording_manager.listen_thread.isRunning():
+                    self.recording_manager.listen_thread.terminate()  # 强制终止
+                
+                # 清理相关状态
+                self.recording_manager.listen_thread = None
+                self.chat_panel.append_message("📝 录制已停止", "blue")
+        
+        # 其他现有的停止处理代码...
         if self.isMinimized():
             self.showNormal()
             self.activateWindow()

@@ -2,10 +2,38 @@
 Recording manager for autoMate
 Handles recording and demonstration functionality
 """
-import util.auto_control as auto_control
+from util.auto_control import AutoControl
 from ui.recording_panel import RecordingIndicator
 from ui.demonstration_panel import DemonstrationPanel
+from PyQt6.QtCore import QThread, pyqtSignal
+import time
 
+class ActionListenThread(QThread):
+    finished_signal = pyqtSignal() 
+    
+    def __init__(self, action_listen):
+        super().__init__()
+        self.action_listen = action_listen
+    
+    def run(self):
+        try:
+            # start listen
+            self.action_listen.start_listen()
+            
+            # wait for interruption request
+            while not self.isInterruptionRequested():
+                time.sleep(0.1)
+                
+        except Exception as e:
+            print(f"Action listening error: {e}")
+        finally:
+            # stop listen and clean up resources
+            try:
+                self.action_listen.stop_listen()
+                self.finished_signal.emit()
+            except Exception as e:
+                print(f"Cleanup error: {e}")
+    
 class RecordingManager:
     def __init__(self, parent=None):
         self.parent = parent
@@ -13,69 +41,44 @@ class RecordingManager:
         self.recording_indicator = None
         self.demo_panel = None
         self.demonstration_mode = False
-        
-    def start_recording(self):
-        """Start recording user actions"""
-        if not self.recording_in_progress:
-            self.recording_in_progress = True
-            
-            # 最小化主窗口
-            if self.parent:
-                self.parent.showMinimized()
-            
-            # 显示录制指示器
-            self.recording_indicator = RecordingIndicator(stop_callback=self.stop_recording)
-            self.recording_indicator.show()
-            
-            # 开始监听用户动作
-            auto_control.start_monitoring()
-            
-    def stop_recording(self):
-        """Stop recording user actions"""
-        if self.recording_in_progress:
-            self.recording_in_progress = False
-            
-            # 停止监听用户动作
-            auto_control.stop_monitoring()
-            
-            # 关闭录制指示器
-            if self.recording_indicator:
-                self.recording_indicator.close()
-                self.recording_indicator = None
-            
-            # 恢复主窗口
-            if self.parent:
-                self.parent.showNormal()
+        self.action_listen = AutoControl()
     
     def start_demonstration(self):
         """Start demonstration mode for system learning"""
         # Set demonstration mode flag
         self.demonstration_mode = True
         
-        # 隐藏主窗口
+        # hide main window
         if self.parent:
             self.parent.showMinimized()
         
-        # 创建并显示独立的演示控制面板
+        # create and show independent demonstration control panel
         self.demo_panel = DemonstrationPanel(stop_callback=self.stop_demonstration)
         self.demo_panel.show()
         
-        # 开始监听用户动作
-        auto_control.start_monitoring()
+        # create and start listen thread
+        self.listen_thread = ActionListenThread(self.action_listen)
+        self.listen_thread.finished_signal.connect(self.process_recorded_actions)
+        self.listen_thread.start()
     
     def stop_demonstration(self):
         """Stop demonstration mode and process the recorded actions"""
-        # 停止监听用户动作
-        auto_control.stop_monitoring()
-        
-        # 关闭独立的演示控制面板
+        # stop listening to user actions
+        self.listen_thread.requestInterruption()
+        # close independent demonstration control panel
         if self.demo_panel:
             self.demo_panel.close()
             self.demo_panel = None
         
-        # 恢复主窗口
+        # restore main window
         if self.parent:
             self.parent.showNormal()
         
         # Reset state
-        self.demonstration_mode = False 
+        self.demonstration_mode = False
+    
+    def process_recorded_actions(self):
+        """process all recorded actions"""
+        # get all collected actions
+        recorded_actions = self.action_listen.auto_list
+        print("recorded_actions: ", recorded_actions)
