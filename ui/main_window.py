@@ -7,7 +7,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem,
                            QTextEdit, QSplitter, QMessageBox, QHeaderView, QDialog, QSystemTrayIcon)
-from PyQt6.QtCore import Qt, pyqtSlot, QSize, QTimer
+from PyQt6.QtCore import Qt, pyqtSlot, QSize
 from PyQt6.QtGui import QPixmap, QIcon, QTextCursor, QTextCharFormat, QColor
 
 from xbrain.utils.config import Config
@@ -40,12 +40,10 @@ class MainWindow(QMainWindow):
             yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt")
         )
         
-        # Create tray icon
+        # Setup UI and tray icon
         self.setup_tray_icon()
-        
         self.setWindowTitle("autoMate")
         self.setMinimumSize(1200, 800)
-        
         self.init_ui()
         self.apply_theme()
         
@@ -53,74 +51,46 @@ class MainWindow(QMainWindow):
         self.hotkey_handler = None
         self.register_stop_hotkey()
         
-        # Print startup information
-        print(f"\n\n🚀 PyQt6 application launched")
+        print("\n\n🚀 PyQt6 application launched")
     
     def setup_tray_icon(self):
         """Setup system tray icon"""
-        # Create or load icon
         try:
             script_dir = Path(__file__).parent
-            
-            # Use logo.png as icon
             image_path = script_dir.parent / "imgs" / "logo.png"
-            # Load image and create suitable icon size
             pixmap = QPixmap(str(image_path))
-            # Resize to suitable icon size
             icon_pixmap = pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             app_icon = QIcon(icon_pixmap)
-            # Set application icon
             self.setWindowIcon(app_icon)
             
-            # Create system tray icon
             self.tray_icon = StatusTrayIcon(app_icon, self)
             self.tray_icon.show()
-            
         except Exception as e:
             print(f"Error setting up tray icon: {e}")
             self.tray_icon = None
     
     def setup_initial_state(self):
         """Set up initial state"""
-        state = {}
-        
-        # Load data from config
         config = Config()
-        if config.OPENAI_API_KEY:
-            state["api_key"] = config.OPENAI_API_KEY
-        else:
-            state["api_key"] = ""
-            
-        if config.OPENAI_BASE_URL:
-            state["base_url"] = config.OPENAI_BASE_URL
-        else:
-            state["base_url"] = "https://api.openai.com/v1"
-            
-        if config.OPENAI_MODEL:
-            state["model"] = config.OPENAI_MODEL
-        else:
-            state["model"] = "gpt-4o"
-        
-        # Default to light theme
-        state["theme"] = "Light"
-        
-        # Default stop hotkey
-        state["stop_hotkey"] = DEFAULT_STOP_HOTKEY
-        
-        state["messages"] = []
-        state["chatbox_messages"] = []
-        state["auth_validated"] = False
-        state["responses"] = {}
-        state["tools"] = {}
-        state["tasks"] = []
-        state["only_n_most_recent_images"] = 2
-        state["stop"] = False
-        
-        return state
+        return {
+            "api_key": config.OPENAI_API_KEY or "",
+            "base_url": config.OPENAI_BASE_URL or "https://api.openai.com/v1",
+            "model": config.OPENAI_MODEL or "gpt-4o",
+            "theme": "Light",
+            "stop_hotkey": DEFAULT_STOP_HOTKEY,
+            "messages": [],
+            "chatbox_messages": [],
+            "auth_validated": False,
+            "responses": {},
+            "tools": {},
+            "tasks": [],
+            "only_n_most_recent_images": 2,
+            "stop": False
+        }
     
     def register_stop_hotkey(self):
         """Register the global stop hotkey"""
-        # First unregister any existing hotkey
+        # Clean up existing hotkeys
         if self.hotkey_handler:
             try:
                 keyboard.unhook(self.hotkey_handler)
@@ -128,7 +98,6 @@ class MainWindow(QMainWindow):
             except:
                 pass
         
-        # 确保所有旧的热键处理器都被清除
         try:
             keyboard.unhook_all_hotkeys()
         except:
@@ -136,33 +105,24 @@ class MainWindow(QMainWindow):
         
         # Get the current hotkey from state
         hotkey = self.state.get("stop_hotkey", DEFAULT_STOP_HOTKEY)
-        
-        # Check if hotkey is valid
         if not hotkey:
             return
             
         try:
-            # Register new hotkey with suppress=False to ensure it doesn't block the key
-            self.hotkey_handler = keyboard.add_hotkey(hotkey, self.handle_stop_hotkey, suppress=False)
+            self.hotkey_handler = keyboard.add_hotkey(hotkey, self.stop_process, suppress=False)
             print(f"Registered stop hotkey: {hotkey}")
         except Exception as e:
             print(f"Error registering hotkey '{hotkey}': {e}")
-            # Try with a different method if the first fails
             try:
-                keyboard.unhook_all()  # Clear all previous hotkeys
-                self.hotkey_handler = keyboard.add_hotkey(hotkey, self.handle_stop_hotkey, suppress=False)
+                keyboard.unhook_all()
+                self.hotkey_handler = keyboard.add_hotkey(hotkey, self.stop_process, suppress=False)
                 print(f"Registered stop hotkey (alternate method): {hotkey}")
             except Exception as e2:
                 print(f"All attempts to register hotkey '{hotkey}' failed: {e2}")
     
-    def handle_stop_hotkey(self):
-        """Handle stop hotkey press - redirects to stop_process with hotkey flag"""
-        self.stop_process(from_hotkey=True)
-    
     def apply_theme(self):
         """Apply the current theme to the application"""
-        theme_name = self.state.get("theme", "Light")
-        apply_theme(self, theme_name)
+        apply_theme(self, self.state.get("theme", "Light"))
     
     def init_ui(self):
         """Initialize UI components"""
@@ -296,37 +256,6 @@ class MainWindow(QMainWindow):
         # Clear input box
         self.chat_input.clear()
         
-        # Show hotkey reminder with auto-close functionality
-        hotkey = self.state.get("stop_hotkey", DEFAULT_STOP_HOTKEY)
-        msgBox = QMessageBox(self)
-        msgBox.setIcon(QMessageBox.Icon.Information)
-        msgBox.setWindowTitle("Automation Starting")
-        msgBox.setText(f"Automation will start now. You can press {hotkey} to stop at any time.")
-        msgBox.setStandardButtons(QMessageBox.StandardButton.Ok)
-        
-        # Timer to auto-close after 3 seconds
-        QTimer.singleShot(3000, msgBox.accept)
-        
-        # Add countdown display
-        self.countdown_timer = QTimer(self)
-        self.countdown_time = 3
-        
-        # Update text with countdown
-        def update_countdown():
-            self.countdown_time -= 1
-            msgBox.setText(f"Automation will start now. You can press {hotkey} to stop at any time.\n\nThis window will close in {self.countdown_time} seconds...")
-            if self.countdown_time <= 0:
-                self.countdown_timer.stop()
-        
-        # Update text every second
-        self.countdown_timer.timeout.connect(update_countdown)
-        self.countdown_timer.start(1000)
-        
-        # Initial text with countdown
-        msgBox.setText(f"Automation will start now. You can press {hotkey} to stop at any time.\n\nThis window will close in {self.countdown_time} seconds...")
-        
-        msgBox.exec()
-        
         # Minimize main window
         self.showMinimized()
         
@@ -394,12 +323,8 @@ class MainWindow(QMainWindow):
             self.task_table.setItem(i, 0, QTableWidgetItem(status))
             self.task_table.setItem(i, 1, QTableWidgetItem(task))
     
-    def stop_process(self, from_hotkey=False):
-        """Stop processing - handles both button click and hotkey press
-        
-        Args:
-            from_hotkey (bool): Whether this was triggered by a hotkey (True) or button (False)
-        """
+    def stop_process(self):
+        """Stop processing - handles both button click and hotkey press"""
         self.state["stop"] = True
         if hasattr(self, 'worker') and self.worker is not None:
             self.worker.terminate()
@@ -409,19 +334,7 @@ class MainWindow(QMainWindow):
         
         self.chat_display.append("<span style='color:red'>⚠️ Operation stopped by user</span>")
         self.register_stop_hotkey()
-        # self.ask_for_teaching()
-
-    def ask_for_teaching(self):
-        """Ask for teaching"""
-        msgBox = QMessageBox(self)
-        msgBox.setIcon(QMessageBox.Icon.Information)
-        msgBox.setWindowTitle("Teaching")
-        msgBox.setText("Do you want to teach me how to do this?")
-        msgBox.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        msgBox.setWindowModality(Qt.WindowModality.NonModal)
-
-        msgBox.exec()
-
+    
     def clear_chat(self):
         """Clear chat history"""
         self.state["messages"] = []
@@ -435,30 +348,22 @@ class MainWindow(QMainWindow):
     
     def closeEvent(self, event):
         """Handle window close event"""
-        # This allows the app to continue running in the system tray
-        # when the main window is closed
         if hasattr(self, 'tray_icon') and self.tray_icon is not None and self.tray_icon.isVisible():
             self.hide()
             event.ignore()
-        # Check if this close event was triggered due to a hotkey stop
         elif self.state.get("stop", False) and hasattr(self, 'worker') and self.worker is not None:
-            # Don't close the app, just stop the current task
-            self.state["stop"] = False  # Reset stop flag
+            self.state["stop"] = False
             event.ignore()
-        # Prevent automatic closure when worker is still running
         elif hasattr(self, 'worker') and self.worker is not None and self.worker.isRunning():
-            # Ask user if they really want to exit
             reply = QMessageBox.question(self, 'Exit Confirmation',
                                        '自动化任务仍在运行中，确定要退出程序吗？',
                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
                                        QMessageBox.StandardButton.No)
             if reply == QMessageBox.StandardButton.Yes:
-                # Clean up on exit
                 keyboard.unhook_all()
                 event.accept()
             else:
                 event.ignore()
         else:
-            # Clean up on exit
             keyboard.unhook_all()
             event.accept() 
