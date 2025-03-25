@@ -8,7 +8,7 @@ from pathlib import Path
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QLabel, QLineEdit, QPushButton, QSplitter, QMessageBox, 
                            QDialog, QSystemTrayIcon, QApplication)
-from PyQt6.QtCore import Qt, pyqtSlot, QSize
+from PyQt6.QtCore import Qt, pyqtSlot, QSize, QMetaObject, Q_ARG, Qt, QObject, pyqtSignal
 from PyQt6.QtGui import QPixmap, QIcon, QKeySequence, QShortcut
 
 from auto_control.agent.vision_agent import VisionAgent
@@ -32,9 +32,15 @@ Based on Omniparser to control desktop!
 class MainWindow(QMainWindow):
     """Main application window"""
     
+    # 添加一个信号用于安全地在主线程调用stop_process
+    stop_signal = pyqtSignal()
+    
     def __init__(self, args):
         super().__init__()
         self.args = args
+        
+        # 连接信号到槽
+        self.stop_signal.connect(self._stop_process_main_thread)
         
         # Initialize settings manager
         self.settings_manager = SettingsManager()
@@ -120,16 +126,45 @@ class MainWindow(QMainWindow):
             return
             
         try:
-            self.hotkey_handler = keyboard.add_hotkey(hotkey, self.stop_process, suppress=False)
+            # 修改热键回调，改为发送信号
+            self.hotkey_handler = keyboard.add_hotkey(hotkey, self._emit_stop_signal, suppress=False)
             print(f"Registered stop hotkey: {hotkey}")
         except Exception as e:
             print(f"Error registering hotkey '{hotkey}': {e}")
             try:
                 keyboard.unhook_all()
-                self.hotkey_handler = keyboard.add_hotkey(hotkey, self.stop_process, suppress=False)
+                # 修改热键回调，改为发送信号
+                self.hotkey_handler = keyboard.add_hotkey(hotkey, self._emit_stop_signal, suppress=False)
                 print(f"Registered stop hotkey (alternate method): {hotkey}")
             except Exception as e2:
                 print(f"All attempts to register hotkey '{hotkey}' failed: {e2}")
+    
+    def _emit_stop_signal(self):
+        """从热键回调中安全地发送停止信号"""
+        self.stop_signal.emit()
+    
+    def _stop_process_main_thread(self):
+        """在主线程中安全地执行停止处理"""
+        self.state["stop"] = True
+        if hasattr(self, 'worker') and self.worker is not None:
+            self.worker.terminate()
+        if self.isMinimized():
+            self.showNormal()
+            self.activateWindow()
+        self.chat_panel.append_message("⚠️ Stopped by user", "red")
+        
+        # Use non-modal dialog
+        learn_dialog = QMessageBox(self)
+        learn_dialog.setIcon(QMessageBox.Icon.Question)
+        learn_dialog.setWindowTitle("Learning Opportunity")
+        learn_dialog.setText("Would you like to show the correct steps to improve the system?")
+        learn_dialog.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        learn_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        learn_dialog.setWindowModality(Qt.WindowModality.NonModal)
+        learn_dialog.show()
+        
+        # Connect signal to callback function
+        learn_dialog.buttonClicked.connect(self.handle_learn_dialog_response)
     
     def apply_theme(self):
         """Apply the current theme to the application"""
@@ -285,27 +320,9 @@ class MainWindow(QMainWindow):
         self.task_panel.update_tasks(tasks)
     
     def stop_process(self):
-        """Stop processing - handles both button click and hotkey press"""
-        self.state["stop"] = True
-        if hasattr(self, 'worker') and self.worker is not None:
-            self.worker.terminate()
-        if self.isMinimized():
-            self.showNormal()
-            self.activateWindow()
-        self.chat_panel.append_message("⚠️ Stopped by user", "red")
-        
-        # Use non-modal dialog
-        learn_dialog = QMessageBox(self)
-        learn_dialog.setIcon(QMessageBox.Icon.Question)
-        learn_dialog.setWindowTitle("Learning Opportunity")
-        learn_dialog.setText("Would you like to show the correct steps to improve the system?")
-        learn_dialog.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        learn_dialog.setDefaultButton(QMessageBox.StandardButton.No)
-        learn_dialog.setWindowModality(Qt.WindowModality.NonModal)
-        learn_dialog.show()
-        
-        # Connect signal to callback function
-        learn_dialog.buttonClicked.connect(self.handle_learn_dialog_response)
+        """Stop processing - 处理按钮点击"""
+        # 直接调用主线程处理方法，因为按钮点击已经在主线程中
+        self._stop_process_main_thread()
     
     def handle_learn_dialog_response(self, button):
         if button.text() == "&Yes":
