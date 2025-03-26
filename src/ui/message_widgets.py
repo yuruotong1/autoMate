@@ -3,7 +3,7 @@ Message widget components for chat interface
 """
 from PyQt6.QtWidgets import (QWidget, QLabel, QHBoxLayout, QVBoxLayout)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QColor, QPalette
+from PyQt6.QtGui import QFont
 
 
 class MessageWidget(QWidget):

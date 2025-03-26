@@ -2,8 +2,6 @@
 Main application window for the AutoMate interface
 """
 from PyQt6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QApplication
-from PyQt6.QtCore import Qt
-
 from src.ui.chat_area import ChatArea
 from src.ui.input_area import InputArea
 from src.ui.profile_widget import ProfileWidget

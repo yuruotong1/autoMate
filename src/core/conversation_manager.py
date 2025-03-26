@@ -4,8 +4,8 @@ Conversation manager module for handling dialog flow and states
 import json
 import time
 from PyQt6.QtCore import QObject, QThread, QTimer
-
 from src.core.input_listener import InputListener
+from xbrain.core.chat import run
 
 
 class ConversationManager(QObject):
@@ -98,8 +98,9 @@ class ConversationManager(QObject):
         
         # Format display based on action type
         if action["type"] == "mouse":
-            status_text = f"Mouse action: {action['event']} at position: {action['position']}"
+           
             self.text_buffer = ""
+
         elif action["type"] == "keyboard":
             current_time = time.time()
             

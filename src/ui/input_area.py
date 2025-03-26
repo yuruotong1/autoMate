@@ -2,8 +2,6 @@
 Input area component for user message entry
 """
 from PyQt6.QtWidgets import (QWidget, QTextEdit, QPushButton, QHBoxLayout, QVBoxLayout)
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont, QColor
 
 
 class InputArea(QWidget):

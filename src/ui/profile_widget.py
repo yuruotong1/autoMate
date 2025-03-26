@@ -2,7 +2,7 @@
 Profile widget component for displaying intern information
 """
 import os
-from PyQt6.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout)
+from PyQt6.QtWidgets import (QWidget, QLabel, QVBoxLayout)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QPixmap, QColor, QPainter, QPen
 
