@@ -2,12 +2,13 @@
 Recording manager for autoMate
 Handles recording and demonstration functionality
 """
+import yaml
+from auto_control.agent.few_shot_generate_agent import FewShotGenerateAgent
 from util.auto_control import AutoControl
-from ui.recording_panel import RecordingIndicator
 from ui.demonstration_panel import DemonstrationPanel
 from PyQt6.QtCore import QThread, pyqtSignal
 import time
-
+import os
 class ActionListenThread(QThread):
     finished_signal = pyqtSignal() 
     
@@ -81,4 +82,16 @@ class RecordingManager:
         """process all recorded actions"""
         # get all collected actions
         recorded_actions = self.action_listen.auto_list
-        print("recorded_actions: ", recorded_actions)
+        few_shot_generate_agent = FewShotGenerateAgent()
+        few_shot = few_shot_generate_agent(recorded_actions)
+        # Save few shot examples to ~/.automate directory
+          
+        # Create .automate directory if not exists
+        automate_dir = os.path.expanduser("~/.automate")
+        if not os.path.exists(automate_dir):
+            os.makedirs(automate_dir)
+        # Save few shot examples
+        few_shot_path = os.path.join(automate_dir, "few_shot.yaml")
+        with open(few_shot_path, "w", encoding="utf-8") as f:
+            yaml.dump(few_shot, f, allow_unicode=True)
+        print(f"Few shot examples saved to {few_shot_path}")

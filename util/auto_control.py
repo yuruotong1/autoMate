@@ -1,9 +1,6 @@
 import sys
 import os
 import time
-import json
-
-from auto_control.agent.few_shot_generate_agent import FewShotGenerateAgent
 # Add the project root directory to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pynput import mouse, keyboard
@@ -33,7 +30,6 @@ class ActionRecord:
 class AutoControl:
     def __init__(self):
         self.auto_list = []
-        self.tmp_auto_list = []
         self.text_buffer = []  # Buffer for collecting continuous text input
         self.last_key_time = 0  # Timestamp of last keypress
         self.input_timeout = 1.0  # Input timeout in seconds
@@ -170,8 +166,7 @@ class AutoControl:
         """Stop listening and prepare data for LLM analysis"""
         self.keyboard_listener.stop()
         self.mouse_listener.stop()
-        few_shot_generate_agent = FewShotGenerateAgent()
-        return few_shot_generate_agent(self.auto_list)
+        
 
 if __name__ == "__main__":
     auto_control = AutoControl()
