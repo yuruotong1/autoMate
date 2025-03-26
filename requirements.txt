@@ -1,18 +1,7 @@
-# torch
-# torchvision
-# easyocr
-supervision==0.18.0
-# transformers
-ultralytics==8.3.70
-numpy==1.26.4
-gradio
-pyautogui==0.9.54
-anthropic[bedrock,vertex]>=0.37.1
 pyxbrain==1.1.31
-timm
-einops==0.8.0
-modelscope
 pynput
-lap
-pyqt6==6.8.1
-keyboard==0.13.5
+pyqt6
+pyautogui==0.9.54
+pillow==11.1.0
+keyboard
+mouse
