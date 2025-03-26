@@ -4,6 +4,7 @@ Conversation manager module for handling dialog flow and states
 import json
 import time
 from PyQt6.QtCore import QObject, QThread, QTimer
+from src.core.few_shot_agent import FewShotGenerateAgent
 from src.core.input_listener import InputListener
 from xbrain.core.chat import run
 
@@ -95,11 +96,11 @@ class ConversationManager(QObject):
         
         # Initialize status text
         status_text = f"Action detected: {action}"
-        
+        few_shot_agent = FewShotGenerateAgent()
         # Format display based on action type
         if action["type"] == "mouse":
-           
             self.text_buffer = ""
+            status_text = few_shot_agent(action)
 
         elif action["type"] == "keyboard":
             current_time = time.time()
@@ -115,7 +116,8 @@ class ConversationManager(QObject):
             elif "key.space" in key_str.lower():
                 self.text_buffer += " "
             elif "key.enter" in key_str.lower() or "return" in key_str.lower():
-                status_text = f"Keyboard input completed: \"{self.text_buffer}\""
+                # status_text = f"Keyboard input completed: \"{self.text_buffer}\""
+                status_text = few_shot_agent(action)
                 self.update_mini_window_status(status_text)
                 self.text_buffer = ""
                 return
@@ -125,6 +127,7 @@ class ConversationManager(QObject):
             # Display buffer if timeout occurred
             if current_time - self.last_keypress_time > 2.0 and self.text_buffer:
                 status_text = f"Keyboard input: \"{self.text_buffer}\""
+                status_text = few_shot_agent(action)
             else:
                 status_text = f"Keyboard action: {action['event']} (current input: \"{self.text_buffer}\")"
             

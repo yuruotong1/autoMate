@@ -2,7 +2,8 @@
 Input area component for user message entry
 """
 from PyQt6.QtWidgets import (QWidget, QTextEdit, QPushButton, QHBoxLayout, QVBoxLayout)
-
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt
 
 class InputArea(QWidget):
     """
@@ -108,8 +109,9 @@ class InputArea(QWidget):
         if message:
             # Call the callback
             self.message_callback(message)
-            # Clear the input
-            self.text_edit.clear()
+            # Clear the input only if there is text
+            if len(message) > 0:
+                self.text_edit.clear()
     
     def set_enabled(self, enabled):
         """

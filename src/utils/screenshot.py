@@ -1,6 +1,7 @@
 """
 Screenshot utility module for capturing screen content
 """
+import base64
 from io import BytesIO
 import os
 from pathlib import Path
@@ -12,7 +13,7 @@ import pyautogui
 OUTPUT_DIR = "./tmp/outputs"
 
 
-def get_screenshot(screen_region=None, is_cursor=True):
+def get_screenshot(screen_region=None, is_cursor=True, is_base64=False):
     """
     Capture a screenshot with or without cursor
     
@@ -34,8 +35,6 @@ def get_screenshot(screen_region=None, is_cursor=True):
         img_io = BytesIO()
         pyautogui_screenshot.save(img_io, 'PNG')
     
-    screenshot = Image.open(img_io)
-    
     # Apply region mask if specified
     if screen_region and len(screen_region) == 4:
         black_mask = Image.new("RGBA", screenshot.size, (0, 0, 0, 255))
@@ -45,8 +44,11 @@ def get_screenshot(screen_region=None, is_cursor=True):
         black_mask.paste(region, (x1, y1, x2, y2))
         # Use the modified image as screenshot
         screenshot = black_mask
-    
-    screenshot.save(path)
+    if is_base64:
+        screenshot = base64.b64encode(img_io.getvalue()).decode('utf-8')
+    else:
+        screenshot = Image.open(img_io)
+        screenshot.save(path)
     return screenshot, path
 
 

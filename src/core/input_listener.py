@@ -44,32 +44,32 @@ class InputListener(QObject):
         Only emit on release (when pressed is False)
         """
         if not pressed:
-            _, screenshot_path = get_screenshot()
+            screenshot, _ = get_screenshot(is_base64=True)
             self.action_detected.emit({
                 "type": "mouse",
                 "event": button.name + " click",
                 "position": (x, y),
-                "screenshot_path": str(screenshot_path)
+                "base64_image": screenshot
             })
 
     def on_scroll(self, x, y, dx, dy, injected):
         """Handle mouse scroll events"""
-        _, screenshot_path = get_screenshot()
+        screenshot, _ = get_screenshot(is_base64=True)
         scroll_direction = 'down' if dy < 0 else 'up'
         self.action_detected.emit({
             "type": "mouse",
             "event": f"scroll {scroll_direction}",
             "position": (x, y),
-            "screenshot_path": str(screenshot_path)
+            "base64_image": screenshot
         })
 
     def on_release(self, key, injected):
         """Handle keyboard release events"""
-        _, screenshot_path = get_screenshot()
+        screenshot, _ = get_screenshot(is_base64=True)
         self.action_detected.emit({
             "type": "keyboard",
             "event": str(key),
-            "screenshot_path": str(screenshot_path)
+            "base64_image": screenshot
         })
 
     def stop_listen(self):
