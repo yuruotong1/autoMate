@@ -8,25 +8,9 @@ from src.core.few_shot_agent import FewShotGenerateAgent
 from src.core.input_listener import InputListener
 from xbrain.core.chat import run
 import multiprocessing
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Manager
 
-def run_agent_analysis_process(action_data):
-    """
-    独立的进程函数，运行在单独的进程中
-    """
-    try:
-        from src.core.few_shot_agent import FewShotGenerateAgent
-        agent = FewShotGenerateAgent()
-        result = agent(action_data)
-        return {
-            'step_number': action_data['step_number'],
-            'analysis': result
-        }
-    except Exception as e:
-        return {
-            'step_number': action_data['step_number'],
-            'analysis': f"Error analyzing step: {str(e)}"
-        }
+
 
 class ConversationManager(QObject):
     """
@@ -56,6 +40,11 @@ class ConversationManager(QObject):
         self.analysis_results = {}  # Store analysis results by step number
         self.pool = multiprocessing.Pool(processes=1)  # 使用进程池
         
+        # 使用Manager创建共享字典
+        self.manager = Manager()
+        self.analysis_results = self.manager.dict()
+        self.pool = multiprocessing.Pool(processes=1)
+        self.user_instruction = ""
         # Start the conversation
         self.start_conversation()
     
@@ -82,8 +71,6 @@ class ConversationManager(QObject):
             self.handle_greeting_response(message)
         elif self.conversation_state == "ask_for_demo":
             self.handle_demo_request(message)
-        elif self.conversation_state == "task_demonstration" and self.is_recording:
-            self.handle_task_demonstration(message)
         elif self.conversation_state == "ready":
             self.handle_ready_state(message)
     
@@ -92,6 +79,7 @@ class ConversationManager(QObject):
         response = "Nice to meet you! I heard you want to demonstrate a task for me, " + \
                   "so I can learn and help you with similar tasks in the future. When would you like to start?"
         self.chat_area.add_message("Xiao Hong", response)
+        self.user_instruction = message
         self.conversation_state = "ask_for_demo"
     
     def handle_demo_request(self, message):
@@ -117,7 +105,8 @@ class ConversationManager(QObject):
         action_data = {
             'type': action['type'],
             'event': str(action['event']),
-            'step_number': self.step_counter
+            'step_number': self.step_counter,
+            'base64_image': action['base64_image']
         }
         
         if action['type'] == 'keyboard' and self.text_buffer:
@@ -125,7 +114,7 @@ class ConversationManager(QObject):
             
         # 记录动作
         action['step_number'] = self.step_counter
-        self.task_demonstration.append(action)
+        self.task_demonstration.append(action_data)
         
         # 状态文本
         status_text = f"Step {self.step_counter}: "
@@ -165,31 +154,10 @@ class ConversationManager(QObject):
                 status_text += f"Keyboard action: {action['event']} (current input: \"{self.text_buffer}\")"
             
             self.last_keypress_time = current_time
-        
-        # 异步提交分析任务
-        self.pool.apply_async(
-            run_agent_analysis_process, 
-            args=(action_data,),
-            callback=self._handle_analysis_result
-        )
-        
         # 更新状态显示
         self.update_mini_window_status(status_text)
     
-    def _handle_analysis_result(self, result):
-        """处理分析结果的回调函数"""
-        if result and 'step_number' in result:
-            self.analysis_results[result['step_number']] = result.get('analysis', '')
 
-    def _get_combined_results(self):
-        """Combine all available results in step order"""
-        if not self.analysis_results:
-            return None
-            
-        combined_text = "Analysis summary:\n"
-        for step in sorted(self.analysis_results.keys()):
-            combined_text += f"Step {step}: {self.analysis_results[step]}\n"
-        return combined_text
 
     def update_mini_window_status(self, text):
         """
@@ -226,10 +194,7 @@ class ConversationManager(QObject):
     
     def finish_demonstration(self):
         """Complete the demonstration recording process"""
-        # 关闭进程池并等待所有任务完成
-        self.pool.close()
-        self.pool.join()
-        
+        # 关闭进程池并等待所有任务完成        
         # Clean up
         self.keyboard_mouse_listen.stop_listen()
         
@@ -243,41 +208,33 @@ class ConversationManager(QObject):
         self.is_recording = False
         self.save_task_demonstration()
         
-        # 显示分析结果
-        combined_results = self._get_combined_results()
-        if combined_results:
-            self.chat_area.add_message("System", "Task Analysis Summary:")
-            self.chat_area.add_message("System", combined_results)
-        
-        # 重新初始化进程池
+        # 显示学习中的消息
+        self.chat_area.add_message("System", "Learning in progress, please wait...")
+        # Create process pool for few shot agent
         self.pool = multiprocessing.Pool(processes=1)
         
-        # Show summary
-        response = f"I've successfully learned this task! Recorded and analyzed {self.step_counter} steps. " + \
-                  "Feel free to assign similar tasks to me in the future. 😊"
-        self.chat_area.add_message("Xiao Hong", response)
-        self.step_counter = 0  # Reset step counter
-        self.conversation_state = "ready"
+        # Call few shot agent asynchronously
+        agent = FewShotGenerateAgent()
+        # Get user instruction from main window
+        result = self.pool.apply_async(agent, args=(self.task_demonstration, self.user_instruction))
+        
+        try:
+            # Get result with timeout
+            response = result.get(timeout=999)
+            # Display response from agent
+            self.chat_area.add_message("Xiao Hong", "I've analyzed your demonstration. Here's what I learned:\n" + response)
+            
+        except TimeoutError:
+            self.chat_area.add_message("System", "Analysis timed out. Please try again.")
+        except Exception as e:
+            self.chat_area.add_message("System", f"Error during analysis: {str(e)}")
+        finally:
+            # Clean up pool
+            self.pool.close()
+            self.pool.join()
+       
     
-    def handle_task_demonstration(self, message):
-        """
-        Handle messages during task demonstration
-        
-        Args:
-            message: User message
-        """
-        self.task_demonstration.append(message)
-        
-        if any(keyword in message.lower() for keyword in ["done", "finish", "completed", "complete"]):
-            self.is_recording = False
-            self.save_task_demonstration()
-            response = "I've learned this task! Thank you for the demonstration. " + \
-                      "You can now assign similar tasks to me in the future. 😊"
-            self.chat_area.add_message("Xiao Hong", response)
-            self.conversation_state = "ready"
-        else:
-            response = "I'm still learning... Please continue your demonstration."
-            self.chat_area.add_message("Xiao Hong", response)
+    
     
     def handle_ready_state(self, message):
         """
@@ -302,4 +259,6 @@ class ConversationManager(QObject):
         """析构函数，确保进程池正确关闭"""
         if hasattr(self, 'pool'):
             self.pool.close()
-            self.pool.join() 
+            self.pool.join()
+        if hasattr(self, 'manager'):
+            self.manager.shutdown() 
