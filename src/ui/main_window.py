@@ -1,7 +1,10 @@
 """
 Main application window for the AutoMate interface
 """
-from PyQt6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QApplication
+from PyQt6.QtWidgets import (
+    QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QApplication
+)
+from PyQt6.QtCore import Qt
 from src.ui.chat_area import ChatArea
 from src.ui.input_area import InputArea
 from src.ui.profile_widget import ProfileWidget
@@ -32,6 +35,9 @@ class MainWindow(QMainWindow):
         y = (screen.height() - window_size.height()) // 2
         self.move(x, y)
         
+        # Create mini window for demonstration mode first
+        self.mini_window = MiniWindow(self.finish_demonstration)
+        
         # Create central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -56,9 +62,6 @@ class MainWindow(QMainWindow):
         # Create chat area
         self.chat_area = ChatArea()
         
-        # Create mini window for demonstration mode
-        self.mini_window = MiniWindow(self.finish_demonstration)
-        
         # Create conversation manager
         self.conversation_manager = ConversationManager(self.chat_area, self.mini_window)
         
@@ -81,4 +84,4 @@ class MainWindow(QMainWindow):
     
     def finish_demonstration(self):
         """Finish demonstration callback for mini window"""
-        self.conversation_manager.finish_demonstration() 
+        self.conversation_manager.finish_demonstration()

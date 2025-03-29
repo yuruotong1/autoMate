@@ -1,7 +1,15 @@
 pyxbrain==1.1.31
 pynput
 pyqt6
-pyautogui==0.9.54
-pillow==11.1.0
+pyautogui
+pillow
 keyboard
 mouse
+speechrecognition
+pyaudio
+numpy
+soundfile
+pydub
+webrtcvad-wheels
+baidu-aip
+chardet
