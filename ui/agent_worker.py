@@ -78,7 +78,10 @@ class AgentWorker(QThread):
                         
                     # Update task progress
                     content_json = json.loads(self.state["messages"][-1]["content"])
-                    task_completed_number = content_json["current_task_id"]
+                    if "current_task_id" in content_json:
+                        task_completed_number = content_json["current_task_id"]
+                    else:
+                        task_completed_number = 0
                     
                     # Update status with reasoning
                     if "reasoning" in content_json:
