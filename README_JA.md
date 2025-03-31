@@ -13,10 +13,10 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 </div>
 
-> 特別声明：autoMateプロジェクトはまだ非常に初期段階にあり、現在は主に学習目的で使用されています。私たちは常にブレークスルーを求め、最新技術を取り入れています！質問がある場合は、WeChat友達追加してグループチャットに参加することもできます。
+> 特別声明：autoMateプロジェクトはまだ非常に初期段階にあり、現在は主に学習目的で使用されています。私たちは常にブレークスルーを求め、最新技術を取り入れています！質問がある場合は、友達追加してグループチャットに参加することもできます。
 
 <div align="center">
-<img src="./imgs/wxchat.png" width="120" height="120" alt="autoMate logo">
+<img src="./imgs/knowledge.png" width="120" height="120" alt="autoMate logo">
 </div>
 
 
