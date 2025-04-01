@@ -13,10 +13,15 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 </div>
 
-> 特别声明：autoMate 项目还处于非常早期阶段，当前更多用于学习。我们会不断的寻求突破点，不停地融入最新的技术！如果你有任何疑问，也可以加知识星球交流。
+> **特别声明：** autoMate 项目仍处于快速迭代的早期阶段，我们会不断探索和融入最新技术。在这个过程中，**更深入的设计思考、技术选型讨论、遇到的挑战与解决方案，以及我对 AI+RPA 领域的持续研究笔记，会主要在我的 [知识星球「AI桐木和他的贵人们」](https://t.zsxq.com/x1cCW)** 中分享和探讨。
+>
+> 如果你对 autoMate 背后的技术细节、发展方向或更广泛的 AI 自动化话题感兴趣，欢迎扫码加入，与我和其他朋友一起交流，共同见证 autoMate 的成长！
 
 <div align="center">
-<img src="./imgs/knowledge.png" width="120" height="120" alt="autoMate logo">
+<figure>
+    <a href="[你的知识星球链接]" target="_blank" rel="noopener noreferrer"><img src="./imgs/knowledge.png" width="150" height="150" alt="知识星球二维码"></a>
+    <figcaption>扫码或点击加入知识星球</figcaption> 
+</figure>
 </div>
 
 

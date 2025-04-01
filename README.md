@@ -2,37 +2,42 @@
 
 <img src="./imgs/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
-<p><b>🤖 AI-powered Local Automation Tool | Make Your Computer Work For You</b></p>
+<p><b>🤖 AI-Powered Local Automation Tool | Let Your Computer Work for You</b></p>
 
 [中文](./README_CN.md) | [日本語](./README_JA.md)
 
->"Automate the tedious, reclaim your time for life"
+>"Automate the tedious, give time back to life"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 
 </div>
 
-> Special Note: The autoMate project is still in a very early stage and is currently more for learning purposes. We are constantly looking for breakthroughs and continuously integrating the latest technologies! If you have any questions, you can also add Knowledge friends to join the group for communication.
+> **Special Note:** The autoMate project is still in its early stages of rapid iteration, and we continue to explore and integrate the latest technologies. During this process, **deeper design thinking, technical stack discussions, challenges and solutions encountered, as well as my ongoing research notes on AI+RPA, will be primarily shared and discussed in my [Knowledge Planet "AI Tongmu and His Noble Friends"](https://t.zsxq.com/x1cCW)**.
+>
+> If you're interested in the technical details behind autoMate, its development direction, or broader AI automation topics, feel free to scan the QR code to join and discuss with me and other friends, witnessing the growth of autoMate together!
 
 <div align="center">
-<img src="./imgs/knowledge.png" width="120" height="120" alt="autoMate logo">
+<figure>
+    <a href="[Your Knowledge Planet Link]" target="_blank" rel="noopener noreferrer"><img src="./imgs/knowledge.png" width="150" height="150" alt="Knowledge Planet QR Code"></a>
+    <figcaption>Scan or click to join Knowledge Planet</figcaption> 
+</figure>
 </div>
 
 
-## 💫 Redefine Your Relationship with Computers
+## 💫 Redefining Your Relationship with Computers
 
-Unlike the complexity of traditional RPA tools, autoMate leverages the power of large language models to complete complex automation processes with just natural language descriptions of tasks. Say goodbye to repetitive work and focus on what truly creates value!
+Unlike traditional RPA tools that are cumbersome to use, autoMate leverages the power of large language models to complete complex automation processes simply by describing tasks in natural language. Say goodbye to repetitive work and focus on what truly creates value!
 
 **Let automation create more possibilities for your life.**
 
 ## 💡 Project Introduction
 autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
 
-- 📊 Understand your needs and automatically plan tasks
+- 📊 Understand your requirements and automatically plan tasks
 - 🔍 Intelligently comprehend screen content, simulating human vision and operations
 - 🧠 Make autonomous decisions, judging and taking actions based on task requirements
-- 💻 Support local deployment to protect your data security and privacy
+- 💻 Support local deployment, protecting your data security and privacy
 
 ## ✨ Features
 
@@ -40,14 +45,13 @@ autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
 - 🖥️ Full Interface Control - Support operations on any visual interface, not limited to specific software
 - 🚅 Simplified Installation - Support for Chinese environment, one-click deployment
 
-
 ## 🚀 Quick Start
 
-### 📥 Direct Use
-You can directly download the executable file from GitHub release to use.
+### 📥 Direct Usage
+You can directly download the executable file from github release.
 
 ### 📦 Installation
-It is strongly recommended to install miniConda first and use miniconda to install dependencies. There are many tutorials online; if you're still confused, you can ask AI. Then install the environment according to the following commands:
+We strongly recommend installing miniConda first and using miniconda to install dependencies. There are many tutorials available online, or you can ask AI for help. Then follow these commands to set up the environment:
 
 ```bash
 # Clone the project
@@ -60,53 +64,52 @@ conda activate automate
 # Install dependencies
 python install.py
 ```
-Launch Application
+
+After installation, you can start the application using the command line:
 
 ```bash
 python main.py
 ```
+
 Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
 
-### 🔔 Notice
-The models that have been tested and are currently supported are as follows:
+### 🔔 Note
 
-> PS: The following are large language model providers that have been tested and confirmed to work. We have no business relationship with these providers, therefore we cannot guarantee after-sales service, feature assurance, or stability maintenance. Please consider carefully when using paid services.
+Currently tested and supported models are as follows:
 
+> PS: Below are the large model vendors that have been tested and are working. These vendors have no relationship with us, so we don't promise after-sales service, functional guarantees, or stability maintenance. Please consider the payment situation carefully.
 
 | Vendor| Model |
 | --- | --- |
 |[yeka](https://2233.ai/api)|gpt-4o,o1|
 |openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27|
 
-
 ## 📝 FAQ
 ### What models are supported?
-Currently, only OpenAI series models are supported. If you cannot access OpenAI from mainland China, it is recommended to use [yeka](https://2233.ai/api) as a proxy.
+Currently only OpenAI series models are supported. If you can't access OpenAI in China, we recommend using [yeka](https://2233.ai/api) as a proxy.
 
-Why don't we support other models yet? We utilize multimodal + structured output capabilities, and few other model providers can simultaneously support these two capabilities. Adapting to other models would require significant changes to our underlying architecture, and effectiveness cannot be guaranteed. However, we are actively seeking solutions and will update as soon as progress is made.
-
+Why don't we support other models? We use multimodal + structured output capabilities, and few other model vendors support both capabilities simultaneously. Adapting to other models would require significant changes to the underlying architecture, and we can't guarantee the results. However, we are actively looking for solutions and will update immediately when available.
 
 ### Why is my execution speed slow?
-If your computer doesn't have an NVIDIA dedicated GPU, it will run relatively slowly because we frequently call OCR to annotate visuals, which consumes a lot of GPU resources. We are actively optimizing and adapting. It is recommended to use an NVIDIA graphics card with no less than 4GB of memory, and ensure the version is compatible with your torch version:
+If your computer doesn't have an NVIDIA dedicated graphics card, it will run slower because we frequently call OCR for visual annotation, which consumes a lot of GPU resources. We are actively optimizing and adapting. We recommend using an NVIDIA graphics card with at least 4GB of VRAM, and the version should match your torch version:
 
-1. Run `pip list` to check your torch version;
-2. Check supported CUDA versions from the [official website](https://pytorch.org/get-started/locally/);
-3. Uninstall existing torch and torchvision;
-3. Copy the official torch installation command and reinstall torch suitable for your CUDA version.
+1. Run `pip list` to check torch version;
+2. Check supported cuda version from [official website](https://pytorch.org/get-started/locally/);
+3. Uninstall installed torch and torchvision;
+4. Copy the official torch installation command and reinstall torch suitable for your cuda version.
 
-For example, if my CUDA version is 12.4, I need to install torch using the following command:
+For example, if your cuda version is 12.4, you need to install torch using the following command:
 
 ```bash
 pip3 uninstall -y torch torchvision
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
+## 🤝 Join Us
 
-## 🤝 Contribute
+Every excellent open-source project embodies collective wisdom. The growth of autoMate is inseparable from your participation and contribution. Whether it's fixing bugs, adding features, or improving documentation, your every contribution will help thousands of people break free from repetitive work.
 
-Every excellent open-source project crystallizes collective wisdom. The growth of autoMate depends on your participation and contribution. Whether fixing bugs, adding features, or improving documentation, each of your efforts will help thousands of people break free from repetitive work.
-
-Join us in creating a smarter future.
+Join us in creating a more intelligent future.
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
@@ -115,6 +118,6 @@ Join us in creating a smarter future.
 ---
 
 <div align="center">
-⭐ Every star is encouragement for the creators and an opportunity for more people to discover and benefit from autoMate ⭐
-Your support today is our motivation to move forward tomorrow
+⭐ Every Star is an encouragement to the creators and an opportunity for more people to discover and benefit from autoMate ⭐
+Your support today is our motivation for tomorrow's progress
 </div>
