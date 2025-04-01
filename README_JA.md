@@ -20,7 +20,6 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 <div align="center">
 <figure>
     <a href="[あなたの知識プラネットリンク]" target="_blank" rel="noopener noreferrer"><img src="./imgs/knowledge.png" width="150" height="150" alt="知識プラネットQRコード"></a>
-    <figcaption>スキャンまたはクリックして知識プラネットに参加</figcaption> 
 </figure>
 </div>
 

@@ -20,7 +20,6 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 <div align="center">
 <figure>
     <a href="[Your Knowledge Planet Link]" target="_blank" rel="noopener noreferrer"><img src="./imgs/knowledge.png" width="150" height="150" alt="Knowledge Planet QR Code"></a>
-    <figcaption>Scan or click to join Knowledge Planet</figcaption> 
 </figure>
 </div>
 
