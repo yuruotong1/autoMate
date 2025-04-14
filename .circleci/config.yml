@@ -1,0 +1,46 @@
+version: 2.1
+orbs:
+  python: circleci/python@2
+  evals: circleci/evals@2.0
+jobs:
+  test-python:
+    docker:
+      - image: cimg/python:3.8-node
+    steps:
+      - checkout
+      - python/install-packages
+      - run:
+          name: Run tests
+          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any
+            tests to run.')
+      - store_test_results:
+          path: junit.xml
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: deploy
+          command: "#e.g. ./deploy.sh"
+      - run:
+          name: found github actions config
+          command: ":"
+  evals-test-assertions-job:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - evals/test:
+          assertions: assertions.json
+          metrics: eval_results.json
+          results: test_results.xml
+workflows:
+  build-and-test:
+    jobs:
+      - test-python:
+          context:
+            - OpenAI-GitCi
+            - AmazonS3-GT-Otto
+  test-eval-workflow:
+    jobs:
+      - evals-test-assertions-job
