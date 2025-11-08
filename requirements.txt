@@ -1,3 +1,4 @@
+# Core dependencies
 torch
 easyocr
 torchvision
@@ -13,3 +14,18 @@ timm
 einops==0.8.0
 modelscope
 pynput
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Code quality
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+isort>=5.12.0
+
+# Development
+python-dotenv>=1.0.0
