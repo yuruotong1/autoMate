@@ -8,7 +8,8 @@ numpy==1.26.4
 gradio
 pyautogui==0.9.54
 anthropic[bedrock,vertex]>=0.37.1
-pyxbrain==1.1.31
+# OpenAI-compatible SDK — works with OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, etc.
+openai>=1.50.0
 timm
 einops==0.8.0
 modelscope
@@ -16,3 +17,4 @@ pynput
 lap
 pyqt6==6.8.1
 keyboard==0.13.5
+pyperclip

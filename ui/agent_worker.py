@@ -5,7 +5,7 @@ import json
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from auto_control.loop import sampling_loop_sync
-from xbrain.utils.config import Config
+from auto_control.llm_client import configure
 
 class AgentWorker(QThread):
     """Worker thread for running agent operations asynchronously"""
@@ -27,10 +27,9 @@ class AgentWorker(QThread):
             self.state["stop"] = False
             
         # Configure API
-        config = Config()
-        config.set_openai_config(
-            base_url=self.state["base_url"], 
-            api_key=self.state["api_key"], 
+        configure(
+            base_url=self.state["base_url"],
+            api_key=self.state["api_key"],
             model=self.state["model"]
         )
         
@@ -92,12 +91,10 @@ class AgentWorker(QThread):
                         current_task = self.state["tasks"][task_completed_number]["task"]
                         self.task_signal.emit(current_task)
                     
-                    if task_completed_number > len(self.state["tasks"]) + 1:
-                        for i in range(len(self.state["tasks"])):
-                            self.state["tasks"][i]["status"] = "✅"
-                    else:
-                        for i in range(task_completed_number + 1):
-                            self.state["tasks"][i]["status"] = "✅"
+                    # Fix #139: clamp range to actual task list length to avoid IndexError
+                    completed_up_to = min(task_completed_number + 1, len(self.state["tasks"]))
+                    for i in range(completed_up_to):
+                        self.state["tasks"][i]["status"] = "✅"
                 
                 # Check stop flag again
                 if self.state["stop"]:
