@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import Qt, pyqtSlot, QSize
 from PyQt6.QtGui import QPixmap, QIcon, QTextCursor, QTextCharFormat, QColor
 
-from xbrain.utils.config import Config
+import os
 from auto_control.agent.vision_agent import VisionAgent
 from util.download_weights import OMNI_PARSER_DIR
 
@@ -71,11 +71,10 @@ class MainWindow(QMainWindow):
     
     def setup_initial_state(self):
         """Set up initial state"""
-        config = Config()
         return {
-            "api_key": config.OPENAI_API_KEY or "",
-            "base_url": config.OPENAI_BASE_URL or "https://api.openai.com/v1",
-            "model": config.OPENAI_MODEL or "gpt-4o",
+            "api_key": os.environ.get("OPENAI_API_KEY", ""),
+            "base_url": os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+            "model": os.environ.get("OPENAI_MODEL", "gpt-4o"),
             "theme": "Light",
             "stop_hotkey": DEFAULT_STOP_HOTKEY,
             "messages": [],

@@ -1,13 +1,13 @@
 import json
 from pydantic import BaseModel, Field
 from auto_control.agent.base_agent import BaseAgent
-from xbrain.core.chat import run
+from auto_control.llm_client import run
 
 from auto_control.tools.computer import Action
 
 class TaskPlanAgent(BaseAgent):
     def __call__(self, messages, parsed_screen_result):
-        messages[-1] =  {"role": "user", 
+        messages[-1] =  {"role": "user",
              "content": [
                     {"type": "text", "text": messages[-1]["content"]},
                     {
@@ -70,4 +70,3 @@ system_prompt = """
   }}
 ]
 """
-

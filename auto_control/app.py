@@ -11,8 +11,9 @@ from auto_control.agent.vision_agent import VisionAgent
 from auto_control.loop import (
     sampling_loop_sync,
 )
+import os
 import base64
-from xbrain.utils.config import Config
+from auto_control.llm_client import configure
 
 from util.download_weights import OMNI_PARSER_DIR
 CONFIG_DIR = Path("~/.anthropic").expanduser()
@@ -32,20 +33,10 @@ args = parse_arguments()
 
 
 def setup_state(state):
-    # 如果存在config，则从config中加载数据
-    config = Config()
-    if config.OPENAI_API_KEY:
-        state["api_key"] = config.OPENAI_API_KEY
-    else:
-        state["api_key"] = ""
-    if config.OPENAI_BASE_URL:
-        state["base_url"] = config.OPENAI_BASE_URL
-    else:
-        state["base_url"] = "https://api.openai.com/v1"
-    if config.OPENAI_MODEL:
-        state["model"] = config.OPENAI_MODEL
-    else:
-        state["model"] = "gpt-4o"
+    # Load from environment variables if available
+    state["api_key"] = os.environ.get("OPENAI_API_KEY", "")
+    state["base_url"] = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    state["model"] = os.environ.get("OPENAI_MODEL", "gpt-4o")
     
     if "messages" not in state:
         state["messages"] = []
@@ -125,8 +116,7 @@ def process_input(user_input, state, vision_agent_state):
         state["stop"] = False
         
     # Configure API
-    config = Config()
-    config.set_openai_config(base_url=state["base_url"], api_key=state["api_key"], model=state["model"])
+    configure(base_url=state["base_url"], api_key=state["api_key"], model=state["model"])
     
     # Add user message
     state["messages"].append({"role": "user", "content": user_input})
@@ -156,13 +146,12 @@ def process_input(user_input, state, vision_agent_state):
             # Reset all tasks to pending status
             for i in range(len(state["tasks"])):
                 state["tasks"][i]["status"] = "⬜"
-            task_completed_number = json.loads(state["messages"][-1]["content"])["current_task_id"]
-            if task_completed_number > len(state["tasks"]) + 1:
-                for i in range(len(state["tasks"])):
-                    state["tasks"][i]["status"] = "✅"
-            else:
-                for i in range(task_completed_number + 1):
-                    state["tasks"][i]["status"] = "✅"
+            content_json = json.loads(state["messages"][-1]["content"])
+            task_completed_number = content_json.get("current_task_id", 0)
+            # Fix #139: clamp to actual task list length to avoid IndexError
+            completed_up_to = min(task_completed_number + 1, len(state["tasks"]))
+            for i in range(completed_up_to):
+                state["tasks"][i]["status"] = "✅"
                  
         # Rebuild chatbox messages from the original messages
         state["chatbox_messages"] = []

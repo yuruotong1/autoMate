@@ -3,16 +3,16 @@ import uuid
 from anthropic.types.beta import BetaMessage, BetaTextBlock, BetaToolUseBlock, BetaMessageParam, BetaUsage
 from pydantic import Field, create_model
 from auto_control.agent.base_agent import BaseAgent
-from xbrain.core.chat import run
+from auto_control.llm_client import run
 
 from auto_control.tools.computer import Action
 class TaskRunAgent(BaseAgent):
     def __init__(self):
         self.OUTPUT_DIR = "./tmp/outputs"
-       
+
     def __call__(self, parsed_screen_result, messages):
         messages.append(
-            {"role": "user", 
+            {"role": "user",
              "content": [
                     {"type": "text", "text": "Image is the screenshot of the current screen"},
                     {
@@ -28,7 +28,7 @@ class TaskRunAgent(BaseAgent):
         system_prompt = prompt.format(task_list=formatted_task_list)
         vlm_response = run(
             messages,
-            user_prompt=system_prompt, 
+            user_prompt=system_prompt,
             response_format=create_dynamic_response_model(parsed_screen_result)
         )
         vlm_response_json = json.loads(vlm_response)
@@ -36,53 +36,78 @@ class TaskRunAgent(BaseAgent):
         # Handle cursor movement based on box_id
         if "box_id" in vlm_response_json:
             action_types_without_cursor = ["None", "key", "type", "scroll_down", "scroll_up", "cursor_position", "wait"]
-            
+
             if vlm_response_json["box_id"] != -1 and vlm_response_json["next_action"] not in action_types_without_cursor:
                 # Move cursor to the center of the identified element
                 element = self.find_element_by_id(parsed_screen_result, vlm_response_json["box_id"])
-                bbox = element.coordinates
-                box_centroid_coordinate = [
-                    int((bbox[0] + bbox[2]) / 2),
-                    int((bbox[1] + bbox[3]) / 2)
-                ]
-                move_cursor_block = BetaToolUseBlock(
-                    id=f'toolu_{uuid.uuid4()}',
-                    input={'action': 'mouse_move', 'coordinate': box_centroid_coordinate},
-                    name='computer', 
-                    type='tool_use'
-                )
-                response_content.append(move_cursor_block)
-            
-            elif vlm_response_json["box_id"] == -1 and len(vlm_response_json["coordinates"]) == 2:
+                if element is not None:
+                    bbox = element.coordinates
+                    box_centroid_coordinate = [
+                        int((bbox[0] + bbox[2]) / 2),
+                        int((bbox[1] + bbox[3]) / 2)
+                    ]
+                    move_cursor_block = BetaToolUseBlock(
+                        id=f'toolu_{uuid.uuid4()}',
+                        input={'action': 'mouse_move', 'coordinate': box_centroid_coordinate},
+                        name='computer',
+                        type='tool_use'
+                    )
+                    response_content.append(move_cursor_block)
+
+            elif vlm_response_json["box_id"] == -1 and len(vlm_response_json.get("coordinates", [])) == 2:
                 # Move cursor to specified coordinates
                 move_cursor_block = BetaToolUseBlock(
                     id=f'toolu_{uuid.uuid4()}',
                     input={'action': 'mouse_move', 'coordinate': vlm_response_json["coordinates"]},
-                    name='computer', 
+                    name='computer',
                     type='tool_use'
                 )
                 response_content.append(move_cursor_block)
-        if vlm_response_json["next_action"] == "None":
+
+        next_action = vlm_response_json.get("next_action", "None")
+        value = vlm_response_json.get("value") or ""
+        # Treat the string "None" as empty (LLM sometimes returns it literally)
+        if isinstance(value, str) and value.lower() == "none":
+            value = ""
+
+        if next_action == "None":
             print("Task paused/completed.")
-        elif vlm_response_json["next_action"] == "type":
-            sim_content_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',
-                                        input={'action': vlm_response_json["next_action"], 'text': vlm_response_json["value"]},
-                                        name='computer', type='tool_use')
-            response_content.append(sim_content_block)
+        elif next_action in ("type", "key"):
+            # Fix #145: both 'type' and 'key' actions require the text/value field
+            if value:
+                sim_content_block = BetaToolUseBlock(
+                    id=f'toolu_{uuid.uuid4()}',
+                    input={'action': next_action, 'text': value},
+                    name='computer', type='tool_use'
+                )
+                response_content.append(sim_content_block)
+            else:
+                print(f"Warning: '{next_action}' action has empty value, skipping.")
         else:
-            sim_content_block = BetaToolUseBlock(id=f'toolu_{uuid.uuid4()}',
-                                            input={'action': vlm_response_json["next_action"]},
-                                            name='computer', type='tool_use')
+            sim_content_block = BetaToolUseBlock(
+                id=f'toolu_{uuid.uuid4()}',
+                input={'action': next_action},
+                name='computer', type='tool_use'
+            )
             response_content.append(sim_content_block)
-        response_message = BetaMessage(id=f'toolu_{uuid.uuid4()}', content=response_content, model='', role='assistant', type='message', stop_reason='tool_use', usage=BetaUsage(input_tokens=0, output_tokens=0))
+
+        response_message = BetaMessage(
+            id=f'toolu_{uuid.uuid4()}',
+            content=response_content,
+            model='',
+            role='assistant',
+            type='message',
+            stop_reason='tool_use',
+            usage=BetaUsage(input_tokens=0, output_tokens=0)
+        )
         return response_message, vlm_response_json
-    
+
     def find_element_by_id(self, parsed_screen_result, box_id):
         for element in parsed_screen_result["parsed_content_list"]:
             if element.element_id == box_id:
                 return element
         return None
-    
+
 
 def create_dynamic_response_model(parsed_screen_result):
     available_box_ids = [item.element_id for item in parsed_screen_result['parsed_content_list']]
@@ -108,7 +133,7 @@ def create_dynamic_response_model(parsed_screen_result):
             description="当 box_id 为-1时，直接返回要操作对象的坐标，只返回x,y这2个整数"
         )),
         value = (str, Field(
-            description="仅当next_action为type时提供，否则为None"
+            description="当next_action为type时填写要输入的文本；当next_action为key时填写要按下的键（如 enter, ctrl+c, escape 等）；其他情况填写None"
         )),
         current_task_id = (int, Field(
             description="请判断一下，你正在完成第几个任务，第一个任务是0"
@@ -134,6 +159,7 @@ prompt = """
 - current_task_id 要在任务列表中找到，不要随便写。
 - 当你觉得任务已经完成时，请一定把next_action设置为'None'，不然会重复执行。
 - 涉及到输入type、key操作时，其上一步操作一定是点击输入框操作。
+- 当next_action为key时，value字段填写要按下的键名，例如：enter、escape、ctrl+c、ctrl+v、tab等。
 
 ##########
 ### 输出格式 ###
@@ -141,8 +167,8 @@ prompt = """
 {{
     "reasoning": str, # 综合当前屏幕上的内容和历史记录，描述您是如何思考的。
     "next_action": str, # 要执行的动作。
-    "box_id": int, # 要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为None
-    "value": "xxx" # 仅当操作为type时提供value字段，否则不包括value键
+    "box_id": int, # 要操作的框ID，当next_action为left_click、right_click、double_click、hover时提供，否则为-1
+    "value": "xxx" # 当next_action为type时填写输入内容；当next_action为key时填写键名（如enter、ctrl+c）；其他情况填写None
     "current_task_id": int # 当前正在执行第几个任务，第一个任务是0,
     "coordinates": list[int] # 仅当box_id为-1时提供，返回要操作对象的坐标，只返回x,y这2个整数
 }}
@@ -157,15 +183,16 @@ prompt = """
 
 一个例子：
 ```json
-{{  
+{{
     "reasoning": "当前屏幕显示亚马逊的谷歌搜索结果，在之前的操作中，我已经在谷歌上搜索了亚马逊。然后我需要点击第一个搜索结果以转到amazon.com。",
     "next_action": "left_click",
     "box_id": 35,
+    "value": "None",
     "current_task_id": 0
 }}
 ```
 
-另一个例子：
+另一个例子（type）：
 ```json
 {{
     "reasoning": "当前屏幕显示亚马逊的首页。没有之前的操作。因此，我需要在搜索栏中输入"Apple watch"。",
@@ -176,12 +203,25 @@ prompt = """
 }}
 ```
 
-另一个例子：
+另一个例子（key）：
+```json
+{{
+    "reasoning": "已经在搜索框中输入了内容，现在需要按下回车键提交搜索。",
+    "next_action": "key",
+    "box_id": -1,
+    "value": "enter",
+    "current_task_id": 1
+}}
+```
+
+另一个例子（scroll）：
 ```json
 {{
     "reasoning": "当前屏幕没有显示'提交'按钮，我需要向下滚动以查看按钮是否可用。",
     "next_action": "scroll_down",
+    "box_id": -1,
+    "value": "None",
     "current_task_id": 2
 }}
-""" 
-
+```
+"""
