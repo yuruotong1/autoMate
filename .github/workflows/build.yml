@@ -30,13 +30,10 @@ jobs:
             ext: zip
 
           # ── macOS Apple Silicon (M1/M2/M3) ───────────────────────────────
+          # GitHub has deprecated Intel (x86-64) macOS hosted runners.
+          # arm64 covers all Macs released since late 2020.
           - os: macos-latest
             name: macos-arm64
-            ext: zip
-
-          # ── macOS Intel x86-64 ────────────────────────────────────────────
-          - os: macos-13
-            name: macos-x64
             ext: zip
 
           # ── Linux x64 (Ubuntu 22.04) ──────────────────────────────────────
@@ -149,7 +146,6 @@ jobs:
           files: |
             artifacts/autoMate-windows-x64/autoMate-windows-x64.zip
             artifacts/autoMate-macos-arm64/autoMate-macos-arm64.zip
-            artifacts/autoMate-macos-x64/autoMate-macos-x64.zip
             artifacts/autoMate-linux-x64/autoMate-linux-x64.tar.gz
           generate_release_notes: true
           draft: false
@@ -161,7 +157,6 @@ jobs:
             |----------|----------|
             | Windows x64 | `autoMate-windows-x64.zip` |
             | macOS Apple Silicon (M1/M2/M3) | `autoMate-macos-arm64.zip` |
-            | macOS Intel x86-64 | `autoMate-macos-x64.zip` |
             | Linux x64 | `autoMate-linux-x64.tar.gz` |
 
             ### Windows
