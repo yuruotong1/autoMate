@@ -67,9 +67,7 @@ jobs:
       # ── 4. PyTorch CPU-only (much smaller than GPU build) ─────────────
       #       ultralytics / YOLO needs torch; CPU-only is fine for Actions
       - name: Install PyTorch (CPU-only)
-        run: |
-          pip install torch torchvision \
-            --index-url https://download.pytorch.org/whl/cpu
+        run: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
       # ── 5. Project dependencies ────────────────────────────────────────
       - name: Install project dependencies
@@ -107,9 +105,7 @@ jobs:
       # ── 8c. Package on Linux ───────────────────────────────────────────
       - name: Package (Linux)
         if: runner.os == 'Linux'
-        run: |
-          tar -czf autoMate-${{ matrix.name }}.${{ matrix.ext }} \
-            -C dist autoMate
+        run: tar -czf autoMate-${{ matrix.name }}.${{ matrix.ext }} -C dist autoMate
 
       # ── 9. Upload build artifact ───────────────────────────────────────
       - name: Upload artifact
