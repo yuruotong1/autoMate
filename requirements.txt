@@ -18,3 +18,5 @@ lap
 pyqt6==6.8.1
 keyboard==0.13.5
 pyperclip
+# MCP server support — lets autoMate be used as an MCP tool by Claude Desktop, Cursor, etc.
+mcp[cli]>=1.0.0
