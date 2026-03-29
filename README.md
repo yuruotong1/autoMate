@@ -42,7 +42,9 @@ autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
 
 - 🔮 No-Code Automation - Describe tasks in natural language, no programming knowledge required
 - 🖥️ Full Interface Control - Support operations on any visual interface, not limited to specific software
-- 🚅 Simplified Installation - Support for Chinese environment, one-click deployment
+- 🌐 Universal LLM Support - Works with OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek and any OpenAI-compatible API
+- 🔌 MCP Server - Deploy as an MCP tool and call it from Claude Desktop, Cursor, Windsurf and more
+- 🚅 Simplified Installation - One-click deployment
 
 ## 🚀 Quick Start
 
@@ -74,20 +76,72 @@ Then open `http://localhost:7888/` in your browser to configure your API key and
 
 ### 🔔 Note
 
-Currently tested and supported models are as follows:
+autoMate supports **any OpenAI-compatible API**. Just set the Base URL, API Key, and Model in Settings:
 
-> PS: Below are the large model vendors that have been tested and are working. These vendors have no relationship with us, so we don't promise after-sales service, functional guarantees, or stability maintenance. Please consider the payment situation carefully.
+| Provider | Base URL | Example Models |
+| --- | --- | --- |
+| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, gpt-4.1, o3 |
+| [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service) | your Azure endpoint | gpt-4o |
+| [OpenRouter](https://openrouter.ai) | `https://openrouter.ai/api/v1` | claude-3.7-sonnet, gemini-2.5-pro, etc. |
+| [DeepSeek](https://platform.deepseek.com) | `https://api.deepseek.com/v1` | deepseek-chat, deepseek-reasoner |
+| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1` | llama-3.3-70b-versatile |
+| [Ollama](https://ollama.com) (local) | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
+| [yeka](https://2233.ai/api) (CN proxy) | `https://api.2233.ai/v1` | gpt-4o, o1 |
 
-| Vendor| Model |
+> **Recommended**: Use a multimodal model (vision support) for best results — e.g. `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` locally via Ollama.
+
+## 🔌 MCP Server
+
+autoMate can be deployed as an **MCP (Model Context Protocol) server**, letting AI clients like Claude Desktop, Cursor, or Windsurf call it as a tool to control your local desktop.
+
+### Setup
+
+**1. Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**2. Add to your MCP client config**
+
+For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "automate": {
+      "command": "python",
+      "args": ["/absolute/path/to/autoMate/mcp_server.py"],
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "OPENAI_BASE_URL": "https://api.openai.com/v1",
+        "OPENAI_MODEL": "gpt-4o"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop — you'll see two new tools: **`run_task`** and **`screenshot`**.
+
+**3. Use it**
+
+In Claude Desktop, just say:
+> "Use automate to open Chrome and search for the latest AI news"
+
+Claude will call `run_task` and autoMate will control the desktop for you.
+
+### Available MCP Tools
+
+| Tool | Description |
 | --- | --- |
-|[yeka](https://2233.ai/api)|gpt-4o,o1|
-|openai|gpt-4o,gpt-4o-2024-08-06,gpt-4o-2024-11-20,o1,4.gpt-4.5-preview-2025-02-27|
+| `run_task` | Execute a desktop automation task described in natural language |
+| `screenshot` | Capture the screen (or a region) and return as base64 PNG |
 
 ## 📝 FAQ
 ### What models are supported?
-Currently only OpenAI series models are supported. If you can't access OpenAI in China, we recommend using [yeka](https://2233.ai/api) as a proxy.
+autoMate now supports **any OpenAI-compatible API**. The underlying architecture uses a 3-tier fallback (structured output → JSON mode → plain text extraction) to work across different providers.
 
-Why don't we support other models? We use multimodal + structured output capabilities, and few other model vendors support both capabilities simultaneously. Adapting to other models would require significant changes to the underlying architecture, and we can't guarantee the results. However, we are actively looking for solutions and will update immediately when available.
+Recommended: use a **multimodal model with vision capability** (the agent needs to see the screen). OpenAI `gpt-4o`, Claude via OpenRouter, and `qwen2.5-vl` via Ollama are all tested and working.
 
 ### Why is my execution speed slow?
 If your computer doesn't have an NVIDIA dedicated graphics card, it will run slower because we frequently call OCR for visual annotation, which consumes a lot of GPU resources. We are actively optimizing and adapting. We recommend using an NVIDIA graphics card with at least 4GB of VRAM, and the version should match your torch version:
