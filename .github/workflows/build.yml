@@ -1,0 +1,188 @@
+name: Build & Release
+
+# Triggers:
+#   • push a semver tag  → build all platforms + create GitHub Release
+#   • manual trigger     → build all platforms, upload artifacts (no Release)
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+# Allow creating releases and uploading assets
+permissions:
+  contents: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Build matrix — one job per target platform
+  # ─────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build · ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false   # keep other platforms building if one fails
+      matrix:
+        include:
+          # ── Windows x64 ──────────────────────────────────────────────────
+          - os: windows-latest
+            name: windows-x64
+            ext: zip
+
+          # ── macOS Apple Silicon (M1/M2/M3) ───────────────────────────────
+          - os: macos-latest
+            name: macos-arm64
+            ext: zip
+
+          # ── macOS Intel x86-64 ────────────────────────────────────────────
+          - os: macos-13
+            name: macos-x64
+            ext: zip
+
+          # ── Linux x64 (Ubuntu 22.04) ──────────────────────────────────────
+          - os: ubuntu-22.04
+            name: linux-x64
+            ext: tar.gz
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Python ──────────────────────────────────────────────────────
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      # ── 3. OS-level system dependencies ───────────────────────────────
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            xclip xdotool \
+            libxcb-xinerama0 libxcb-cursor0 \
+            libxkbcommon-x11-0 \
+            libgl1
+
+      # ── 4. PyTorch CPU-only (much smaller than GPU build) ─────────────
+      #       ultralytics / YOLO needs torch; CPU-only is fine for Actions
+      - name: Install PyTorch (CPU-only)
+        run: |
+          pip install torch torchvision \
+            --index-url https://download.pytorch.org/whl/cpu
+
+      # ── 5. Project dependencies ────────────────────────────────────────
+      - name: Install project dependencies
+        run: pip install -r requirements.txt
+
+      # ── 6. PyInstaller ─────────────────────────────────────────────────
+      - name: Install PyInstaller
+        run: pip install "pyinstaller>=6.0"
+
+      # ── 7. Build ───────────────────────────────────────────────────────
+      - name: Build with PyInstaller
+        run: pyinstaller main.spec --noconfirm
+
+      # ── 8a. Package on Windows ─────────────────────────────────────────
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path dist\autoMate `
+            -DestinationPath autoMate-${{ matrix.name }}.${{ matrix.ext }}
+
+      # ── 8b. Package on macOS — include .app bundle ─────────────────────
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          # Prefer the .app bundle if it was created; fall back to folder
+          if [ -d "autoMate.app" ]; then
+            zip -r ../autoMate-${{ matrix.name }}.${{ matrix.ext }} autoMate.app
+          else
+            zip -r ../autoMate-${{ matrix.name }}.${{ matrix.ext }} autoMate
+          fi
+
+      # ── 8c. Package on Linux ───────────────────────────────────────────
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          tar -czf autoMate-${{ matrix.name }}.${{ matrix.ext }} \
+            -C dist autoMate
+
+      # ── 9. Upload build artifact ───────────────────────────────────────
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: autoMate-${{ matrix.name }}
+          path: autoMate-${{ matrix.name }}.${{ matrix.ext }}
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Release — only runs when a version tag is pushed
+  # ─────────────────────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    # Gate: only publish a release for tag pushes, not manual workflow_dispatch
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts   # each artifact goes into artifacts/<artifact-name>/
+
+      - name: List downloaded files (debug)
+        run: find artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "autoMate ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/autoMate-windows-x64/autoMate-windows-x64.zip
+            artifacts/autoMate-macos-arm64/autoMate-macos-arm64.zip
+            artifacts/autoMate-macos-x64/autoMate-macos-x64.zip
+            artifacts/autoMate-linux-x64/autoMate-linux-x64.tar.gz
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          body: |
+            ## 📦 Installation
+
+            | Platform | Download |
+            |----------|----------|
+            | Windows x64 | `autoMate-windows-x64.zip` |
+            | macOS Apple Silicon (M1/M2/M3) | `autoMate-macos-arm64.zip` |
+            | macOS Intel x86-64 | `autoMate-macos-x64.zip` |
+            | Linux x64 | `autoMate-linux-x64.tar.gz` |
+
+            ### Windows
+            1. Extract `autoMate-windows-x64.zip`
+            2. Run `autoMate\autoMate.exe`
+            3. Grant Accessibility permissions if prompted
+
+            ### macOS
+            1. Extract the zip
+            2. Open `autoMate.app` (right-click → Open the first time to bypass Gatekeeper)
+            3. Grant **Accessibility** and **Screen Recording** permissions in
+               System Settings → Privacy & Security
+
+            ### Linux
+            1. Extract: `tar xzf autoMate-linux-x64.tar.gz`
+            2. Run: `./autoMate/autoMate`
+            3. Install clipboard dependency if needed: `sudo apt install xclip`
+            4. The `keyboard` library requires root or `/dev/uinput` access for global hotkeys
+
+            ---
+            > **Model weights** are downloaded automatically on first launch (~50 MB).
+            > Configure your LLM API key in the Settings dialog.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
