@@ -31,12 +31,12 @@ def sampling_loop_sync(
     task_run_agent = TaskRunAgent()
     parsed_screen_result = parsed_screen(vision_agent, screen_region)
     task_plan_agent(messages=messages, parsed_screen_result=parsed_screen_result)
-    yield
-    while True:    
+    yield parsed_screen_result
+    while True:
         execute_result = execute_task_plan(vision_agent, task_run_agent, executor, messages, screen_region)
         if execute_result['next_action'] == 'None':
             break
-        yield
+        yield parsed_screen_result
 
     
 def execute_task_plan(vision_agent, task_run_agent, executor, messages, screen_region):
