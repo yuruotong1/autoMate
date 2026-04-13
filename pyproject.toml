@@ -56,16 +56,9 @@ vision = [
     "opencv-python",
     "modelscope",
 ]
-# Desktop UI (Gradio + PyQt6)
-ui = [
-    "gradio",
-    "pyqt6==6.8.1",
-    "keyboard==0.13.5",
-]
-# Everything
+# Everything (core + vision)
 full = [
     "automate-mcp[vision]",
-    "automate-mcp[ui]",
 ]
 
 # ---------------------------------------------------------------------------

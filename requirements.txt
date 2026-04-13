@@ -1,28 +1,31 @@
+# Vision / ML (optional — required for OmniParser UI detection)
 # torch
 # torchvision
-# easyocr
 supervision==0.18.0
-# transformers
 ultralytics==8.3.70
 numpy==1.26.4
-gradio
-pyautogui==0.9.54
-anthropic[bedrock,vertex]>=0.37.1
-# OpenAI-compatible SDK — works with OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, etc.
-openai>=1.50.0
 timm
 einops==0.8.0
 modelscope
+
+# Screen control
+pyautogui==0.9.54
 pynput
-lap
-pyqt6==6.8.1
-keyboard==0.13.5
 pyperclip
-# MCP server support — lets autoMate be used as an MCP tool by Claude Desktop, Cursor, etc.
+keyboard==0.13.5
+
+# LLM clients
+anthropic[bedrock,vertex]>=0.37.1
+# OpenAI-compatible SDK — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, etc.
+openai>=1.50.0
+
+# MCP server
 mcp[cli]>=1.0.0
+
 # CLI
 click>=8.0
 rich>=13.0
+
 # Script serialization
 pyyaml>=6.0
 pydantic>=2.0

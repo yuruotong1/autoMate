@@ -1,3 +1,0 @@
-"""
-autoMate UI package
-""" 
