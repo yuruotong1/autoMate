@@ -53,6 +53,8 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 
 > **前提：** 安装一次 `uv` — `pip install uv`
 
+**零配置** — 不需要 API Key，不需要环境变量。宿主大模型（Claude、GPT 等）负责思考，autoMate 只提供手和眼睛。
+
 ### Claude Desktop
 
 配置文件位置：
@@ -64,18 +66,13 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "args": ["automate-mcp"]
     }
   }
 }
 ```
 
-重启 Claude Desktop，工具列表中会出现 `run_task` 和 `screenshot`。
+重启 Claude Desktop，搞定！
 
 ### OpenClaw（小龙虾）
 
@@ -86,12 +83,7 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "args": ["automate-mcp"]
     }
   }
 }
@@ -111,11 +103,7 @@ openclaw gateway restart
 {
   "automate": {
     "command": "uvx",
-    "args": ["automate-mcp"],
-    "env": {
-      "OPENAI_API_KEY": "sk-...",
-      "OPENAI_MODEL": "gpt-4o"
-    }
+    "args": ["automate-mcp"]
   }
 }
 ```
@@ -129,8 +117,16 @@ openclaw gateway restart
 
 | 工具 | 说明 |
 |------|------|
-| `run_task` | 用自然语言描述任务，autoMate 自动执行桌面操作 |
 | `screenshot` | 截取当前屏幕（或指定区域），返回 base64 PNG |
+| `click` | 点击屏幕坐标（左键/右键/中键） |
+| `double_click` | 双击屏幕坐标 |
+| `type_text` | 在当前光标位置输入文字 |
+| `press_key` | 按键或组合键（如 `ctrl+c`、`enter`） |
+| `scroll` | 上下滚动 |
+| `mouse_move` | 移动鼠标（不点击） |
+| `drag` | 从一个位置拖拽到另一个位置 |
+| `get_screen_size` | 获取屏幕分辨率 |
+| `get_cursor_position` | 获取当前鼠标位置 |
 
 ---
 

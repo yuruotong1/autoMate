@@ -53,6 +53,8 @@ autoMate is an **AI + RPA automation tool** that controls your desktop through n
 
 > **Prerequisite:** Install `uv` once — `pip install uv`
 
+**Zero configuration** — no API keys, no environment variables. The host LLM (Claude, GPT, etc.) does the thinking; autoMate provides the hands and eyes.
+
 ### Claude Desktop
 
 Config file:
@@ -64,18 +66,13 @@ Config file:
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "args": ["automate-mcp"]
     }
   }
 }
 ```
 
-Restart Claude Desktop — you'll see `run_task` and `screenshot` in the tools list.
+Restart Claude Desktop — done!
 
 ### OpenClaw
 
@@ -86,12 +83,7 @@ Edit `~/.openclaw/openclaw.json`:
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "args": ["automate-mcp"]
     }
   }
 }
@@ -111,11 +103,7 @@ Settings → MCP Servers → Add:
 {
   "automate": {
     "command": "uvx",
-    "args": ["automate-mcp"],
-    "env": {
-      "OPENAI_API_KEY": "sk-...",
-      "OPENAI_MODEL": "gpt-4o"
-    }
+    "args": ["automate-mcp"]
   }
 }
 ```
@@ -129,8 +117,16 @@ Say in any client:
 
 | Tool | Description |
 |------|-------------|
-| `run_task` | Execute a desktop automation task in natural language |
 | `screenshot` | Capture the screen (or a region) and return as base64 PNG |
+| `click` | Click at screen coordinates (left / right / middle) |
+| `double_click` | Double-click at screen coordinates |
+| `type_text` | Type text at the current cursor position |
+| `press_key` | Press a key or key combo (e.g. `ctrl+c`, `enter`) |
+| `scroll` | Scroll up or down |
+| `mouse_move` | Move the cursor without clicking |
+| `drag` | Drag from one position to another |
+| `get_screen_size` | Get the screen resolution |
+| `get_cursor_position` | Get the current cursor position |
 
 ---
 

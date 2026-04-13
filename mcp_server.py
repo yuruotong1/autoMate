@@ -1,45 +1,34 @@
 #!/usr/bin/env python3
 """
-autoMate MCP Server
+autoMate MCP Server — Zero-Config Desktop Automation Tools
 
-Exposes autoMate's desktop automation capabilities as MCP tools so any
-MCP-compatible client — Claude Desktop, Cursor, Windsurf, Cline, etc. —
-can control the local desktop through natural language.
+Exposes low-level desktop control tools (screenshot, click, type, key, scroll)
+so that the HOST LLM (Claude, GPT, etc.) handles all reasoning.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- Quick setup (Claude Desktop example)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Add the following to ~/Library/Application Support/Claude/claude_desktop_config.json
-(macOS) or %APPDATA%\\Claude\\claude_desktop_config.json (Windows):
+No API keys, no environment variables — just plug in and go:
 
 {
   "mcpServers": {
     "automate": {
-      "command": "python",
-      "args": ["/absolute/path/to/autoMate/mcp_server.py"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "command": "uvx",
+      "args": ["automate-mcp"]
     }
   }
 }
-
-Replace OPENAI_BASE_URL / OPENAI_MODEL to use any OpenAI-compatible provider
-(OpenRouter, Groq, Ollama, DeepSeek, Azure OpenAI, etc.).
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Exposed tools
-  • run_task   – execute a desktop automation task in natural language
-  • screenshot – capture the screen (or a region) and return it as base64 PNG
 """
 
 import base64
-import os
+import platform
+import time
 from io import BytesIO
 
+import pyautogui
+import pyperclip
 from mcp.server.fastmcp import FastMCP
+
+# Safety: move mouse to corner to abort; small pause between actions
+pyautogui.FAILSAFE = True
+pyautogui.PAUSE = 0.05
 
 # ---------------------------------------------------------------------------
 # Server instance
@@ -47,29 +36,16 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP(
     "automate",
     instructions=(
-        "Desktop automation tool powered by autoMate.\n"
-        "• Use `run_task` to describe what you want done on the desktop "
-        "and autoMate will control the mouse/keyboard autonomously.\n"
-        "• Use `screenshot` to see the current state of the screen.\n"
-        "Always call `screenshot` first to understand the current screen state "
-        "before planning tasks."
+        "Desktop automation toolkit powered by autoMate.\n"
+        "You have direct control over the mouse and keyboard.\n\n"
+        "Workflow:\n"
+        "1. Call `screenshot` to see the current screen.\n"
+        "2. Decide what to do based on what you see.\n"
+        "3. Use `click`, `type_text`, `press_key`, `scroll`, or `double_click` to act.\n"
+        "4. Call `screenshot` again to verify the result.\n\n"
+        "Always screenshot first before acting."
     ),
 )
-
-# Lazy-loaded vision agent (YOLO model loading is expensive)
-_vision_agent = None
-
-
-def _get_vision_agent():
-    global _vision_agent
-    if _vision_agent is None:
-        from auto_control.agent.vision_agent import VisionAgent
-        from util.download_weights import OMNI_PARSER_DIR
-
-        _vision_agent = VisionAgent(
-            yolo_model_path=os.path.join(OMNI_PARSER_DIR, "icon_detect", "model.pt")
-        )
-    return _vision_agent
 
 
 # ---------------------------------------------------------------------------
@@ -77,21 +53,20 @@ def _get_vision_agent():
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
-def screenshot(screen_region: list[int] | None = None) -> str:
+def screenshot(region: list[int] | None = None) -> str:
     """
     Capture the current screen and return a base64-encoded PNG image.
 
     Args:
-        screen_region: Optional [x, y, width, height] to capture only a
-                       specific region of the screen.
+        region: Optional [x, y, width, height] to capture a specific area.
 
     Returns:
-        A data-URI string: "data:image/png;base64,<base64data>"
+        A data-URI string: "data:image/png;base64,..."
     """
-    from auto_control.tools.screen_capture import get_screenshot
-
-    region = tuple(screen_region) if screen_region else None
-    img, _ = get_screenshot(region)
+    if region and len(region) == 4:
+        img = pyautogui.screenshot(region=tuple(region))
+    else:
+        img = pyautogui.screenshot()
 
     buf = BytesIO()
     img.save(buf, format="PNG")
@@ -100,48 +75,136 @@ def screenshot(screen_region: list[int] | None = None) -> str:
 
 
 @mcp.tool()
-def run_task(task: str, screen_region: list[int] | None = None) -> str:
+def click(x: int, y: int, button: str = "left") -> str:
     """
-    Execute a desktop automation task using natural language.
-
-    autoMate will:
-      1. Analyse the current screen with OmniParser (YOLO-based UI detection)
-      2. Plan the required steps with an LLM
-      3. Execute each step by controlling the mouse and keyboard
+    Click at screen coordinates.
 
     Args:
-        task: Natural language description of the task, e.g.
-              "Open Chrome and search for the latest AI news"
-              "Fill in the form on the screen and click Submit"
-        screen_region: Optional [x, y, width, height] to restrict the
-                       automation to a specific screen region.
+        x: X coordinate.
+        y: Y coordinate.
+        button: "left", "right", or "middle". Default "left".
+    """
+    pyautogui.click(x, y, button=button)
+    return f"Clicked ({x}, {y}) with {button} button."
+
+
+@mcp.tool()
+def double_click(x: int, y: int) -> str:
+    """
+    Double-click at screen coordinates.
+
+    Args:
+        x: X coordinate.
+        y: Y coordinate.
+    """
+    pyautogui.doubleClick(x, y)
+    return f"Double-clicked ({x}, {y})."
+
+
+@mcp.tool()
+def type_text(text: str) -> str:
+    """
+    Type text at the current cursor position.
+
+    Uses clipboard paste for speed and full Unicode support.
+
+    Args:
+        text: The text to type.
+    """
+    old = pyperclip.paste()
+    pyperclip.copy(text)
+    if platform.system() == "Darwin":
+        pyautogui.hotkey("command", "v")
+    else:
+        pyautogui.hotkey("ctrl", "v")
+    time.sleep(0.05)
+    pyperclip.copy(old)
+    return f"Typed {len(text)} characters."
+
+
+@mcp.tool()
+def press_key(keys: str) -> str:
+    """
+    Press a key or key combination.
+
+    Args:
+        keys: Key name or combo separated by "+".
+              Examples: "enter", "ctrl+c", "ctrl+shift+s", "alt+tab", "win"
+    """
+    parts = [k.strip() for k in keys.split("+")]
+    if len(parts) == 1:
+        pyautogui.press(parts[0])
+    else:
+        pyautogui.hotkey(*parts)
+    return f"Pressed {keys}."
+
+
+@mcp.tool()
+def scroll(direction: str = "down", amount: int = 3) -> str:
+    """
+    Scroll the screen.
+
+    Args:
+        direction: "up" or "down". Default "down".
+        amount: Number of scroll clicks. Default 3.
+    """
+    clicks = amount if direction == "up" else -amount
+    pyautogui.scroll(clicks)
+    return f"Scrolled {direction} by {amount}."
+
+
+@mcp.tool()
+def mouse_move(x: int, y: int) -> str:
+    """
+    Move the mouse cursor without clicking.
+
+    Args:
+        x: X coordinate.
+        y: Y coordinate.
+    """
+    pyautogui.moveTo(x, y)
+    return f"Moved cursor to ({x}, {y})."
+
+
+@mcp.tool()
+def drag(start_x: int, start_y: int, end_x: int, end_y: int, duration: float = 0.5) -> str:
+    """
+    Drag from one position to another.
+
+    Args:
+        start_x: Starting X coordinate.
+        start_y: Starting Y coordinate.
+        end_x: Ending X coordinate.
+        end_y: Ending Y coordinate.
+        duration: Drag duration in seconds. Default 0.5.
+    """
+    pyautogui.moveTo(start_x, start_y)
+    pyautogui.drag(end_x - start_x, end_y - start_y, duration=duration)
+    return f"Dragged from ({start_x}, {start_y}) to ({end_x}, {end_y})."
+
+
+@mcp.tool()
+def get_screen_size() -> str:
+    """
+    Get the screen resolution.
 
     Returns:
-        A status message indicating the task outcome.
+        Screen width and height.
     """
-    from auto_control.llm_client import configure
-    from auto_control.loop import sampling_loop_sync
+    w, h = pyautogui.size()
+    return f"Screen size: {w} x {h}"
 
-    # Apply runtime LLM config from environment variables
-    configure(
-        base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-        api_key=os.environ.get("OPENAI_API_KEY", ""),
-        model=os.environ.get("OPENAI_MODEL", "gpt-4o"),
-    )
 
-    region = tuple(screen_region) if screen_region else None
-    vision_agent = _get_vision_agent()
-    messages = [{"role": "user", "content": task}]
+@mcp.tool()
+def get_cursor_position() -> str:
+    """
+    Get the current cursor position.
 
-    for _ in sampling_loop_sync(
-        model=os.environ.get("OPENAI_MODEL", "gpt-4o"),
-        messages=messages,
-        vision_agent=vision_agent,
-        screen_region=region,
-    ):
-        pass  # each yield is one step; the loop ends when next_action == "None"
-
-    return f"✅ Task completed: {task}"
+    Returns:
+        Current X and Y coordinates.
+    """
+    x, y = pyautogui.position()
+    return f"Cursor at ({x}, {y})"
 
 
 # ---------------------------------------------------------------------------
@@ -150,12 +213,11 @@ def run_task(task: str, screen_region: list[int] | None = None) -> str:
 
 def main():
     """
-    Installed console-script entry point.
+    Console-script entry point.
 
-    Registered as ``automate-mcp`` in pyproject.toml so that:
-      • pip install automate-mcp          → `automate-mcp` command available
-      • uvx automate-mcp                  → runs directly without pip install
-      • uvx --from git+... automate-mcp   → runs from GitHub without cloning
+    Registered as ``automate-mcp`` in pyproject.toml:
+      - pip install automate-mcp  -> `automate-mcp` command
+      - uvx automate-mcp          -> run without install
     """
     mcp.run()
 

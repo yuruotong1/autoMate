@@ -53,6 +53,8 @@ autoMateは**AI + RPAデスクトップ自動化ツール**です。自然言語
 
 > **前提：** `uv`を一度インストール — `pip install uv`
 
+**ゼロ設定** — APIキー不要、環境変数不要。ホストLLM（Claude、GPTなど）が思考し、autoMateは手と目を提供します。
+
 ### Claude Desktop
 
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -63,20 +65,30 @@ autoMateは**AI + RPAデスクトップ自動化ツール**です。自然言語
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "args": ["automate-mcp"]
     }
   }
 }
 ```
 
+再起動すれば完了！
+
 ### OpenClaw
 
-`~/.openclaw/openclaw.json` を編集して同じ内容を追加し、ゲートウェイを再起動：
+`~/.openclaw/openclaw.json` を編集：
+
+```json
+{
+  "mcpServers": {
+    "automate": {
+      "command": "uvx",
+      "args": ["automate-mcp"]
+    }
+  }
+}
+```
+
+ゲートウェイを再起動：
 
 ```bash
 openclaw gateway restart
@@ -90,8 +102,7 @@ openclaw gateway restart
 {
   "automate": {
     "command": "uvx",
-    "args": ["automate-mcp"],
-    "env": { "OPENAI_API_KEY": "sk-...", "OPENAI_MODEL": "gpt-4o" }
+    "args": ["automate-mcp"]
   }
 }
 ```
@@ -100,8 +111,16 @@ openclaw gateway restart
 
 | ツール | 説明 |
 |--------|------|
-| `run_task` | 自然言語でタスクを記述し、autoMateがデスクトップを自動操作 |
 | `screenshot` | 現在の画面をキャプチャしてbase64 PNGで返す |
+| `click` | 画面座標をクリック（左/右/中） |
+| `double_click` | 画面座標をダブルクリック |
+| `type_text` | 現在のカーソル位置にテキストを入力 |
+| `press_key` | キーまたはキーコンボ（例：`ctrl+c`、`enter`） |
+| `scroll` | 上下スクロール |
+| `mouse_move` | マウスカーソルを移動（クリックなし） |
+| `drag` | ある位置から別の位置にドラッグ |
+| `get_screen_size` | 画面解像度を取得 |
+| `get_cursor_position` | 現在のカーソル位置を取得 |
 
 ---
 
