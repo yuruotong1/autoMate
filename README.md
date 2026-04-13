@@ -2,160 +2,56 @@
 
 <img src="./imgs/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
-<p><b>🤖 AI-Powered Local Automation Tool | Let Your Computer Work for You</b></p>
+<p><b>🤖 AI-Powered Desktop Automation | Let Your Computer Work for You</b></p>
 
 [中文](./README_CN.md) | [日本語](./README_JA.md)
 
->"Automate the tedious, give time back to life"
+> "Automate the tedious, give time back to life"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
-
 </div>
 
-> **Special Note:** The autoMate project is still in its early stages of rapid iteration, and we continue to explore and integrate the latest technologies. During this process, **deeper design thinking, technical stack discussions, challenges and solutions encountered, as well as my ongoing research notes on AI+RPA, will be primarily shared and discussed in my [Knowledge Planet "AI Tongmu and His Noble Friends"](https://t.zsxq.com/x1cCW)**.
->
-> If you're interested in the technical details behind autoMate, its development direction, or broader AI automation topics, feel free to scan the QR code to join and discuss with me and other friends, witnessing the growth of autoMate together!
+> **Note:** autoMate is in active development. Deeper design thinking, technical discussions, and AI+RPA research notes are shared in [Knowledge Planet "AI Tongmu and His Noble Friends"](https://t.zsxq.com/x1cCW).
 
 <div align="center">
-<figure>
-    <a href="[Your Knowledge Planet Link]" target="_blank" rel="noopener noreferrer"><img src="./imgs/knowledge.png" width="150" height="150" alt="Knowledge Planet QR Code"></a>
-</figure>
+<a href="https://t.zsxq.com/x1cCW" target="_blank" rel="noopener noreferrer">
+  <img src="./imgs/knowledge.png" width="150" height="150" alt="Knowledge Planet QR Code">
+</a>
 </div>
 
+---
 
-## 💫 Redefining Your Relationship with Computers
+## 💡 What is autoMate?
 
-Unlike traditional RPA tools that are cumbersome to use, autoMate leverages the power of large language models to complete complex automation processes simply by describing tasks in natural language. Say goodbye to repetitive work and focus on what truly creates value!
+autoMate is an **AI + RPA automation tool** that controls your desktop through natural language. Unlike traditional RPA, it learns from your demonstrations — when it can't find a button, just click it once and it remembers forever.
 
-**Let automation create more possibilities for your life.**
+**Three ways to use it:**
 
-## 💡 Project Introduction
-autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
+| Mode | Best for |
+|------|----------|
+| 🔌 **MCP Server** | Claude Desktop, Cursor, Windsurf — no UI needed |
+| 💻 **CLI** | Scripts, terminals, power users |
+| 🖥️ **Desktop UI** | Visual interface via browser |
 
-- 📊 Understand your requirements and automatically plan tasks
-- 🔍 Intelligently comprehend screen content, simulating human vision and operations
-- 🧠 Make autonomous decisions, judging and taking actions based on task requirements
-- 💻 Support local deployment, protecting your data security and privacy
+---
 
 ## ✨ Features
 
-- 🔮 **No-Code Automation** — Describe tasks in natural language; AI writes and executes the script
-- 🧠 **Human-in-the-Loop Learning** — When the AI can't find an element, it asks you to click it once and remembers forever
-- 📝 **Markdown Scripts** — Scripts are stored as readable `.md` files you can edit directly; no rigid JSON schema
-- 🖥️ **Full Interface Control** — Works on any visual interface, not limited to specific software
+- 🔮 **No-Code Automation** — Describe tasks in natural language; AI writes and runs the script
+- 🧠 **Human-in-the-Loop Learning** — AI can't find an element? Click it once, it remembers forever
+- 📝 **Markdown Scripts** — Stored as readable `.md` files; edit them directly, no rigid JSON schema
 - 🌐 **Universal LLM Support** — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, any OpenAI-compatible API
-- 🔌 **MCP Server** — Deploy as an MCP tool for Claude Desktop, Cursor, Windsurf and more
-- 💻 **CLI Mode** — Lightweight command-line interface; no browser required
+- 🔌 **MCP Server** — One-line install for Claude Desktop, Cursor, Windsurf, Cline
+- 🖥️ **Cross-Platform** — Windows, macOS, Linux
 
-## 🚀 Quick Start
-
-### 📥 Download Binary
-Download the pre-built executable from the [GitHub Releases](https://github.com/yuruotong1/autoMate/releases) page — no Python installation needed.
-
-### 📦 Install from Source
-
-```bash
-# Clone the project
-git clone https://github.com/yuruotong1/autoMate.git
-cd autoMate
-# Create python3.12 environment
-conda create -n "automate" python==3.12
-conda activate automate
-# Install dependencies
-python install.py
-```
-
-**Desktop UI (Gradio):**
-```bash
-python main.py
-# Open http://localhost:7888/ in your browser
-```
-
-**CLI (lightweight, no browser needed):**
-```bash
-# Set your LLM credentials
-export OPENAI_API_KEY=sk-...
-export OPENAI_MODEL=gpt-4o
-
-# Describe a task — AI generates a Markdown script and executes it
-python cli.py run "open Notepad and type Hello World"
-
-# List saved scripts
-python cli.py list
-
-# Re-run a saved script
-python cli.py exec open_notepad
-
-# Inspect a script
-python cli.py show open_notepad
-```
-
-### 📝 How Markdown Scripts Work
-
-autoMate stores automation scripts as human-readable `.md` files in `~/.automate/scripts/`.
-Each step is a natural-language sentence with an optional inline action hint:
-
-```markdown
----
-name: open_notepad
-description: Open Notepad and type a message
 ---
 
-## Steps
+## 🔌 MCP Server — One-Command Setup
 
-1. Press the Windows key to open Start Menu `[key:win]`
-2. Type "notepad" in the search box `[type:notepad]`
-3. Click on the Notepad result `[click:Notepad]`
-4. Type the greeting `[type:Hello, World!]`
-5. Save with Ctrl+S `[key:ctrl+s]`
+The fastest way to use autoMate. No git clone, no pip install — just paste and restart.
 
-## Notes
-Notepad usually opens within 1–2 seconds.
-```
-
-**Inline hint syntax:**
-
-| Hint | Action |
-|------|--------|
-| `[click:OK]` | Click element whose label contains "OK" |
-| `[click:coord=320,240]` | Click at absolute coordinates |
-| `[type:hello world]` | Type text (focus element first if hinted) |
-| `[key:ctrl+s]` | Press keyboard shortcut |
-| `[wait:2]` | Wait 2 seconds |
-| `[scroll_up]` / `[scroll_down]` | Scroll the page |
-
-Steps without hints are interpreted by the AI vision model at runtime.
-You can also embed Python code blocks for custom logic.
-
-### 🔔 Note
-
-autoMate supports **any OpenAI-compatible API**. Just set the Base URL, API Key, and Model in Settings:
-
-| Provider | Base URL | Example Models |
-| --- | --- | --- |
-| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, gpt-4.1, o3 |
-| [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service) | your Azure endpoint | gpt-4o |
-| [OpenRouter](https://openrouter.ai) | `https://openrouter.ai/api/v1` | claude-3.7-sonnet, gemini-2.5-pro, etc. |
-| [DeepSeek](https://platform.deepseek.com) | `https://api.deepseek.com/v1` | deepseek-chat, deepseek-reasoner |
-| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1` | llama-3.3-70b-versatile |
-| [Ollama](https://ollama.com) (local) | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
-| [yeka](https://2233.ai/api) (CN proxy) | `https://api.2233.ai/v1` | gpt-4o, o1 |
-
-> **Recommended**: Use a multimodal model (vision support) for best results — e.g. `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` locally via Ollama.
-
-## 🔌 MCP Server — One-Command Install
-
-autoMate is a **Model Context Protocol (MCP) server**. Any MCP-compatible client —
-Claude Desktop, Cursor, Windsurf, Cline, etc. — can call it as a tool to control
-your local desktop, with **no git clone or manual setup required**.
-
-### Zero-install setup (recommended)
-
-Just add the following to your MCP client config and restart — `uvx` handles
-the download and execution automatically:
-
-**Claude Desktop** → edit `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Claude Desktop** → `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)  
 **Windows** → `%APPDATA%\Claude\claude_desktop_config.json`  
 **Cursor / Windsurf** → Settings → MCP Servers
 
@@ -178,64 +74,169 @@ the download and execution automatically:
 }
 ```
 
-> **`uvx` not installed?** Run `pip install uv` once, then the config above works.
-
-### Alternative: pip install
-
-```bash
-pip install "git+https://github.com/yuruotong1/autoMate.git"
-```
-
-Then in your MCP config use `"command": "automate-mcp"` (no `args` needed).
-
-### Use it
+> Don't have `uvx`? Run `pip install uv` once first.
 
 After restarting your client, just say:
-> "Use automate to open Chrome and search for the latest AI news"
+> *"Use automate to open Chrome and search for the latest AI news"*
 
-The AI will call `run_task` and autoMate controls the desktop for you.
-
-### Available MCP Tools
+### MCP Tools
 
 | Tool | Description |
-| --- | --- |
+|------|-------------|
 | `run_task` | Execute a desktop automation task in natural language |
 | `screenshot` | Capture the screen (or a region) and return as base64 PNG |
 
-### Environment variables
+---
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `OPENAI_API_KEY` | *(required)* | API key for your LLM provider |
-| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Any OpenAI-compatible endpoint |
-| `OPENAI_MODEL` | `gpt-4o` | Model name |
+## 🚀 CLI & Desktop UI
+
+### Install
+
+```bash
+git clone https://github.com/yuruotong1/autoMate.git
+cd autoMate
+conda create -n automate python=3.12
+conda activate automate
+python install.py
+```
+
+### CLI (no browser needed)
+
+```bash
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4o
+
+# Describe a task — AI generates a Markdown script and executes it
+python cli.py run "open Notepad and type Hello World"
+
+# Re-run a saved script
+python cli.py exec open_notepad
+
+# List all saved scripts
+python cli.py list
+
+# Inspect a script
+python cli.py show open_notepad
+```
+
+### Desktop UI (Gradio)
+
+```bash
+python main.py
+# Open http://localhost:7888/ in your browser
+```
+
+### Download Binary
+
+Pre-built executables (no Python required) are available on the [Releases](https://github.com/yuruotong1/autoMate/releases) page.
+
+---
+
+## 📝 Markdown Scripts
+
+autoMate saves automation scripts as `.md` files in `~/.automate/scripts/`. They're human-readable, version-controllable, and AI-interpretable at runtime.
+
+```markdown
+---
+name: open_notepad
+description: Open Notepad and type a message
+---
+
+## Steps
+
+1. Press the Windows key to open Start Menu `[key:win]`
+2. Type "notepad" in the search box `[type:notepad]`
+3. Click the Notepad result `[click:Notepad]`
+4. Type the greeting `[type:Hello, World!]`
+5. Save with Ctrl+S `[key:ctrl+s]`
+
+## Notes
+Notepad usually opens within 1–2 seconds.
+
+## Code
+```python
+# Optional: custom Python runs as a step
+import time
+time.sleep(1)
+```
+```
+
+### Inline hint syntax
+
+| Hint | Action |
+|------|--------|
+| `[click:OK]` | Click element whose label contains "OK" (OCR-based) |
+| `[click:coord=320,240]` | Click at absolute screen coordinates |
+| `[type:hello world]` | Type text |
+| `[key:ctrl+s]` | Press keyboard shortcut |
+| `[wait:2]` | Wait 2 seconds |
+| `[scroll_up]` / `[scroll_down]` | Scroll the page |
+
+Steps **without** hints are interpreted by the AI vision model at runtime — you don't need to annotate every step.
+
+### Human-in-the-loop learning
+
+When the AI can't locate an element, it pauses and asks:
+
+```
+[autoMate] Step 3: 'Click the Submit button'
+Please click the target element now…
+
+[autoMate] Got click at (842, 631) — learning…
+[autoMate] Learned hint: [click:Submit]  Resuming.
+```
+
+The learned hint is automatically written back into the Markdown file — next time it runs without asking.
+
+---
+
+## 🌐 Supported LLM Providers
+
+autoMate works with **any OpenAI-compatible API**:
+
+| Provider | Base URL | Example Models |
+|----------|----------|----------------|
+| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, gpt-4.1, o3 |
+| [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service) | your Azure endpoint | gpt-4o |
+| [OpenRouter](https://openrouter.ai) | `https://openrouter.ai/api/v1` | claude-3.7-sonnet, gemini-2.5-pro |
+| [DeepSeek](https://platform.deepseek.com) | `https://api.deepseek.com/v1` | deepseek-chat, deepseek-reasoner |
+| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1` | llama-3.3-70b-versatile |
+| [Ollama](https://ollama.com) (local) | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
+| [yeka](https://2233.ai/api) (CN proxy) | `https://api.2233.ai/v1` | gpt-4o, o1 |
+
+> **Recommended:** Use a multimodal model with vision support — `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` via Ollama.
+
+Set via environment variables or the Settings UI:
+
+```bash
+export OPENAI_API_KEY=sk-...
+export OPENAI_BASE_URL=https://openrouter.ai/api/v1
+export OPENAI_MODEL=anthropic/claude-3.7-sonnet
+```
+
+---
 
 ## 📝 FAQ
-### What models are supported?
-autoMate now supports **any OpenAI-compatible API**. The underlying architecture uses a 3-tier fallback (structured output → JSON mode → plain text extraction) to work across different providers.
 
-Recommended: use a **multimodal model with vision capability** (the agent needs to see the screen). OpenAI `gpt-4o`, Claude via OpenRouter, and `qwen2.5-vl` via Ollama are all tested and working.
-
-### Why is my execution speed slow?
-If your computer doesn't have an NVIDIA dedicated graphics card, it will run slower because we frequently call OCR for visual annotation, which consumes a lot of GPU resources. We are actively optimizing and adapting. We recommend using an NVIDIA graphics card with at least 4GB of VRAM, and the version should match your torch version:
-
-1. Run `pip list` to check torch version;
-2. Check supported cuda version from [official website](https://pytorch.org/get-started/locally/);
-3. Uninstall installed torch and torchvision;
-4. Copy the official torch installation command and reinstall torch suitable for your cuda version.
-
-For example, if your cuda version is 12.4, you need to install torch using the following command:
+**Q: Why is execution slow without a GPU?**  
+OmniParser (YOLO-based UI detection) is GPU-intensive. With an NVIDIA GPU (4 GB+ VRAM), install the CUDA version of torch:
 
 ```bash
 pip3 uninstall -y torch torchvision
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 ```
 
-## 🤝 Join Us
+**Q: Can I edit the Markdown scripts manually?**  
+Yes! They live in `~/.automate/scripts/*.md`. Edit them in any text editor. The AI reads the natural-language descriptions at runtime, so plain English is enough — hints just make execution faster and more reliable.
 
-Every excellent open-source project embodies collective wisdom. The growth of autoMate is inseparable from your participation and contribution. Whether it's fixing bugs, adding features, or improving documentation, your every contribution will help thousands of people break free from repetitive work.
+**Q: Does it work on macOS / Linux?**  
+Yes. The MCP server and CLI work on all three platforms. The YOLO model requires Python 3.10–3.12.
 
-Join us in creating a more intelligent future.
+---
+
+## 🤝 Contributing
+
+Every excellent open-source project embodies collective wisdom. Whether it's fixing bugs, adding features, or improving documentation — your contribution helps thousands of people escape repetitive work.
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
@@ -244,6 +245,5 @@ Join us in creating a more intelligent future.
 ---
 
 <div align="center">
-⭐ Every Star is an encouragement to the creators and an opportunity for more people to discover and benefit from autoMate ⭐
-Your support today is our motivation for tomorrow's progress
+⭐ Every star encourages the creators and helps more people discover autoMate ⭐
 </div>
