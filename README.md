@@ -6,6 +6,9 @@
 
 [中文](./README_CN.md) | [日本語](./README_JA.md)
 
+[![PyPI](https://img.shields.io/pypi/v/automate-mcp)](https://pypi.org/project/automate-mcp/)
+[![License](https://img.shields.io/github/license/yuruotong1/autoMate)](LICENSE)
+
 > "Automate the tedious, give time back to life"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
@@ -41,7 +44,7 @@ autoMate is an **AI + RPA automation tool** that controls your desktop through n
 - 🧠 **Human-in-the-Loop Learning** — AI can't find an element? Click it once, it remembers forever
 - 📝 **Markdown Scripts** — Stored as readable `.md` files; edit them directly, no rigid JSON schema
 - 🌐 **Universal LLM Support** — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, any OpenAI-compatible API
-- 🔌 **MCP Server** — Works with Claude Desktop, OpenClaw, Cursor, Windsurf, Cline and more
+- 🔌 **MCP Server** — Published on PyPI, one-line setup for Claude Desktop, OpenClaw, Cursor, Windsurf, Cline
 - 🖥️ **Cross-Platform** — Windows, macOS, Linux
 
 ---

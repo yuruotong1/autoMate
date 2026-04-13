@@ -6,6 +6,9 @@
 
 [English](./README.md) | [日本語](./README_JA.md)
 
+[![PyPI](https://img.shields.io/pypi/v/automate-mcp)](https://pypi.org/project/automate-mcp/)
+[![License](https://img.shields.io/github/license/yuruotong1/autoMate)](LICENSE)
+
 > "让繁琐自动化，把时间还给生活"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
@@ -41,7 +44,7 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 - 🧠 **人机协同学习** — AI 找不到元素时，你点击一次，它永远记住
 - 📝 **Markdown 脚本** — 脚本以可读的 `.md` 文件保存，可直接编辑，无需僵化的 JSON 格式
 - 🌐 **多平台 LLM 支持** — 兼容 OpenAI、Azure、OpenRouter、Groq、Ollama、DeepSeek 等任意 OpenAI-compatible 接口
-- 🔌 **MCP Server** — 支持 Claude Desktop、OpenClaw、Cursor、Windsurf、Cline
+- 🔌 **MCP Server** — 已发布到 PyPI，一行配置接入 Claude Desktop、OpenClaw、Cursor、Windsurf、Cline
 - 🖥️ **跨平台** — Windows、macOS、Linux
 
 ---
