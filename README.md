@@ -40,12 +40,12 @@ autoMate is an **AI + RPA automation tool** that controls your desktop through n
 
 ## ✨ Features
 
-- 🔮 **No-Code Automation** — Describe tasks in natural language; AI writes and runs the script
-- 🧠 **Human-in-the-Loop Learning** — AI can't find an element? Click it once, it remembers forever
-- 📝 **Markdown Scripts** — Stored as readable `.md` files; edit them directly, no rigid JSON schema
-- 🌐 **Universal LLM Support** — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, any OpenAI-compatible API
-- 🔌 **MCP Server** — Published on PyPI, one-line setup for Claude Desktop, OpenClaw, Cursor, Windsurf, Cline
-- 🖥️ **Cross-Platform** — Windows, macOS, Linux
+- 🖥️ **Automates apps with no API** — 剪映, Photoshop, AutoCAD, WeChat, SAP, any internal tool — if it has a GUI, autoMate can drive it
+- 📚 **Reusable script library** — Save workflows as Markdown scripts, share them, install community scripts in one command
+- 🔌 **MCP Server** — Claude knows exactly when to use autoMate vs filesystem/browser MCP — no more getting bypassed
+- 🤖 **Zero config** — No API keys, no env vars; the host LLM (Claude, GPT…) does the thinking
+- 🖱️ **Low-level control** — screenshot, click, type, key, scroll, drag — full desktop control
+- 🌍 **Cross-platform** — Windows, macOS, Linux (unlike Quicker which is Windows-only)
 
 ---
 
@@ -117,18 +117,29 @@ Say in any client:
 
 ### MCP Tools
 
+**Script library** (the main value — save once, reuse forever):
+
 | Tool | Description |
 |------|-------------|
-| `screenshot` | Capture the screen (or a region) and return as base64 PNG |
-| `click` | Click at screen coordinates (left / right / middle) |
+| `list_scripts` | Show all saved automation scripts |
+| `run_script` | Run a saved script by name |
+| `save_script` | Save a workflow as a reusable script |
+| `show_script` | View the contents of a script |
+| `delete_script` | Delete a script |
+| `install_script` | Install a script from a URL or the community library |
+
+**Low-level desktop control** (used when building new scripts):
+
+| Tool | Description |
+|------|-------------|
+| `screenshot` | Capture the screen and return as base64 PNG |
+| `click` | Click at screen coordinates |
 | `double_click` | Double-click at screen coordinates |
-| `type_text` | Type text at the current cursor position |
-| `press_key` | Press a key or key combo (e.g. `ctrl+c`, `enter`) |
+| `type_text` | Type text (full Unicode / CJK support) |
+| `press_key` | Press a key or combo (e.g. `ctrl+c`, `win`) |
 | `scroll` | Scroll up or down |
-| `mouse_move` | Move the cursor without clicking |
+| `mouse_move` | Move cursor without clicking |
 | `drag` | Drag from one position to another |
-| `get_screen_size` | Get the screen resolution |
-| `get_cursor_position` | Get the current cursor position |
 
 ---
 

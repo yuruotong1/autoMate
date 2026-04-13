@@ -40,12 +40,12 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 
 ## ✨ 功能特点
 
-- 🔮 **无代码自动化** — 用自然语言描述任务，AI 自动生成脚本并执行
-- 🧠 **人机协同学习** — AI 找不到元素时，你点击一次，它永远记住
-- 📝 **Markdown 脚本** — 脚本以可读的 `.md` 文件保存，可直接编辑，无需僵化的 JSON 格式
-- 🌐 **多平台 LLM 支持** — 兼容 OpenAI、Azure、OpenRouter、Groq、Ollama、DeepSeek 等任意 OpenAI-compatible 接口
-- 🔌 **MCP Server** — 已发布到 PyPI，一行配置接入 Claude Desktop、OpenClaw、Cursor、Windsurf、Cline
-- 🖥️ **跨平台** — Windows、macOS、Linux
+- 🖥️ **专为无 API 的桌面软件而生** — 剪映、Photoshop、AutoCAD、微信、SAP、公司内部系统，有界面就能自动化
+- 📚 **可复用脚本库** — 工作流保存为 Markdown 脚本，一行命令安装社区脚本，分享给所有人用
+- 🔌 **MCP Server，有明确的使用边界** — Claude 知道什么时候该用 autoMate，不会被 filesystem/Windows MCP 替代
+- 🤖 **零配置** — 不需要 API Key，不需要环境变量，宿主大模型负责思考
+- 🖱️ **完整桌面控制** — 截图、点击、输入、按键、滚动、拖拽
+- 🌍 **跨平台** — Windows、macOS、Linux（Quicker 只支持 Windows）
 
 ---
 
@@ -117,18 +117,29 @@ openclaw gateway restart
 
 ### MCP 工具列表
 
+**脚本库**（核心功能——保存一次，永久复用）：
+
 | 工具 | 说明 |
 |------|------|
-| `screenshot` | 截取当前屏幕（或指定区域），返回 base64 PNG |
-| `click` | 点击屏幕坐标（左键/右键/中键） |
+| `list_scripts` | 查看所有已保存的自动化脚本 |
+| `run_script` | 按名称执行已保存的脚本 |
+| `save_script` | 将当前工作流保存为可复用脚本 |
+| `show_script` | 查看脚本内容 |
+| `delete_script` | 删除脚本 |
+| `install_script` | 从 URL 或社区动作库安装脚本 |
+
+**底层桌面控制**（构建新脚本时使用）：
+
+| 工具 | 说明 |
+|------|------|
+| `screenshot` | 截取屏幕，返回 base64 PNG |
+| `click` | 点击屏幕坐标 |
 | `double_click` | 双击屏幕坐标 |
-| `type_text` | 在当前光标位置输入文字 |
-| `press_key` | 按键或组合键（如 `ctrl+c`、`enter`） |
+| `type_text` | 输入文字（支持中文及全 Unicode） |
+| `press_key` | 按键或组合键（如 `ctrl+c`、`win`） |
 | `scroll` | 上下滚动 |
 | `mouse_move` | 移动鼠标（不点击） |
 | `drag` | 从一个位置拖拽到另一个位置 |
-| `get_screen_size` | 获取屏幕分辨率 |
-| `get_cursor_position` | 获取当前鼠标位置 |
 
 ---
 
