@@ -148,5 +148,17 @@ def run_task(task: str, screen_region: list[int] | None = None) -> str:
 # Entry point
 # ---------------------------------------------------------------------------
 
-if __name__ == "__main__":
+def main():
+    """
+    Installed console-script entry point.
+
+    Registered as ``automate-mcp`` in pyproject.toml so that:
+      • pip install automate-mcp          → `automate-mcp` command available
+      • uvx automate-mcp                  → runs directly without pip install
+      • uvx --from git+... automate-mcp   → runs from GitHub without cloning
+    """
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -40,19 +40,20 @@ autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
 
 ## ✨ Features
 
-- 🔮 No-Code Automation - Describe tasks in natural language, no programming knowledge required
-- 🖥️ Full Interface Control - Support operations on any visual interface, not limited to specific software
-- 🌐 Universal LLM Support - Works with OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek and any OpenAI-compatible API
-- 🔌 MCP Server - Deploy as an MCP tool and call it from Claude Desktop, Cursor, Windsurf and more
-- 🚅 Simplified Installation - One-click deployment
+- 🔮 **No-Code Automation** — Describe tasks in natural language; AI writes and executes the script
+- 🧠 **Human-in-the-Loop Learning** — When the AI can't find an element, it asks you to click it once and remembers forever
+- 📝 **Markdown Scripts** — Scripts are stored as readable `.md` files you can edit directly; no rigid JSON schema
+- 🖥️ **Full Interface Control** — Works on any visual interface, not limited to specific software
+- 🌐 **Universal LLM Support** — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, any OpenAI-compatible API
+- 🔌 **MCP Server** — Deploy as an MCP tool for Claude Desktop, Cursor, Windsurf and more
+- 💻 **CLI Mode** — Lightweight command-line interface; no browser required
 
 ## 🚀 Quick Start
 
-### 📥 Direct Usage
-You can directly download the executable file from github release.
+### 📥 Download Binary
+Download the pre-built executable from the [GitHub Releases](https://github.com/yuruotong1/autoMate/releases) page — no Python installation needed.
 
-### 📦 Installation
-We strongly recommend installing miniConda first and using miniconda to install dependencies. There are many tutorials available online, or you can ask AI for help. Then follow these commands to set up the environment:
+### 📦 Install from Source
 
 ```bash
 # Clone the project
@@ -60,19 +61,72 @@ git clone https://github.com/yuruotong1/autoMate.git
 cd autoMate
 # Create python3.12 environment
 conda create -n "automate" python==3.12
-# Activate environment
 conda activate automate
 # Install dependencies
 python install.py
 ```
 
-After installation, you can start the application using the command line:
-
+**Desktop UI (Gradio):**
 ```bash
 python main.py
+# Open http://localhost:7888/ in your browser
 ```
 
-Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
+**CLI (lightweight, no browser needed):**
+```bash
+# Set your LLM credentials
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4o
+
+# Describe a task — AI generates a Markdown script and executes it
+python cli.py run "open Notepad and type Hello World"
+
+# List saved scripts
+python cli.py list
+
+# Re-run a saved script
+python cli.py exec open_notepad
+
+# Inspect a script
+python cli.py show open_notepad
+```
+
+### 📝 How Markdown Scripts Work
+
+autoMate stores automation scripts as human-readable `.md` files in `~/.automate/scripts/`.
+Each step is a natural-language sentence with an optional inline action hint:
+
+```markdown
+---
+name: open_notepad
+description: Open Notepad and type a message
+---
+
+## Steps
+
+1. Press the Windows key to open Start Menu `[key:win]`
+2. Type "notepad" in the search box `[type:notepad]`
+3. Click on the Notepad result `[click:Notepad]`
+4. Type the greeting `[type:Hello, World!]`
+5. Save with Ctrl+S `[key:ctrl+s]`
+
+## Notes
+Notepad usually opens within 1–2 seconds.
+```
+
+**Inline hint syntax:**
+
+| Hint | Action |
+|------|--------|
+| `[click:OK]` | Click element whose label contains "OK" |
+| `[click:coord=320,240]` | Click at absolute coordinates |
+| `[type:hello world]` | Type text (focus element first if hinted) |
+| `[key:ctrl+s]` | Press keyboard shortcut |
+| `[wait:2]` | Wait 2 seconds |
+| `[scroll_up]` / `[scroll_down]` | Scroll the page |
+
+Steps without hints are interpreted by the AI vision model at runtime.
+You can also embed Python code blocks for custom logic.
 
 ### 🔔 Note
 
@@ -90,27 +144,30 @@ autoMate supports **any OpenAI-compatible API**. Just set the Base URL, API Key,
 
 > **Recommended**: Use a multimodal model (vision support) for best results — e.g. `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` locally via Ollama.
 
-## 🔌 MCP Server
+## 🔌 MCP Server — One-Command Install
 
-autoMate can be deployed as an **MCP (Model Context Protocol) server**, letting AI clients like Claude Desktop, Cursor, or Windsurf call it as a tool to control your local desktop.
+autoMate is a **Model Context Protocol (MCP) server**. Any MCP-compatible client —
+Claude Desktop, Cursor, Windsurf, Cline, etc. — can call it as a tool to control
+your local desktop, with **no git clone or manual setup required**.
 
-### Setup
+### Zero-install setup (recommended)
 
-**1. Install dependencies**
-```bash
-pip install -r requirements.txt
-```
+Just add the following to your MCP client config and restart — `uvx` handles
+the download and execution automatically:
 
-**2. Add to your MCP client config**
-
-For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+**Claude Desktop** → edit `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows** → `%APPDATA%\Claude\claude_desktop_config.json`  
+**Cursor / Windsurf** → Settings → MCP Servers
 
 ```json
 {
   "mcpServers": {
     "automate": {
-      "command": "python",
-      "args": ["/absolute/path/to/autoMate/mcp_server.py"],
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/yuruotong1/autoMate.git",
+        "automate-mcp"
+      ],
       "env": {
         "OPENAI_API_KEY": "sk-...",
         "OPENAI_BASE_URL": "https://api.openai.com/v1",
@@ -121,21 +178,37 @@ For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_co
 }
 ```
 
-Restart Claude Desktop — you'll see two new tools: **`run_task`** and **`screenshot`**.
+> **`uvx` not installed?** Run `pip install uv` once, then the config above works.
 
-**3. Use it**
+### Alternative: pip install
 
-In Claude Desktop, just say:
+```bash
+pip install "git+https://github.com/yuruotong1/autoMate.git"
+```
+
+Then in your MCP config use `"command": "automate-mcp"` (no `args` needed).
+
+### Use it
+
+After restarting your client, just say:
 > "Use automate to open Chrome and search for the latest AI news"
 
-Claude will call `run_task` and autoMate will control the desktop for you.
+The AI will call `run_task` and autoMate controls the desktop for you.
 
 ### Available MCP Tools
 
 | Tool | Description |
 | --- | --- |
-| `run_task` | Execute a desktop automation task described in natural language |
+| `run_task` | Execute a desktop automation task in natural language |
 | `screenshot` | Capture the screen (or a region) and return as base64 PNG |
+
+### Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | *(required)* | API key for your LLM provider |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Any OpenAI-compatible endpoint |
+| `OPENAI_MODEL` | `gpt-4o` | Model name |
 
 ## 📝 FAQ
 ### What models are supported?
