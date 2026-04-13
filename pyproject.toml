@@ -1,14 +1,14 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 # ---------------------------------------------------------------------------
 # Package metadata
 # ---------------------------------------------------------------------------
 [project]
 name = "automate-mcp"
-version = "0.2.0"
-description = "AI-powered desktop automation as an MCP server — control your desktop from Claude Desktop, Cursor, Windsurf and more"
+version = "0.3.0"
+description = "Zero-config desktop automation MCP server — give any LLM hands and eyes to control your desktop"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -25,19 +25,12 @@ classifiers = [
     "Intended Audience :: Developers",
 ]
 
-# Core dependencies — lightweight, no GPU required
+# Core dependencies — minimal, no GPU, no LLM SDK required
 dependencies = [
     "mcp[cli]>=1.0.0",
-    "openai>=1.50.0",
-    "anthropic[bedrock,vertex]>=0.37.1",
     "pyautogui>=0.9.54",
-    "pydantic>=2.0",
-    "pyyaml>=6.0",
     "pillow>=10.0",
-    "pynput",
     "pyperclip",
-    "click>=8.0",
-    "rich>=13.0",
 ]
 
 # ---------------------------------------------------------------------------
@@ -56,16 +49,20 @@ vision = [
     "opencv-python",
     "modelscope",
 ]
-# Desktop UI (Gradio + PyQt6)
-ui = [
-    "gradio",
-    "pyqt6==6.8.1",
-    "keyboard==0.13.5",
+# CLI tools (script generation + execution with LLM)
+cli = [
+    "openai>=1.50.0",
+    "anthropic[bedrock,vertex]>=0.37.1",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "pynput",
+    "click>=8.0",
+    "rich>=13.0",
 ]
-# Everything
+# Everything (core + vision + cli)
 full = [
     "automate-mcp[vision]",
-    "automate-mcp[ui]",
+    "automate-mcp[cli]",
 ]
 
 # ---------------------------------------------------------------------------
@@ -90,5 +87,6 @@ Issues     = "https://github.com/yuruotong1/autoMate/issues"
 include = ["auto_control*", "core*", "util*"]
 
 [tool.setuptools]
-# Standalone root-level modules to include in the wheel
+# mcp_server.py is the only module needed for the MCP server (uvx automate-mcp)
+# cli.py and core/auto_control/util are included for local development
 py-modules = ["mcp_server", "cli"]

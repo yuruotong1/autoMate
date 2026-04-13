@@ -6,6 +6,9 @@
 
 [中文](./README_CN.md) | [日本語](./README_JA.md)
 
+[![PyPI](https://img.shields.io/pypi/v/automate-mcp)](https://pypi.org/project/automate-mcp/)
+[![License](https://img.shields.io/github/license/yuruotong1/autoMate)](LICENSE)
+
 > "Automate the tedious, give time back to life"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
@@ -26,13 +29,12 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 autoMate is an **AI + RPA automation tool** that controls your desktop through natural language. Unlike traditional RPA, it learns from your demonstrations — when it can't find a button, just click it once and it remembers forever.
 
-**Three ways to use it:**
+**Two ways to use it:**
 
 | Mode | Best for |
 |------|----------|
-| 🔌 **MCP Server** | Claude Desktop, Cursor, Windsurf — no UI needed |
+| 🔌 **MCP Server** | Claude Desktop, OpenClaw, Cursor, Windsurf — plug in and go |
 | 💻 **CLI** | Scripts, terminals, power users |
-| 🖥️ **Desktop UI** | Visual interface via browser |
 
 ---
 
@@ -42,53 +44,93 @@ autoMate is an **AI + RPA automation tool** that controls your desktop through n
 - 🧠 **Human-in-the-Loop Learning** — AI can't find an element? Click it once, it remembers forever
 - 📝 **Markdown Scripts** — Stored as readable `.md` files; edit them directly, no rigid JSON schema
 - 🌐 **Universal LLM Support** — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, any OpenAI-compatible API
-- 🔌 **MCP Server** — One-line install for Claude Desktop, Cursor, Windsurf, Cline
+- 🔌 **MCP Server** — Published on PyPI, one-line setup for Claude Desktop, OpenClaw, Cursor, Windsurf, Cline
 - 🖥️ **Cross-Platform** — Windows, macOS, Linux
 
 ---
 
-## 🔌 MCP Server — One-Command Setup
+## 🔌 MCP Server Setup
 
-The fastest way to use autoMate. No git clone, no pip install — just paste and restart.
+> **Prerequisite:** Install `uv` once — `pip install uv`
 
-**Claude Desktop** → `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)  
-**Windows** → `%APPDATA%\Claude\claude_desktop_config.json`  
-**Cursor / Windsurf** → Settings → MCP Servers
+**Zero configuration** — no API keys, no environment variables. The host LLM (Claude, GPT, etc.) does the thinking; autoMate provides the hands and eyes.
+
+### Claude Desktop
+
+Config file:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": [
-        "--from", "git+https://github.com/yuruotong1/autoMate.git",
-        "automate-mcp"
-      ],
-      "env": {
-        "OPENAI_API_KEY": "sk-...",
-        "OPENAI_BASE_URL": "https://api.openai.com/v1",
-        "OPENAI_MODEL": "gpt-4o"
-      }
+      "args": ["automate-mcp"]
     }
   }
 }
 ```
 
-> Don't have `uvx`? Run `pip install uv` once first.
+Restart Claude Desktop — done!
 
-After restarting your client, just say:
+### OpenClaw
+
+Edit `~/.openclaw/openclaw.json`:
+
+```json
+{
+  "mcpServers": {
+    "automate": {
+      "command": "uvx",
+      "args": ["automate-mcp"]
+    }
+  }
+}
+```
+
+Then restart the gateway:
+
+```bash
+openclaw gateway restart
+```
+
+### Cursor / Windsurf / Cline
+
+Settings → MCP Servers → Add:
+
+```json
+{
+  "automate": {
+    "command": "uvx",
+    "args": ["automate-mcp"]
+  }
+}
+```
+
+### After connecting
+
+Say in any client:
 > *"Use automate to open Chrome and search for the latest AI news"*
 
 ### MCP Tools
 
 | Tool | Description |
 |------|-------------|
-| `run_task` | Execute a desktop automation task in natural language |
 | `screenshot` | Capture the screen (or a region) and return as base64 PNG |
+| `click` | Click at screen coordinates (left / right / middle) |
+| `double_click` | Double-click at screen coordinates |
+| `type_text` | Type text at the current cursor position |
+| `press_key` | Press a key or key combo (e.g. `ctrl+c`, `enter`) |
+| `scroll` | Scroll up or down |
+| `mouse_move` | Move the cursor without clicking |
+| `drag` | Drag from one position to another |
+| `get_screen_size` | Get the screen resolution |
+| `get_cursor_position` | Get the current cursor position |
 
 ---
 
-## 🚀 CLI & Desktop UI
+## 🚀 CLI
 
 ### Install
 
@@ -100,7 +142,7 @@ conda activate automate
 python install.py
 ```
 
-### CLI (no browser needed)
+### Usage
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -119,22 +161,11 @@ python cli.py list
 python cli.py show open_notepad
 ```
 
-### Desktop UI (Gradio)
-
-```bash
-python main.py
-# Open http://localhost:7888/ in your browser
-```
-
-### Download Binary
-
-Pre-built executables (no Python required) are available on the [Releases](https://github.com/yuruotong1/autoMate/releases) page.
-
 ---
 
 ## 📝 Markdown Scripts
 
-autoMate saves automation scripts as `.md` files in `~/.automate/scripts/`. They're human-readable, version-controllable, and AI-interpretable at runtime.
+autoMate saves automation scripts as `.md` files in `~/.automate/scripts/`. Human-readable, version-controllable, and AI-interpretable at runtime.
 
 ```markdown
 ---
@@ -172,7 +203,7 @@ time.sleep(1)
 | `[wait:2]` | Wait 2 seconds |
 | `[scroll_up]` / `[scroll_down]` | Scroll the page |
 
-Steps **without** hints are interpreted by the AI vision model at runtime — you don't need to annotate every step.
+Steps **without** hints are interpreted by the AI vision model at runtime.
 
 ### Human-in-the-loop learning
 
@@ -186,13 +217,11 @@ Please click the target element now…
 [autoMate] Learned hint: [click:Submit]  Resuming.
 ```
 
-The learned hint is automatically written back into the Markdown file — next time it runs without asking.
+The learned hint is automatically written back into the Markdown file — next run needs no human help.
 
 ---
 
 ## 🌐 Supported LLM Providers
-
-autoMate works with **any OpenAI-compatible API**:
 
 | Provider | Base URL | Example Models |
 |----------|----------|----------------|
@@ -204,9 +233,7 @@ autoMate works with **any OpenAI-compatible API**:
 | [Ollama](https://ollama.com) (local) | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
 | [yeka](https://2233.ai/api) (CN proxy) | `https://api.2233.ai/v1` | gpt-4o, o1 |
 
-> **Recommended:** Use a multimodal model with vision support — `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` via Ollama.
-
-Set via environment variables or the Settings UI:
+> **Recommended:** Use a multimodal model with vision — `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` via Ollama.
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -219,7 +246,7 @@ export OPENAI_MODEL=anthropic/claude-3.7-sonnet
 ## 📝 FAQ
 
 **Q: Why is execution slow without a GPU?**  
-OmniParser (YOLO-based UI detection) is GPU-intensive. With an NVIDIA GPU (4 GB+ VRAM), install the CUDA version of torch:
+OmniParser (YOLO-based UI detection) is GPU-intensive. With an NVIDIA GPU (4 GB+ VRAM):
 
 ```bash
 pip3 uninstall -y torch torchvision
@@ -227,10 +254,10 @@ pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu12
 ```
 
 **Q: Can I edit the Markdown scripts manually?**  
-Yes! They live in `~/.automate/scripts/*.md`. Edit them in any text editor. The AI reads the natural-language descriptions at runtime, so plain English is enough — hints just make execution faster and more reliable.
+Yes — they live in `~/.automate/scripts/*.md`. The AI reads natural-language descriptions at runtime; hints just make execution faster and more reliable.
 
 **Q: Does it work on macOS / Linux?**  
-Yes. The MCP server and CLI work on all three platforms. The YOLO model requires Python 3.10–3.12.
+Yes. MCP server and CLI work on all three platforms. The YOLO model requires Python 3.10–3.12.
 
 ---
 
