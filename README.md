@@ -57,9 +57,11 @@ autoMate is an **AI + RPA automation tool** that controls your desktop through n
 
 ### Claude Desktop
 
-Config file:
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+Open Claude Desktop → **Settings → Developer → Edit Config** to locate and edit the config file.
+
+> Default paths for reference:
+> - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+> - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {

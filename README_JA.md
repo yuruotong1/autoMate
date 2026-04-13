@@ -57,8 +57,11 @@ autoMateは**AI + RPAデスクトップ自動化ツール**です。自然言語
 
 ### Claude Desktop
 
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+Claude Desktop を開き、**Settings → Developer → Edit Config** から設定ファイルを直接開けます。
+
+> デフォルトのパス（参考）：
+> - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+> - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {

@@ -57,9 +57,11 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 
 ### Claude Desktop
 
-配置文件位置：
-- macOS：`~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows：`%APPDATA%\Claude\claude_desktop_config.json`
+打开 Claude Desktop → **Settings → Developer → Edit Config** 即可直接定位并编辑配置文件。
+
+> 默认路径参考：
+> - macOS：`~/Library/Application Support/Claude/claude_desktop_config.json`
+> - Windows：`%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
