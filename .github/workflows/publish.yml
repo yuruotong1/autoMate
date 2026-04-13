@@ -1,0 +1,48 @@
+name: Publish to PyPI
+
+# Triggered automatically when a GitHub Release is published.
+# The release is created by build.yml (workflow_dispatch → tag → build → release).
+# This workflow then publishes the Python package to PyPI.
+#
+# Setup (one-time):
+#   1. Go to https://pypi.org/manage/account/publishing/
+#   2. Add a new trusted publisher:
+#        Owner:      yuruotong1
+#        Repository: autoMate
+#        Workflow:   publish.yml
+#        Environment: pypi
+#   3. No API token or secret needed — GitHub OIDC handles authentication.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write   # required for OIDC trusted publisher auth
+
+jobs:
+  publish:
+    name: Build & publish to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build wheel and sdist
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Uses OIDC trusted publisher — no PYPI_API_TOKEN secret needed.
+        # If you prefer API token auth, uncomment below and add the secret:
+        # with:
+        #   password: ${{ secrets.PYPI_API_TOKEN }}

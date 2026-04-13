@@ -26,13 +26,12 @@ https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
 autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制你的电脑。和传统 RPA 不同，它支持从你的示范中学习——当它找不到某个按钮时，你只需点击一次，它就会永远记住。
 
-**三种使用方式：**
+**两种使用方式：**
 
 | 模式 | 适合场景 |
 |------|---------|
-| 🔌 **MCP Server** | Claude Desktop、Cursor、Windsurf，无需 UI |
+| 🔌 **MCP Server** | Claude Desktop、OpenClaw、Cursor、Windsurf，接入即用 |
 | 💻 **CLI 命令行** | 脚本、终端、进阶用户 |
-| 🖥️ **桌面 UI** | 通过浏览器使用的可视化界面 |
 
 ---
 
@@ -42,28 +41,27 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 - 🧠 **人机协同学习** — AI 找不到元素时，你点击一次，它永远记住
 - 📝 **Markdown 脚本** — 脚本以可读的 `.md` 文件保存，可直接编辑，无需僵化的 JSON 格式
 - 🌐 **多平台 LLM 支持** — 兼容 OpenAI、Azure、OpenRouter、Groq、Ollama、DeepSeek 等任意 OpenAI-compatible 接口
-- 🔌 **MCP Server** — 一行配置接入 Claude Desktop、Cursor、Windsurf、Cline
+- 🔌 **MCP Server** — 支持 Claude Desktop、OpenClaw、Cursor、Windsurf、Cline
 - 🖥️ **跨平台** — Windows、macOS、Linux
 
 ---
 
-## 🔌 MCP Server — 一条命令接入
+## 🔌 MCP Server 接入
 
-最快的接入方式。无需 clone 仓库，无需手动安装，粘贴配置重启即可。
+> **前提：** 安装一次 `uv` — `pip install uv`
 
-**macOS**：`~/Library/Application Support/Claude/claude_desktop_config.json`  
-**Windows**：`%APPDATA%\Claude\claude_desktop_config.json`  
-**Cursor / Windsurf**：设置 → MCP Servers
+### Claude Desktop
+
+配置文件位置：
+- macOS：`~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows：`%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": [
-        "--from", "git+https://github.com/yuruotong1/autoMate.git",
-        "automate-mcp"
-      ],
+      "args": ["automate-mcp"],
       "env": {
         "OPENAI_API_KEY": "sk-...",
         "OPENAI_BASE_URL": "https://api.openai.com/v1",
@@ -74,9 +72,54 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 }
 ```
 
-> 没有 `uvx`？先运行一次 `pip install uv`。
+重启 Claude Desktop，工具列表中会出现 `run_task` 和 `screenshot`。
 
-重启客户端后，直接说：
+### OpenClaw（小龙虾）
+
+编辑 `~/.openclaw/openclaw.json`：
+
+```json
+{
+  "mcpServers": {
+    "automate": {
+      "command": "uvx",
+      "args": ["automate-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "OPENAI_BASE_URL": "https://api.openai.com/v1",
+        "OPENAI_MODEL": "gpt-4o"
+      }
+    }
+  }
+}
+```
+
+然后重启网关：
+
+```bash
+openclaw gateway restart
+```
+
+### Cursor / Windsurf / Cline
+
+设置 → MCP Servers → 添加：
+
+```json
+{
+  "automate": {
+    "command": "uvx",
+    "args": ["automate-mcp"],
+    "env": {
+      "OPENAI_API_KEY": "sk-...",
+      "OPENAI_MODEL": "gpt-4o"
+    }
+  }
+}
+```
+
+### 接入后使用
+
+在任意客户端直接说：
 > *"用 automate 打开 Chrome，搜索最新的 AI 新闻"*
 
 ### MCP 工具列表
@@ -88,7 +131,7 @@ autoMate 是一款 **AI + RPA 桌面自动化工具**，通过自然语言控制
 
 ---
 
-## 🚀 CLI 与桌面 UI
+## 🚀 CLI 命令行
 
 ### 安装
 
@@ -100,7 +143,7 @@ conda activate automate
 python install.py
 ```
 
-### CLI（无需浏览器）
+### 使用
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -118,17 +161,6 @@ python cli.py list
 # 查看脚本内容
 python cli.py show open_notepad
 ```
-
-### 桌面 UI（Gradio）
-
-```bash
-python main.py
-# 浏览器打开 http://localhost:7888/
-```
-
-### 直接下载可执行文件
-
-无需 Python 环境，直接从 [Releases](https://github.com/yuruotong1/autoMate/releases) 页面下载对应平台的安装包。
 
 ---
 
@@ -172,7 +204,7 @@ time.sleep(1)
 | `[wait:2]` | 等待 2 秒 |
 | `[scroll_up]` / `[scroll_down]` | 滚动页面 |
 
-**没有提示**的步骤，由 AI 视觉模型在运行时自动解读——不需要标注每一步。
+**没有提示**的步骤，由 AI 视觉模型在运行时自动解读。
 
 ### 人机协同学习
 
@@ -192,8 +224,6 @@ time.sleep(1)
 
 ## 🌐 支持的 LLM 提供商
 
-autoMate 支持**任意 OpenAI-compatible 接口**：
-
 | 平台 | Base URL | 示例模型 |
 |------|----------|---------|
 | [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, gpt-4.1, o3 |
@@ -204,9 +234,7 @@ autoMate 支持**任意 OpenAI-compatible 接口**：
 | [Ollama](https://ollama.com)（本地） | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
 | [yeka](https://2233.ai/api)（国内代理） | `https://api.2233.ai/v1` | gpt-4o, o1 |
 
-> **推荐**：使用支持视觉的多模态模型效果最佳，如 `gpt-4o`、通过 OpenRouter 的 `claude-3.7-sonnet`，或 Ollama 本地运行的 `qwen2.5-vl`。
-
-通过环境变量或 Settings UI 配置：
+> **推荐**：使用支持视觉的多模态模型，如 `gpt-4o`、通过 OpenRouter 的 `claude-3.7-sonnet`，或 Ollama 本地运行的 `qwen2.5-vl`。
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -219,7 +247,7 @@ export OPENAI_MODEL=anthropic/claude-3.7-sonnet
 ## 📝 常见问题
 
 **Q：没有 GPU 运行为什么很慢？**  
-OmniParser（基于 YOLO 的 UI 检测）需要 GPU。有 NVIDIA 显卡（4GB+ 显存）时，安装 CUDA 版本的 torch：
+OmniParser（基于 YOLO 的 UI 检测）需要 GPU。有 NVIDIA 显卡（4GB+ 显存）时：
 
 ```bash
 pip3 uninstall -y torch torchvision
@@ -227,7 +255,7 @@ pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu12
 ```
 
 **Q：能手动编辑 Markdown 脚本吗？**  
-可以！脚本在 `~/.automate/scripts/*.md`，用任何文本编辑器都能改。AI 运行时会直接读取自然语言描述，内联提示只是让执行更快更可靠，不是必须的。
+可以！脚本在 `~/.automate/scripts/*.md`，用任何文本编辑器都能改。AI 运行时会直接读取自然语言描述，内联提示只是让执行更快更可靠。
 
 **Q：支持 macOS / Linux 吗？**  
 支持。MCP Server 和 CLI 在三个平台都可以运行。YOLO 模型需要 Python 3.10–3.12。
