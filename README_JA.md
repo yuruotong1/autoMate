@@ -2,116 +2,68 @@
 
 <img src="./imgs/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
-<p><b>🤖 AI駆動のローカル自動化ツール | コンピュータに仕事を任せる</b></p>
+<p><b>🤖 AI駆動のデスクトップ自動化ツール | コンピュータに仕事を任せる</b></p>
 
 [English](./README.md) | [中文](./README_CN.md)
 
->"面倒な作業を自動化し、時間を生活に取り戻す"
+> "面倒な作業を自動化し、時間を生活に取り戻す"
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
-
 </div>
 
-> **特別声明：** autoMateプロジェクトは現在も急速な開発段階にあり、最新の技術を継続的に探索・統合しています。この過程で、**より深い設計思考、技術スタックの議論、直面する課題と解決策、およびAI+RPA分野に関する継続的な研究ノートは、主に[知識プラネット「AI桐木とその仲間たち」](https://t.zsxq.com/x1cCW)**で共有・議論されています。
->
-> autoMateの技術的な詳細、開発方向性、またはより広範なAI自動化トピックに興味がある方は、QRコードをスキャンして参加し、私や他の仲間たちと一緒にautoMateの成長を目撃しましょう！
+> **声明：** autoMateは急速な開発段階にあります。深い設計思考・技術的議論・AI+RPA研究ノートは [知識プラネット「AI桐木とその仲間たち」](https://t.zsxq.com/x1cCW) で共有しています。
 
 <div align="center">
-<figure>
-    <a href="[あなたの知識プラネットリンク]" target="_blank" rel="noopener noreferrer"><img src="./imgs/knowledge.png" width="150" height="150" alt="知識プラネットQRコード"></a>
-</figure>
+<a href="https://t.zsxq.com/x1cCW" target="_blank" rel="noopener noreferrer">
+  <img src="./imgs/knowledge.png" width="150" height="150" alt="知識プラネットQRコード">
+</a>
 </div>
 
+---
 
-## 💫 コンピュータとの関係を再定義
+## 💡 autoMateとは？
 
-従来のRPAツールとは異なり、autoMateは大規模言語モデルの力を活用し、自然言語でタスクを説明するだけで複雑な自動化プロセスを完了します。繰り返し作業にさようならし、本当に価値を生み出すことに集中しましょう！
+autoMateは**AI + RPAデスクトップ自動化ツール**です。自然言語でコンピュータを制御します。従来のRPAと違い、あなたのデモンストレーションから学習します — ボタンが見つからない場合は一度クリックするだけで、永遠に覚えます。
 
-**自動化で生活により多くの可能性を。**
+**3つの使い方：**
 
-## 💡 プロジェクト概要
-autoMateは、OmniParserをベースにした革新的なAI+RPA自動化ツールで、以下のことができます：
+| モード | 適したシーン |
+|--------|------------|
+| 🔌 **MCPサーバー** | Claude Desktop、Cursor、Windsurf — UIなし |
+| 💻 **CLI** | スクリプト、ターミナル、パワーユーザー |
+| 🖥️ **デスクトップUI** | ブラウザ経由のビジュアルインターフェース |
 
-- 📊 要件を理解し、自動的にタスクを計画
-- 🔍 画面の内容をインテリジェントに理解し、人間の視覚と操作をシミュレート
-- 🧠 自律的な判断を行い、タスク要件に基づいて判断と行動を実行
-- 💻 ローカルデプロイメントをサポートし、データセキュリティとプライバシーを保護
+---
 
 ## ✨ 主な機能
 
-- 🔮 ノーコード自動化 - 自然言語でタスクを記述、プログラミング知識不要
-- 🖥️ 全インターフェース制御 - 特定のソフトウェアに限定されない、あらゆる視覚的インターフェースの操作をサポート
-- 🌐 マルチプラットフォームLLMサポート - OpenAI、Azure、OpenRouter、Groq、Ollama、DeepSeekなどOpenAI互換API全対応
-- 🔌 MCPサーバー - MCPツールとして展開し、Claude Desktop・Cursor・Windsurf等のAIクライアントから呼び出し可能
-- 🚅 簡単なインストール - ワンクリックデプロイ
+- 🔮 **ノーコード自動化** — 自然言語でタスクを記述、AIがスクリプトを生成して実行
+- 🧠 **人間参加型学習** — AIが要素を見つけられない場合、一度クリックすれば永遠に記憶
+- 📝 **Markdownスクリプト** — 読みやすい`.md`ファイルとして保存、直接編集可能、JSON不要
+- 🌐 **ユニバーサルLLMサポート** — OpenAI、Azure、OpenRouter、Groq、Ollama、DeepSeek等全対応
+- 🔌 **MCPサーバー** — Claude Desktop、Cursor、Windsurf、Clineに1行で接続
+- 🖥️ **クロスプラットフォーム** — Windows、macOS、Linux
 
-## 🚀 クイックスタート
+---
 
-### 📥 直接使用
-GitHubリリースから実行ファイルを直接ダウンロードできます。
+## 🔌 MCPサーバー — ワンコマンドセットアップ
 
-### 📦 インストール
-まずminiCondaのインストールを強く推奨します。minicondaで依存関係をインストールしてください。オンラインに多くのチュートリアルがありますが、わからない場合はAIに質問することもできます。その後、以下のコマンドで環境をセットアップします：
+最も素早い接続方法。gitクローンもpipインストールも不要 — 貼り付けて再起動するだけです。
 
-```bash
-# プロジェクトをクローン
-git clone https://github.com/yuruotong1/autoMate.git
-cd autoMate
-# Python 3.12環境を作成
-conda create -n "automate" python==3.12
-# 環境をアクティベート
-conda activate automate
-# 依存関係をインストール
-python install.py
-```
-
-インストール後、コマンドラインでアプリケーションを起動できます：
-
-```bash
-python main.py
-```
-
-その後、ブラウザで`http://localhost:7888/`を開き、APIキーと基本設定を構成してください。
-
-### 🔔 注意
-
-autoMateは**任意のOpenAI互換API**をサポートしています。設定画面でBase URL・API Key・Modelを入力するだけで切り替えられます：
-
-| プロバイダー | Base URL | モデル例 |
-| --- | --- | --- |
-| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, o3 |
-| [OpenRouter](https://openrouter.ai) | `https://openrouter.ai/api/v1` | claude-3.7-sonnet, gemini-2.5-pro |
-| [DeepSeek](https://platform.deepseek.com) | `https://api.deepseek.com/v1` | deepseek-chat |
-| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1` | llama-3.3-70b-versatile |
-| [Ollama](https://ollama.com)（ローカル） | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
-| [yeka](https://2233.ai/api)（中国プロキシ） | `https://api.2233.ai/v1` | gpt-4o, o1 |
-
-> **推奨**：視覚対応のマルチモーダルモデルを使用すると最良の結果が得られます（`gpt-4o`、OpenRouter経由の`claude-3.7-sonnet`、またはOllama経由の`qwen2.5-vl`など）。
-
-## 🔌 MCPサーバー
-
-autoMateを**MCPサーバー**として展開することで、Claude Desktop・Cursor・Windsurf等のAIクライアントがツールとしてローカルデスクトップを制御できます。
-
-### 設定方法
-
-**1. 依存関係のインストール**
-```bash
-pip install -r requirements.txt
-```
-
-**2. MCPクライアント設定に追加**
-
-Claude Desktopの場合、設定ファイルを編集します：
-- macOS：`~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows：`%APPDATA%\Claude\claude_desktop_config.json`
+**Claude Desktop (macOS)** → `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows** → `%APPDATA%\Claude\claude_desktop_config.json`  
+**Cursor / Windsurf** → 設定 → MCPサーバー
 
 ```json
 {
   "mcpServers": {
     "automate": {
-      "command": "python",
-      "args": ["/絶対パス/autoMate/mcp_server.py"],
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/yuruotong1/autoMate.git",
+        "automate-mcp"
+      ],
       "env": {
         "OPENAI_API_KEY": "sk-...",
         "OPENAI_BASE_URL": "https://api.openai.com/v1",
@@ -122,41 +74,166 @@ Claude Desktopの場合、設定ファイルを編集します：
 }
 ```
 
-Claude Desktopを再起動すると **`run_task`** と **`screenshot`** の2つの新しいツールが追加されます。
+> `uvx`がない場合は `pip install uv` を一度実行してください。
 
-### 利用可能なMCPツール
+クライアントを再起動後、こう言うだけ：
+> *"automateを使ってChromeを開き、最新のAIニュースを検索して"*
+
+### MCPツール
 
 | ツール | 説明 |
-| --- | --- |
+|--------|------|
 | `run_task` | 自然言語でタスクを記述し、autoMateがデスクトップを自動操作 |
 | `screenshot` | 現在の画面（または特定領域）をキャプチャしてbase64 PNGで返す |
 
+---
+
+## 🚀 CLIとデスクトップUI
+
+### インストール
+
+```bash
+git clone https://github.com/yuruotong1/autoMate.git
+cd autoMate
+conda create -n automate python=3.12
+conda activate automate
+python install.py
+```
+
+### CLI（ブラウザ不要）
+
+```bash
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4o
+
+# タスクを記述 — AIがMarkdownスクリプトを生成して実行
+python cli.py run "メモ帳を開いてHello Worldと入力"
+
+# 保存済みスクリプトを再実行
+python cli.py exec open_notepad
+
+# 保存済みスクリプト一覧
+python cli.py list
+
+# スクリプトの内容を確認
+python cli.py show open_notepad
+```
+
+### デスクトップUI（Gradio）
+
+```bash
+python main.py
+# ブラウザで http://localhost:7888/ を開く
+```
+
+### バイナリダウンロード
+
+Python不要。[Releases](https://github.com/yuruotong1/autoMate/releases)ページから各プラットフォーム向けパッケージをダウンロードできます。
+
+---
+
+## 📝 Markdownスクリプト
+
+autoMateは`~/.automate/scripts/`に`.md`ファイルとしてスクリプトを保存します。人間が読め、Gitで管理でき、実行時にAIが直接解釈します。
+
+```markdown
+---
+name: open_notepad
+description: メモ帳を開いてメッセージを入力
+---
+
+## Steps
+
+1. Windowsキーを押してスタートメニューを開く `[key:win]`
+2. 検索ボックスに"notepad"と入力 `[type:notepad]`
+3. メモ帳の結果をクリック `[click:Notepad]`
+4. 挨拶文を入力 `[type:Hello, World!]`
+5. Ctrl+Sで保存 `[key:ctrl+s]`
+
+## Notes
+メモ帳は通常1〜2秒で開きます。
+
+## Code
+```python
+# オプション：カスタムPythonをステップとして実行
+import time
+time.sleep(1)
+```
+```
+
+### インラインヒント構文
+
+| ヒント | アクション |
+|--------|----------|
+| `[click:OK]` | "OK"を含むラベルの要素をクリック（OCRベース） |
+| `[click:coord=320,240]` | 絶対座標でクリック |
+| `[type:テキスト]` | テキストを入力 |
+| `[key:ctrl+s]` | キーボードショートカットを押す |
+| `[wait:2]` | 2秒待機 |
+| `[scroll_up]` / `[scroll_down]` | ページをスクロール |
+
+ヒントの**ないステップ**は、実行時にAIビジョンモデルが自動解釈します。
+
+### 人間参加型学習
+
+AIが要素を見つけられない場合、一時停止して尋ねます：
+
+```
+[autoMate] Step 3: '送信ボタンをクリック'
+対象要素を今すぐクリックしてください…
+
+[autoMate] クリック座標 (842, 631) を検出 — 学習中…
+[autoMate] ヒントを学習: [click:送信]  実行を再開します。
+```
+
+学習したヒントは自動的にMarkdownファイルに書き戻されます — 次回の実行では確認なしに動作します。
+
+---
+
+## 🌐 対応LLMプロバイダー
+
+autoMateは**任意のOpenAI互換API**で動作します：
+
+| プロバイダー | Base URL | モデル例 |
+|------------|----------|---------|
+| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, gpt-4.1, o3 |
+| [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service) | Azureエンドポイント | gpt-4o |
+| [OpenRouter](https://openrouter.ai) | `https://openrouter.ai/api/v1` | claude-3.7-sonnet, gemini-2.5-pro |
+| [DeepSeek](https://platform.deepseek.com) | `https://api.deepseek.com/v1` | deepseek-chat |
+| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1` | llama-3.3-70b-versatile |
+| [Ollama](https://ollama.com)（ローカル） | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
+
+> **推奨：** ビジョン対応マルチモーダルモデルを使用すると最良の結果が得られます（`gpt-4o`、OpenRouter経由の`claude-3.7-sonnet`、またはOllama経由の`qwen2.5-vl`）。
+
+```bash
+export OPENAI_API_KEY=sk-...
+export OPENAI_BASE_URL=https://openrouter.ai/api/v1
+export OPENAI_MODEL=anthropic/claude-3.7-sonnet
+```
+
+---
+
 ## 📝 よくある質問
-### どのモデルがサポートされていますか？
-**任意のOpenAI互換API**をサポートしています。3段階フォールバック機能（構造化出力 → JSONモード → プレーンテキスト抽出）により、さまざまなプロバイダーで動作します。
 
-**ビジョン対応のマルチモーダルモデル**の使用を推奨します（エージェントが画面を見る必要があるため）。`gpt-4o`、OpenRouter経由のClaude/Gemini、またはOllama経由の`qwen2.5-vl`が動作確認済みです。
-
-### 実行速度が遅いのはなぜですか？
-NVIDIAの専用グラフィックスカードがない場合、実行速度が遅くなります。これは、視覚的な注釈のためにOCRを頻繁に呼び出し、大量のGPUリソースを消費するためです。私たちは積極的に最適化と適応を行っています。少なくとも4GBのVRAMを持つNVIDIAグラフィックスカードの使用を推奨し、バージョンはtorchバージョンと一致している必要があります：
-
-1. `pip list`を実行してtorchバージョンを確認
-2. [公式サイト](https://pytorch.org/get-started/locally/)でサポートされているcudaバージョンを確認
-3. インストールされているtorchとtorchvisionをアンインストール
-4. 公式のtorchインストールコマンドをコピーし、お使いのcudaバージョンに適したtorchを再インストール
-
-例えば、cudaバージョンが12.4の場合、以下のコマンドでtorchをインストールする必要があります：
+**Q：GPUなしで動作が遅いのはなぜ？**  
+OmniParser（YOLOベースのUI検出）はGPU集約型です。NVIDIA GPU（4GB+ VRAM）がある場合：
 
 ```bash
 pip3 uninstall -y torch torchvision
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
 ```
 
-## 🤝 参加する
+**Q：Markdownスクリプトを手動で編集できますか？**  
+はい！スクリプトは`~/.automate/scripts/*.md`にあります。AIは実行時に自然言語の説明を直接読み取るため、英語（または日本語）で書くだけで十分です。
 
-優れたオープンソースプロジェクトは、集団の知恵の結晶です。autoMateの成長は、あなたの参加と貢献なしには成り立ちません。バグ修正、機能追加、ドキュメント改善など、あなたの貢献は何千人もの人々が繰り返し作業から解放されるのを助けます。
+**Q：macOS / Linuxで動作しますか？**  
+はい。MCPサーバーとCLIは3つのプラットフォームすべてで動作します。YOLOモデルにはPython 3.10〜3.12が必要です。
 
-よりインテリジェントな未来の創造に参加しましょう。
+---
+
+## 🤝 コントリビュート
+
+優れたオープンソースプロジェクトは、集団の知恵の結晶です。バグ修正、機能追加、ドキュメント改善など、あなたの貢献が何千人もの人々を繰り返し作業から解放します。
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
@@ -165,6 +242,5 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ---
 
 <div align="center">
-⭐ スターは制作者への励ましであり、より多くの人々がautoMateを発見し恩恵を受ける機会です ⭐
-今日のあなたのサポートが、明日の私たちの進歩の原動力です
+⭐ スターは制作者への励ましであり、より多くの人々がautoMateを発見する機会です ⭐
 </div>
