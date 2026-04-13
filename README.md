@@ -2,79 +2,68 @@
 
 <img src="./imgs/logo.png" width="120" height="120" alt="autoMate logo">
 <h1>autoMate</h1>
-<p><b>🤖 AI-Powered Desktop Automation | Let Your Computer Work for You</b></p>
+<p><b>🤖 Desktop Automation for Apps Without APIs</b></p>
 
 [中文](./README_CN.md) | [日本語](./README_JA.md)
 
 [![PyPI](https://img.shields.io/pypi/v/automate-mcp)](https://pypi.org/project/automate-mcp/)
 [![License](https://img.shields.io/github/license/yuruotong1/autoMate)](LICENSE)
 
-> "Automate the tedious, give time back to life"
+> Give Claude hands and eyes — automate any desktop app, even if it has no API
 
 https://github.com/user-attachments/assets/bf27f8bd-136b-402e-bc7d-994b99bcc368
 
-</div>
-
-> **Note:** autoMate is in active development. Deeper design thinking, technical discussions, and AI+RPA research notes are shared in [Knowledge Planet "AI Tongmu and His Noble Friends"](https://t.zsxq.com/x1cCW).
-
-<div align="center">
-<a href="https://t.zsxq.com/x1cCW" target="_blank" rel="noopener noreferrer">
-  <img src="./imgs/knowledge.png" width="150" height="150" alt="Knowledge Planet QR Code">
-</a>
 </div>
 
 ---
 
 ## 💡 What is autoMate?
 
-autoMate is an **AI + RPA automation tool** that controls your desktop through natural language. Unlike traditional RPA, it learns from your demonstrations — when it can't find a button, just click it once and it remembers forever.
+autoMate is an MCP server that gives AI assistants (Claude, GPT, etc.) the ability to **control any desktop application** — even apps with no API, no plugin system, and no automation support.
 
-**Two ways to use it:**
+Think of it as the cross-platform, AI-native alternative to [Quicker](https://www.getquicker.net) — but instead of building workflows by dragging blocks, you just describe what you want.
 
-| Mode | Best for |
-|------|----------|
-| 🔌 **MCP Server** | Claude Desktop, OpenClaw, Cursor, Windsurf — plug in and go |
-| 💻 **CLI** | Scripts, terminals, power users |
+**What makes it different from filesystem / browser / Windows MCP:**
+
+| MCP Server | What it automates |
+|------------|------------------|
+| filesystem MCP | Files and folders |
+| browser MCP | Web pages |
+| Windows MCP | OS settings and system calls |
+| **autoMate** | **Any desktop GUI app with no API** — 剪映, Photoshop, AutoCAD, WeChat, SAP, internal tools… |
 
 ---
 
 ## ✨ Features
 
-- 🖥️ **Automates apps with no API** — 剪映, Photoshop, AutoCAD, WeChat, SAP, any internal tool — if it has a GUI, autoMate can drive it
-- 📚 **Reusable script library** — Save workflows as Markdown scripts, share them, install community scripts in one command
-- 🔌 **MCP Server** — Claude knows exactly when to use autoMate vs filesystem/browser MCP — no more getting bypassed
-- 🤖 **Zero config** — No API keys, no env vars; the host LLM (Claude, GPT…) does the thinking
-- 🖱️ **Low-level control** — screenshot, click, type, key, scroll, drag — full desktop control
-- 🌍 **Cross-platform** — Windows, macOS, Linux (unlike Quicker which is Windows-only)
+- 🖥️ **Automates apps with no API** — if it has a GUI, autoMate can drive it
+- 📚 **Reusable script library** — save workflows once, run forever; install community scripts in one command
+- 🧠 **Claude knows when to use it** — clear identity prevents autoMate from being bypassed by other MCPs
+- 🤖 **Zero config** — no API keys, no env vars; the host LLM does the thinking
+- 🌍 **Cross-platform** — Windows, macOS, Linux (Quicker is Windows-only)
 
 ---
 
-## 🔌 MCP Server Setup
+## 🔌 Setup
 
-> **Prerequisite:** Install `uv` once — `pip install uv`
-
-**Zero configuration** — no API keys, no environment variables. The host LLM (Claude, GPT, etc.) does the thinking; autoMate provides the hands and eyes.
+> **Prerequisite:** `pip install uv`
 
 ### Claude Desktop
 
-Open Claude Desktop → **Settings → Developer → Edit Config** to locate and edit the config file.
-
-> Default paths for reference:
-> - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-> - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+Open **Settings → Developer → Edit Config**, then add:
 
 ```json
 {
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"]
+      "args": ["automate-mcp@latest"]
     }
   }
 }
 ```
 
-Restart Claude Desktop — done!
+Restart Claude Desktop — done. autoMate auto-updates every restart.
 
 ### OpenClaw
 
@@ -85,13 +74,11 @@ Edit `~/.openclaw/openclaw.json`:
   "mcpServers": {
     "automate": {
       "command": "uvx",
-      "args": ["automate-mcp"]
+      "args": ["automate-mcp@latest"]
     }
   }
 }
 ```
-
-Then restart the gateway:
 
 ```bash
 openclaw gateway restart
@@ -105,30 +92,27 @@ Settings → MCP Servers → Add:
 {
   "automate": {
     "command": "uvx",
-    "args": ["automate-mcp"]
+    "args": ["automate-mcp@latest"]
   }
 }
 ```
 
-### After connecting
+---
 
-Say in any client:
-> *"Use automate to open Chrome and search for the latest AI news"*
+## 🛠️ MCP Tools
 
-### MCP Tools
-
-**Script library** (the main value — save once, reuse forever):
+**Script library** — the core value: save a workflow once, run it forever.
 
 | Tool | Description |
 |------|-------------|
 | `list_scripts` | Show all saved automation scripts |
 | `run_script` | Run a saved script by name |
-| `save_script` | Save a workflow as a reusable script |
-| `show_script` | View the contents of a script |
+| `save_script` | Save the current workflow as a reusable script |
+| `show_script` | View a script's contents |
 | `delete_script` | Delete a script |
 | `install_script` | Install a script from a URL or the community library |
 
-**Low-level desktop control** (used when building new scripts):
+**Low-level desktop control** — used by Claude when building or executing scripts.
 
 | Tool | Description |
 |------|-------------|
@@ -143,140 +127,67 @@ Say in any client:
 
 ---
 
-## 🚀 CLI
+## 📚 Script Library
 
-### Install
+Scripts are saved as `.md` files in `~/.automate/scripts/` — human-readable, git-friendly, shareable.
 
-```bash
-git clone https://github.com/yuruotong1/autoMate.git
-cd autoMate
-conda create -n automate python=3.12
-conda activate automate
-python install.py
-```
-
-### Usage
-
-```bash
-export OPENAI_API_KEY=sk-...
-export OPENAI_MODEL=gpt-4o
-
-# Describe a task — AI generates a Markdown script and executes it
-python cli.py run "open Notepad and type Hello World"
-
-# Re-run a saved script
-python cli.py exec open_notepad
-
-# List all saved scripts
-python cli.py list
-
-# Inspect a script
-python cli.py show open_notepad
-```
-
----
-
-## 📝 Markdown Scripts
-
-autoMate saves automation scripts as `.md` files in `~/.automate/scripts/`. Human-readable, version-controllable, and AI-interpretable at runtime.
+**Example script:**
 
 ```markdown
 ---
-name: open_notepad
-description: Open Notepad and type a message
+name: jianying_export_douyin
+description: Export the current 剪映 project as a 9:16 Douyin video
+created: 2025-01-01
 ---
 
 ## Steps
 
-1. Press the Windows key to open Start Menu `[key:win]`
-2. Type "notepad" in the search box `[type:notepad]`
-3. Click the Notepad result `[click:Notepad]`
-4. Type the greeting `[type:Hello, World!]`
-5. Save with Ctrl+S `[key:ctrl+s]`
-
-## Notes
-Notepad usually opens within 1–2 seconds.
-
-## Code
-```python
-# Optional: custom Python runs as a step
-import time
-time.sleep(1)
-```
+1. Open export dialog [key:ctrl+e]
+2. Select resolution 1080×1920 [click:coord=320,480]
+3. Set format to MP4 [click:coord=320,560]
+4. Click export [click:coord=800,650]
+5. Wait for export to finish [wait:5]
 ```
 
-### Inline hint syntax
+**Inline hint syntax:**
 
 | Hint | Action |
 |------|--------|
-| `[click:OK]` | Click element whose label contains "OK" (OCR-based) |
 | `[click:coord=320,240]` | Click at absolute screen coordinates |
-| `[type:hello world]` | Type text |
+| `[type:hello]` | Type text |
 | `[key:ctrl+s]` | Press keyboard shortcut |
 | `[wait:2]` | Wait 2 seconds |
 | `[scroll_up]` / `[scroll_down]` | Scroll the page |
 
-Steps **without** hints are interpreted by the AI vision model at runtime.
+Steps without hints are interpreted by the AI vision model at runtime.
 
-### Human-in-the-loop learning
-
-When the AI can't locate an element, it pauses and asks:
+**Install a community script:**
 
 ```
-[autoMate] Step 3: 'Click the Submit button'
-Please click the target element now…
-
-[autoMate] Got click at (842, 631) — learning…
-[autoMate] Learned hint: [click:Submit]  Resuming.
+Tell Claude: "install the automate script from <url>"
 ```
 
-The learned hint is automatically written back into the Markdown file — next run needs no human help.
-
----
-
-## 🌐 Supported LLM Providers
-
-| Provider | Base URL | Example Models |
-|----------|----------|----------------|
-| [OpenAI](https://platform.openai.com) | `https://api.openai.com/v1` | gpt-4o, gpt-4.1, o3 |
-| [Azure OpenAI](https://azure.microsoft.com/products/ai-services/openai-service) | your Azure endpoint | gpt-4o |
-| [OpenRouter](https://openrouter.ai) | `https://openrouter.ai/api/v1` | claude-3.7-sonnet, gemini-2.5-pro |
-| [DeepSeek](https://platform.deepseek.com) | `https://api.deepseek.com/v1` | deepseek-chat, deepseek-reasoner |
-| [Groq](https://console.groq.com) | `https://api.groq.com/openai/v1` | llama-3.3-70b-versatile |
-| [Ollama](https://ollama.com) (local) | `http://localhost:11434/v1` | qwen2.5-vl, gemma3-tools:27b |
-| [yeka](https://2233.ai/api) (CN proxy) | `https://api.2233.ai/v1` | gpt-4o, o1 |
-
-> **Recommended:** Use a multimodal model with vision — `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` via Ollama.
-
-```bash
-export OPENAI_API_KEY=sk-...
-export OPENAI_BASE_URL=https://openrouter.ai/api/v1
-export OPENAI_MODEL=anthropic/claude-3.7-sonnet
-```
+or Claude calls `install_script` directly with a raw GitHub URL.
 
 ---
 
 ## 📝 FAQ
 
-**Q: Why is execution slow without a GPU?**  
-OmniParser (YOLO-based UI detection) is GPU-intensive. With an NVIDIA GPU (4 GB+ VRAM):
+**Q: How is this different from just using Claude's computer-use capability?**  
+autoMate provides persistent, reusable scripts. Once you automate a task, it's saved and runs instantly next time — no re-reasoning required.
 
-```bash
-pip3 uninstall -y torch torchvision
-pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu124
-```
+**Q: Why does Claude sometimes use Windows MCP / filesystem MCP instead of autoMate?**  
+Update to v0.4.0+ — the server description now explicitly tells Claude when to use autoMate vs other MCPs.
 
-**Q: Can I edit the Markdown scripts manually?**  
-Yes — they live in `~/.automate/scripts/*.md`. The AI reads natural-language descriptions at runtime; hints just make execution faster and more reliable.
+**Q: Does it work with apps that change their UI frequently?**  
+Coordinate-based hints (`[click:coord=x,y]`) are fragile to UI changes. For resilient scripts, describe the step in natural language and let Claude re-locate the element each run.
 
 **Q: Does it work on macOS / Linux?**  
-Yes. MCP server and CLI work on all three platforms. The YOLO model requires Python 3.10–3.12.
+Yes — all three platforms. This is the main advantage over Quicker (Windows-only).
 
 ---
 
 ## 🤝 Contributing
-
-Every excellent open-source project embodies collective wisdom. Whether it's fixing bugs, adding features, or improving documentation — your contribution helps thousands of people escape repetitive work.
 
 <a href="https://github.com/yuruotong1/autoMate/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=yuruotong1/autoMate" />
