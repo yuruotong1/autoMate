@@ -40,19 +40,20 @@ autoMate is a revolutionary AI+RPA automation tool built on OmniParser that can:
 
 ## ✨ Features
 
-- 🔮 No-Code Automation - Describe tasks in natural language, no programming knowledge required
-- 🖥️ Full Interface Control - Support operations on any visual interface, not limited to specific software
-- 🌐 Universal LLM Support - Works with OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek and any OpenAI-compatible API
-- 🔌 MCP Server - Deploy as an MCP tool and call it from Claude Desktop, Cursor, Windsurf and more
-- 🚅 Simplified Installation - One-click deployment
+- 🔮 **No-Code Automation** — Describe tasks in natural language; AI writes and executes the script
+- 🧠 **Human-in-the-Loop Learning** — When the AI can't find an element, it asks you to click it once and remembers forever
+- 📝 **Markdown Scripts** — Scripts are stored as readable `.md` files you can edit directly; no rigid JSON schema
+- 🖥️ **Full Interface Control** — Works on any visual interface, not limited to specific software
+- 🌐 **Universal LLM Support** — OpenAI, Azure, OpenRouter, Groq, Ollama, DeepSeek, any OpenAI-compatible API
+- 🔌 **MCP Server** — Deploy as an MCP tool for Claude Desktop, Cursor, Windsurf and more
+- 💻 **CLI Mode** — Lightweight command-line interface; no browser required
 
 ## 🚀 Quick Start
 
-### 📥 Direct Usage
-You can directly download the executable file from github release.
+### 📥 Download Binary
+Download the pre-built executable from the [GitHub Releases](https://github.com/yuruotong1/autoMate/releases) page — no Python installation needed.
 
-### 📦 Installation
-We strongly recommend installing miniConda first and using miniconda to install dependencies. There are many tutorials available online, or you can ask AI for help. Then follow these commands to set up the environment:
+### 📦 Install from Source
 
 ```bash
 # Clone the project
@@ -60,19 +61,72 @@ git clone https://github.com/yuruotong1/autoMate.git
 cd autoMate
 # Create python3.12 environment
 conda create -n "automate" python==3.12
-# Activate environment
 conda activate automate
 # Install dependencies
 python install.py
 ```
 
-After installation, you can start the application using the command line:
-
+**Desktop UI (Gradio):**
 ```bash
 python main.py
+# Open http://localhost:7888/ in your browser
 ```
 
-Then open `http://localhost:7888/` in your browser to configure your API key and basic settings.
+**CLI (lightweight, no browser needed):**
+```bash
+# Set your LLM credentials
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4o
+
+# Describe a task — AI generates a Markdown script and executes it
+python cli.py run "open Notepad and type Hello World"
+
+# List saved scripts
+python cli.py list
+
+# Re-run a saved script
+python cli.py exec open_notepad
+
+# Inspect a script
+python cli.py show open_notepad
+```
+
+### 📝 How Markdown Scripts Work
+
+autoMate stores automation scripts as human-readable `.md` files in `~/.automate/scripts/`.
+Each step is a natural-language sentence with an optional inline action hint:
+
+```markdown
+---
+name: open_notepad
+description: Open Notepad and type a message
+---
+
+## Steps
+
+1. Press the Windows key to open Start Menu `[key:win]`
+2. Type "notepad" in the search box `[type:notepad]`
+3. Click on the Notepad result `[click:Notepad]`
+4. Type the greeting `[type:Hello, World!]`
+5. Save with Ctrl+S `[key:ctrl+s]`
+
+## Notes
+Notepad usually opens within 1–2 seconds.
+```
+
+**Inline hint syntax:**
+
+| Hint | Action |
+|------|--------|
+| `[click:OK]` | Click element whose label contains "OK" |
+| `[click:coord=320,240]` | Click at absolute coordinates |
+| `[type:hello world]` | Type text (focus element first if hinted) |
+| `[key:ctrl+s]` | Press keyboard shortcut |
+| `[wait:2]` | Wait 2 seconds |
+| `[scroll_up]` / `[scroll_down]` | Scroll the page |
+
+Steps without hints are interpreted by the AI vision model at runtime.
+You can also embed Python code blocks for custom logic.
 
 ### 🔔 Note
 
