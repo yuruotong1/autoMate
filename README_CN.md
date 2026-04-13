@@ -142,29 +142,28 @@ autoMate 现在支持**任意 OpenAI-compatible 接口**，在设置界面填写
 > **推荐**：使用支持视觉的多模态模型效果最佳，如 `gpt-4o`、通过 OpenRouter 使用 `claude-3.7-sonnet`，或通过 Ollama 本地运行 `qwen2.5-vl`。
 
 
-## 🔌 MCP Server
+## 🔌 MCP Server — 一条命令接入
 
-autoMate 可以部署为 **MCP（Model Context Protocol）服务器**，让 Claude Desktop、Cursor、Windsurf 等 AI 客户端直接调用它来控制你的本地桌面。
+autoMate 是一个 **MCP（Model Context Protocol）服务器**。  
+Claude Desktop、Cursor、Windsurf、Cline 等任何支持 MCP 的客户端，都可以通过它直接控制你的本地桌面，**无需 clone 仓库、无需手动安装**。
 
-### 配置方法
+### 零安装配置（推荐）
 
-**1. 安装依赖**
-```bash
-pip install -r requirements.txt
-```
+只需在 MCP 客户端配置文件中加入以下内容并重启，`uvx` 会自动下载并运行：
 
-**2. 添加到 MCP 客户端配置**
-
-以 Claude Desktop 为例，编辑配置文件：
-- macOS：`~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows：`%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS**：`~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**：`%APPDATA%\Claude\claude_desktop_config.json`
+- **Cursor / Windsurf**：设置 → MCP Servers
 
 ```json
 {
   "mcpServers": {
     "automate": {
-      "command": "python",
-      "args": ["/绝对路径/autoMate/mcp_server.py"],
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/yuruotong1/autoMate.git",
+        "automate-mcp"
+      ],
       "env": {
         "OPENAI_API_KEY": "sk-...",
         "OPENAI_BASE_URL": "https://api.openai.com/v1",
@@ -175,14 +174,22 @@ pip install -r requirements.txt
 }
 ```
 
-重启 Claude Desktop 后，会出现两个新工具：**`run_task`** 和 **`screenshot`**。
+> **没有 `uvx`？** 运行一次 `pip install uv` 即可。
 
-**3. 开始使用**
+### 备用：pip 安装
 
-在 Claude Desktop 中直接说：
+```bash
+pip install "git+https://github.com/yuruotong1/autoMate.git"
+```
+
+安装后 MCP 配置改为 `"command": "automate-mcp"`（不需要 `args`）。
+
+### 开始使用
+
+重启客户端后，直接说：
 > "用 automate 打开 Chrome，搜索最新的 AI 新闻"
 
-Claude 会调用 `run_task`，autoMate 自动控制桌面完成操作。
+AI 会调用 `run_task`，autoMate 自动控制桌面完成操作。
 
 ### 可用 MCP 工具
 
@@ -190,6 +197,14 @@ Claude 会调用 `run_task`，autoMate 自动控制桌面完成操作。
 | --- | --- |
 | `run_task` | 用自然语言描述任务，autoMate 自动执行桌面操作 |
 | `screenshot` | 截取当前屏幕（或指定区域），返回 base64 PNG |
+
+### 环境变量
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | *必填* | LLM 提供商的 API Key |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | 任意 OpenAI-compatible 接口 |
+| `OPENAI_MODEL` | `gpt-4o` | 模型名称 |
 
 ## 📝常见问题
 ### 支持什么模型？

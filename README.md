@@ -144,27 +144,30 @@ autoMate supports **any OpenAI-compatible API**. Just set the Base URL, API Key,
 
 > **Recommended**: Use a multimodal model (vision support) for best results — e.g. `gpt-4o`, `claude-3.7-sonnet` via OpenRouter, or `qwen2.5-vl` locally via Ollama.
 
-## 🔌 MCP Server
+## 🔌 MCP Server — One-Command Install
 
-autoMate can be deployed as an **MCP (Model Context Protocol) server**, letting AI clients like Claude Desktop, Cursor, or Windsurf call it as a tool to control your local desktop.
+autoMate is a **Model Context Protocol (MCP) server**. Any MCP-compatible client —
+Claude Desktop, Cursor, Windsurf, Cline, etc. — can call it as a tool to control
+your local desktop, with **no git clone or manual setup required**.
 
-### Setup
+### Zero-install setup (recommended)
 
-**1. Install dependencies**
-```bash
-pip install -r requirements.txt
-```
+Just add the following to your MCP client config and restart — `uvx` handles
+the download and execution automatically:
 
-**2. Add to your MCP client config**
-
-For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+**Claude Desktop** → edit `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**Windows** → `%APPDATA%\Claude\claude_desktop_config.json`  
+**Cursor / Windsurf** → Settings → MCP Servers
 
 ```json
 {
   "mcpServers": {
     "automate": {
-      "command": "python",
-      "args": ["/absolute/path/to/autoMate/mcp_server.py"],
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/yuruotong1/autoMate.git",
+        "automate-mcp"
+      ],
       "env": {
         "OPENAI_API_KEY": "sk-...",
         "OPENAI_BASE_URL": "https://api.openai.com/v1",
@@ -175,21 +178,37 @@ For Claude Desktop, edit `~/Library/Application Support/Claude/claude_desktop_co
 }
 ```
 
-Restart Claude Desktop — you'll see two new tools: **`run_task`** and **`screenshot`**.
+> **`uvx` not installed?** Run `pip install uv` once, then the config above works.
 
-**3. Use it**
+### Alternative: pip install
 
-In Claude Desktop, just say:
+```bash
+pip install "git+https://github.com/yuruotong1/autoMate.git"
+```
+
+Then in your MCP config use `"command": "automate-mcp"` (no `args` needed).
+
+### Use it
+
+After restarting your client, just say:
 > "Use automate to open Chrome and search for the latest AI news"
 
-Claude will call `run_task` and autoMate will control the desktop for you.
+The AI will call `run_task` and autoMate controls the desktop for you.
 
 ### Available MCP Tools
 
 | Tool | Description |
 | --- | --- |
-| `run_task` | Execute a desktop automation task described in natural language |
+| `run_task` | Execute a desktop automation task in natural language |
 | `screenshot` | Capture the screen (or a region) and return as base64 PNG |
+
+### Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | *(required)* | API key for your LLM provider |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Any OpenAI-compatible endpoint |
+| `OPENAI_MODEL` | `gpt-4o` | Model name |
 
 ## 📝 FAQ
 ### What models are supported?
