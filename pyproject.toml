@@ -31,12 +31,16 @@ dependencies = [
     "pyautogui>=0.9.54",
     "pillow>=10.0",
     "pyperclip",
+    "pyyaml>=6.0",
 ]
 
-# ---------------------------------------------------------------------------
-# Optional extras
-# ---------------------------------------------------------------------------
+# Test dependencies
 [project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-mock>=3.10",
+    "pytest-cov>=4.0",
+]
 # Full vision stack (YOLO-based OmniParser element detection)
 vision = [
     "torch",
@@ -90,3 +94,16 @@ include = ["auto_control*", "core*", "util*"]
 # mcp_server.py is the only module needed for the MCP server (uvx automate-mcp)
 # cli.py and core/auto_control/util are included for local development
 py-modules = ["mcp_server", "cli"]
+
+# ---------------------------------------------------------------------------
+# pytest configuration
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
