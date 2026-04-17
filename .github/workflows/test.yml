@@ -36,10 +36,10 @@ jobs:
       - name: Install Linux system dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y xclip xdotool
+          sudo apt-get install -y xvfb xclip xdotool
 
-      - name: Run tests
-        run: python -m pytest tests/ -v --cov=core --cov=mcp_server --cov-report=xml
+      - name: Run tests with xvfb
+        run: xvfb-run -a python -m pytest tests/ -v --cov=core --cov=mcp_server --cov-report=xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
