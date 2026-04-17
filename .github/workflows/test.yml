@@ -26,7 +26,12 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
-        run: uv pip install --system -e ".[test]"
+        run: |
+          uv pip install --system pyyaml
+          uv pip install --system -e ".[test]"
+
+      - name: Show installed packages
+        run: pip list
 
       - name: Install Linux system dependencies
         run: |
