@@ -199,7 +199,7 @@ def _curl_get(url: str, timeout: int = 30) -> dict:
 def _screenshot_b64(region: list[int] | None = None) -> tuple[str, int, int]:
     """Take a screenshot and return (base64_png, width, height)."""
     if region and len(region) == 4:
-        img = pyautogui.screenshot(region=tuple(region))
+        img = pyautogui.screenshot(region=(region[0], region[1], region[2], region[3]))
     else:
         img = pyautogui.screenshot()
     w, h = img.size
@@ -550,17 +550,48 @@ def reason_action(
 # Combined pipeline: parse + reason + execute
 # ---------------------------------------------------------------------------
 
+def _parse_coordinates(params: str) -> tuple[int, int]:
+    """Extract x, y coordinates from various formats.
+    
+    Handles:
+      - "x, y" (simple format)
+      - "start_box='(x, y)'" (UI-TARS format with quoted tuple)
+      - "start_box=(x, y)" (UI-TARS format without quotes)
+      - "start_point='(x, y)'" (alternative UI-TARS format)
+      - Truncated forms: "start_box='(x, y)", "(x, y", etc.
+    """
+    params = params.strip()
+    
+    # UI-TARS format: start_box='(x, y)' or start_box=(x, y) (also handles truncated)
+    box_match = re.search(
+        r"start_(?:box|point)=['\"]?\(\s*(\d+)\s*,\s*(\d+)\s*",
+        params
+    )
+    if box_match:
+        return int(box_match.group(1)), int(box_match.group(2))
+    
+    # Parenthesized format: (x, y) or (x, y (truncated)
+    paren_match = re.search(r"\(\s*(\d+)\s*,\s*(\d+)\s*", params)
+    if paren_match:
+        return int(paren_match.group(1)), int(paren_match.group(2))
+    
+    # Simple format: x, y
+    coords = [int(x.strip()) for x in params.split(",")]
+    if len(coords) >= 2:
+        return coords[0], coords[1]
+    
+    raise ValueError(f"Cannot parse coordinates from: {params}")
+
+
 def _execute_action(action_type: str, params: str) -> str:
     """Execute a parsed action string. Returns description of what was done."""
     import platform
     import pyperclip
 
     if action_type == "click":
-        coords = [int(x.strip()) for x in params.split(",")]
-        if len(coords) >= 2:
-            pyautogui.click(coords[0], coords[1])
-            return f"click({coords[0]}, {coords[1]})"
-        raise ValueError(f"click needs x,y coordinates, got: {params}")
+        x, y = _parse_coordinates(params)
+        pyautogui.click(x, y)
+        return f"click({x}, {y})"
 
     if action_type == "type":
         text = params.strip("\"'")
@@ -640,7 +671,7 @@ def smart_act(
         }
 
         action_match = re.search(
-            r"Action:\s*(click|type|press|scroll|done)\(([^)]*)\)",
+            r"Action:\s*(click|type|press|scroll|done)\s*\(",
             reasoning, re.IGNORECASE,
         )
 
@@ -651,7 +682,26 @@ def smart_act(
             continue
 
         action_type = action_match.group(1).lower()
-        params = action_match.group(2).strip()
+
+        # Extract params using paren counting (handles UI-TARS nested parens and truncated output)
+        # We're inside the action paren already, so start at depth=1
+        rest = reasoning[action_match.end():].strip()
+        params = ""
+        depth = 1
+        for i, c in enumerate(rest):
+            if c == '(':
+                depth += 1
+            elif c == ')':
+                depth -= 1
+                if depth == 0:
+                    params = rest[:i]
+                    break
+        
+        # Fallback for truncated output (no matching closing paren found)
+        if not params:
+            params = rest
+        
+        params = params.strip()
         logger.info("smart_act: step %d parsed action: %s(%s)", step_num, action_type, params)
 
         if action_type == "done":
