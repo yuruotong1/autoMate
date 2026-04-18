@@ -59,6 +59,11 @@ cli = [
     "click>=8.0",
     "rich>=13.0",
 ]
+# Cloud vision — screen parsing + action reasoning via HF Inference Endpoints
+# Zero local GPU required; all inference runs in the cloud.
+cloud = [
+    "pillow>=10.0",
+]
 # Everything (core + vision + cli)
 full = [
     "automate-mcp[vision]",
@@ -89,4 +94,4 @@ include = ["auto_control*", "core*", "util*"]
 [tool.setuptools]
 # mcp_server.py is the only module needed for the MCP server (uvx automate-mcp)
 # cli.py and core/auto_control/util are included for local development
-py-modules = ["mcp_server", "cli"]
+py-modules = ["mcp_server", "cli", "cloud_vision"]

@@ -15,8 +15,10 @@ Zero-config setup:
 
 import base64
 import json
+import logging
 import platform
 import re
+import sys
 import time
 from datetime import datetime
 from io import BytesIO
@@ -31,6 +33,32 @@ pyautogui.PAUSE = 0.05
 
 SCRIPTS_DIR = Path.home() / ".automate" / "scripts"
 SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
+
+LOGS_DIR = Path.home() / ".automate" / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger("automate.mcp_server")
+
+def _setup_logging():
+    if logger.handlers:
+        return
+    log_file = LOGS_DIR / "mcp_server.log"
+    handler = logging.FileHandler(log_file, encoding="utf-8")
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(formatter)
+    stderr_handler.setLevel(logging.INFO)
+    logger.addHandler(stderr_handler)
+    logger.info("=== MCP server logging initialized ===")
+    logger.info("Log file: %s", log_file)
+
+_setup_logging()
 
 # ---------------------------------------------------------------------------
 # Server identity — this is what Claude reads to decide when to use autoMate
@@ -57,6 +85,12 @@ TYPICAL WORKFLOW:
 2. Call `run_script` if a saved script exists for this task
 3. Otherwise use `click`, `type_text`, `press_key`, `scroll` to interact step by step
 4. Call `save_script` to save the workflow for future reuse
+
+CLOUD VISION WORKFLOW (optional — requires env vars):
+1. Call `warm_endpoints` to wake up scaled-to-zero HF endpoints
+2. Call `parse_screen` to detect all UI elements (icons, text, buttons) via OmniParser
+3. Call `reason_action` to let a vision-language model decide the next action
+4. Or call `smart_act` for the full autonomous loop: parse → reason → execute
 
 autoMate is the ONLY tool that can automate desktop GUI apps with no API.
 """,
@@ -402,6 +436,223 @@ def install_script(url: str) -> str:
     path = _script_path(name)
     path.write_text(content, encoding="utf-8")
     return f"Installed script '{name}' → {path}"
+
+
+# ---------------------------------------------------------------------------
+# Cloud vision tools (optional — requires AUTOMATE_* env vars)
+# ---------------------------------------------------------------------------
+
+def _cloud_vision_available() -> bool:
+    try:
+        import cloud_vision
+        return cloud_vision.is_configured()
+    except ImportError:
+        return False
+
+
+@mcp.tool()
+def cloud_vision_config() -> str:
+    """
+    Show current cloud vision configuration.
+
+    Cloud vision enables screen parsing (OmniParser) and action reasoning
+    (UI-TARS / Qwen-VL) via HuggingFace Inference Endpoints — zero local GPU.
+
+    Returns configuration status and env var hints if not configured.
+    """
+    logger.info("MCP tool called: cloud_vision_config")
+    try:
+        import cloud_vision
+    except ImportError:
+        logger.error("cloud_vision_config: cloud_vision module not available")
+        return (
+            "cloud_vision module not available. "
+            "Ensure cloud_vision.py is in the same directory as mcp_server.py."
+        )
+
+    if not cloud_vision.is_configured():
+        logger.warning("cloud_vision_config: not configured")
+        return (
+            "Cloud vision not configured. Set these env vars:\n"
+            "  AUTOMATE_HF_TOKEN              — HuggingFace API token\n"
+            "  AUTOMATE_SCREEN_PARSER_URL      — OmniParser endpoint URL\n"
+            "  AUTOMATE_ACTION_MODEL_URL       — Vision-language model endpoint URL\n"
+            "  AUTOMATE_ACTION_MODEL_NAME      — Model name (e.g. repo id)\n"
+            "  AUTOMATE_HF_NAMESPACE           — HF namespace for endpoint management\n"
+            "  AUTOMATE_SCREEN_PARSER_ENDPOINT — Endpoint name for warmup\n"
+            "  AUTOMATE_ACTION_MODEL_ENDPOINT  — Endpoint name for warmup\n"
+            "\nSee .env.example for details."
+        )
+
+    summary = cloud_vision.get_config_summary()
+    logger.info("cloud_vision_config: configured, summary=%s", json.dumps(summary))
+    return json.dumps(summary, indent=2)
+
+
+@mcp.tool()
+def warm_endpoints(timeout_seconds: int = 600) -> str:
+    """
+    Wake up scaled-to-zero HuggingFace Inference Endpoints and wait until ready.
+
+    Call this BEFORE using parse_screen or reason_action if endpoints may
+    have scaled to zero (default: 15 min idle). Warmup takes 1-5 minutes.
+
+    Requires AUTOMATE_HF_NAMESPACE and endpoint name env vars.
+
+    Args:
+        timeout_seconds: Max seconds to wait for endpoints (default 600).
+    """
+    logger.info("MCP tool called: warm_endpoints (timeout=%s)", timeout_seconds)
+    try:
+        import cloud_vision
+    except ImportError:
+        logger.error("warm_endpoints: cloud_vision module not available")
+        return "cloud_vision module not available."
+
+    result = cloud_vision.warm_endpoints(timeout_seconds=timeout_seconds)
+    logger.info("warm_endpoints: result=%s", json.dumps(result))
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def parse_screen(
+    region: list[int] | None = None,
+    bbox_threshold: float = 0.05,
+    iou_threshold: float = 0.7,
+) -> str:
+    """
+    Detect all UI elements on screen using a cloud screen parser (OmniParser-compatible).
+
+    Captures a screenshot and sends it to the configured endpoint for
+    YOLO icon detection, Florence-2 captioning, and EasyOCR text extraction.
+    Returns bounding boxes with pixel coordinates, element types, and labels.
+
+    Requires AUTOMATE_SCREEN_PARSER_URL to be set.
+
+    Args:
+        region: Optional [x, y, width, height] to capture a sub-region.
+        bbox_threshold: Confidence threshold for detection (default 0.05).
+        iou_threshold: IoU threshold for NMS (default 0.7).
+    """
+    logger.info("MCP tool called: parse_screen region=%s bbox_threshold=%s iou_threshold=%s", region, bbox_threshold, iou_threshold)
+    try:
+        import cloud_vision
+    except ImportError:
+        logger.error("parse_screen: cloud_vision module not available")
+        return "cloud_vision module not available."
+
+    try:
+        result = cloud_vision.parse_screen(
+            region=region,
+            bbox_threshold=bbox_threshold,
+            iou_threshold=iou_threshold,
+        )
+        elements = result["elements"]
+        logger.info("parse_screen: SUCCESS, %d elements found", len(elements))
+        lines = [f"Found {len(elements)} UI elements (screen {result['screen_size']['w']}x{result['screen_size']['h']}):\n"]
+        for el in elements:
+            inter = " [interactive]" if el.get("interactivity") else ""
+            lines.append(
+                f"  [{el['id']:3d}] {el['type']:4s} | center ({el['center'][0]:4d}, {el['center'][1]:4d}) "
+                f"| bbox {el['bbox_px']}{inter} | \"{el.get('content', '')}\""
+            )
+        return "\n".join(lines)
+    except Exception as e:
+        logger.error("parse_screen: FAILED with error: %s", e)
+        return f"parse_screen error: {e}"
+
+
+@mcp.tool()
+def reason_action(
+    task: str,
+    use_parser: bool = True,
+    region: list[int] | None = None,
+    max_tokens: int = 512,
+) -> str:
+    """
+    Ask a cloud vision-language model what GUI action to take next.
+
+    Sends a screenshot (and optionally parsed UI elements) to the action model
+    endpoint for reasoning about what to click, type, or press.
+
+    Requires AUTOMATE_ACTION_MODEL_URL to be set.
+
+    Args:
+        task: Natural language description of what to accomplish.
+        use_parser: If True (default), first parse_screen to provide element context.
+        region: Optional [x, y, width, height] to capture a sub-region.
+        max_tokens: Maximum tokens for the model response (default 512).
+    """
+    logger.info("MCP tool called: reason_action task='%s' use_parser=%s region=%s max_tokens=%d", task[:50], use_parser, region, max_tokens)
+    try:
+        import cloud_vision
+    except ImportError:
+        logger.error("reason_action: cloud_vision module not available")
+        return "cloud_vision module not available."
+
+    try:
+        elements = None
+        if use_parser and cloud_vision._get_screen_parser_url():
+            try:
+                logger.debug("reason_action: parsing screen first...")
+                parsed = cloud_vision.parse_screen(region=region)
+                elements = parsed["elements"]
+                logger.debug("reason_action: parsed %d elements", len(elements))
+            except Exception as e:
+                logger.warning("reason_action: parse_screen failed, continuing without elements: %s", e)
+                elements = None
+
+        result = cloud_vision.reason_action(
+            task=task, elements=elements, region=region, max_tokens=max_tokens,
+        )
+        logger.info("reason_action: SUCCESS, model=%s reasoning_len=%d", result['model'], len(result['reasoning']))
+        return f"Model: {result['model']}\n\n{result['reasoning']}"
+    except Exception as e:
+        logger.error("reason_action: FAILED with error: %s", e)
+        return f"reason_action error: {e}"
+
+
+@mcp.tool()
+def smart_act(
+    task: str,
+    max_steps: int = 10,
+    step_delay: float = 1.0,
+) -> str:
+    """
+    Full autonomous loop: parse screen → reason action → execute → repeat.
+
+    Combines cloud screen parsing, vision-language model reasoning, and
+    local action execution. Repeats until the model says done() or max_steps.
+
+    Requires both AUTOMATE_SCREEN_PARSER_URL and AUTOMATE_ACTION_MODEL_URL.
+
+    Args:
+        task: What to accomplish (natural language).
+        max_steps: Safety limit on iterations (default 10).
+        step_delay: Seconds between steps for UI to settle (default 1.0).
+    """
+    logger.info("MCP tool called: smart_act task='%s' max_steps=%d step_delay=%.1f", task[:50], max_steps, step_delay)
+    try:
+        import cloud_vision
+    except ImportError:
+        logger.error("smart_act: cloud_vision module not available")
+        return "cloud_vision module not available."
+
+    try:
+        steps = cloud_vision.smart_act(
+            task=task, max_steps=max_steps, step_delay=step_delay,
+        )
+        logger.info("smart_act: SUCCESS, %d steps completed", len(steps))
+        lines = [f"Completed {len(steps)} step(s):\n"]
+        for s in steps:
+            lines.append(
+                f"  Step {s['step']}: {s['action_taken']} "
+                f"({s['elements_found']} elements detected)"
+            )
+        return "\n".join(lines)
+    except Exception as e:
+        logger.error("smart_act: FAILED with error: %s", e)
+        return f"smart_act error: {e}"
 
 
 # ---------------------------------------------------------------------------
