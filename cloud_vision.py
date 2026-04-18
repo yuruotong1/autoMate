@@ -23,15 +23,39 @@ import logging
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import time
 from io import BytesIO
+from pathlib import Path
 from typing import Any
 
 import pyautogui
 from PIL import Image
 
+LOGS_DIR = Path.home() / ".automate" / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 logger = logging.getLogger("automate.cloud_vision")
+
+def _setup_logging():
+    if logger.handlers:
+        return
+    log_file = LOGS_DIR / "cloud_vision.log"
+    handler = logging.FileHandler(log_file, encoding="utf-8")
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(formatter)
+    stderr_handler.setLevel(logging.INFO)
+    logger.addHandler(stderr_handler)
+    logger.info("=== Cloud vision logging initialized ===")
+    logger.info("Log file: %s", log_file)
 
 # ---------------------------------------------------------------------------
 # Configuration from environment
@@ -94,6 +118,10 @@ def get_config_summary() -> dict[str, Any]:
     }
 
 
+_setup_logging()
+logger.info("Config summary: %s", json.dumps(get_config_summary(), indent=2))
+
+
 # ---------------------------------------------------------------------------
 # HTTP helpers — use curl to work around Python DNS resolution issues
 # with *.endpoints.huggingface.cloud hostnames on some systems.
@@ -105,12 +133,12 @@ def _curl_post(url: str, payload: dict, timeout: int = 120) -> dict:
     Uses a temp file for the request body to avoid Windows command-line
     length limits (~32K chars) when payloads contain base64 image data.
     """
+    logger.debug("_curl_post: url=%s, timeout=%s", url, timeout)
     token = _get_hf_token()
     headers = ["-H", "Content-Type: application/json"]
     if token:
         headers += ["-H", f"Authorization: Bearer {token}"]
 
-    # Write payload to temp file to avoid [WinError 206] on large payloads
     tmp = None
     try:
         tmp = tempfile.NamedTemporaryFile(
@@ -118,12 +146,14 @@ def _curl_post(url: str, payload: dict, timeout: int = 120) -> dict:
         )
         json.dump(payload, tmp)
         tmp.close()
+        logger.debug("_curl_post: payload written to %s (size=%d bytes)", tmp.name, os.path.getsize(tmp.name))
 
         result = subprocess.run(
             ["curl", "-s", "-X", "POST", url, *headers,
              "-d", f"@{tmp.name}", "--max-time", str(timeout)],
             capture_output=True, text=True, timeout=timeout + 10,
         )
+        logger.debug("_curl_post: curl rc=%d, stdout_len=%d, stderr_len=%d", result.returncode, len(result.stdout), len(result.stderr))
     finally:
         if tmp:
             try:
@@ -132,11 +162,19 @@ def _curl_post(url: str, payload: dict, timeout: int = 120) -> dict:
                 pass
 
     if result.returncode != 0:
+        logger.error("_curl_post FAILED: rc=%d, stderr=%s", result.returncode, result.stderr)
         raise RuntimeError(f"curl POST failed (rc={result.returncode}): {result.stderr}")
     body = result.stdout.strip()
     if not body:
+        logger.error("_curl_post: empty response from %s", url)
         raise RuntimeError("Empty response from endpoint (DNS or network issue — retry may help)")
-    return json.loads(body)
+    try:
+        resp = json.loads(body)
+        logger.debug("_curl_post: response parsed OK, keys=%s", list(resp.keys())[:10])
+        return resp
+    except json.JSONDecodeError as e:
+        logger.error("_curl_post: JSON decode error: %s | body=%s", e, body[:500])
+        raise
 
 
 def _curl_get(url: str, timeout: int = 30) -> dict:
@@ -199,88 +237,110 @@ def warm_endpoints(timeout_seconds: int = 600) -> dict[str, Any]:
 
     Returns status dict for each configured endpoint.
     """
+    logger.info("warm_endpoints: START (timeout=%s seconds)", timeout_seconds)
     if not _get_hf_api_base():
+        logger.error("warm_endpoints: AUTOMATE_HF_NAMESPACE not set")
         return {"error": "AUTOMATE_HF_NAMESPACE not set — cannot manage endpoints"}
 
     targets: list[tuple[str, str, Any]] = []
     sp_ep = _get_screen_parser_endpoint()
     am_ep = _get_action_model_endpoint()
+    logger.debug("warm_endpoints: screen_parser_endpoint=%s, action_model_endpoint=%s", sp_ep, am_ep)
     if sp_ep:
         targets.append((sp_ep, _get_screen_parser_url(), _test_screen_parser))
     if am_ep:
         targets.append((am_ep, _get_action_model_url(), _test_action_model))
 
     if not targets:
+        logger.error("warm_endpoints: no endpoint names configured")
         return {"error": "No endpoint names configured (AUTOMATE_SCREEN_PARSER_ENDPOINT / AUTOMATE_ACTION_MODEL_ENDPOINT)"}
 
     results: dict[str, Any] = {}
     for name, url, test_fn in targets:
+        logger.info("warm_endpoints: checking endpoint '%s' at %s", name, url)
         status = get_endpoint_status(name)
         state = status["state"]
+        logger.info("warm_endpoints: '%s' initial state=%s message=%s", name, state, status.get("message", ""))
         results[name] = {"initial_state": state}
 
         if state == "running":
+            logger.debug("warm_endpoints: '%s' is running, testing...", name)
             try:
                 test_fn()
+                logger.info("warm_endpoints: '%s' is READY (test passed)", name)
                 results[name]["status"] = "ready"
                 results[name]["warmup_needed"] = False
                 continue
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("warm_endpoints: '%s' running but test failed: %s", name, e)
 
         if state in ("scaledToZero", "paused"):
+            logger.info("warm_endpoints: '%s' needs warmup (state=%s)", name, state)
             results[name]["warmup_needed"] = True
             if state == "paused":
-                # Paused endpoints must be explicitly resumed via API
                 try:
                     api_base = _get_hf_api_base()
+                    logger.debug("warm_endpoints: sending resume request for '%s'", name)
                     _curl_post(f"{api_base}/{name}/resume", {}, timeout=30)
-                    logger.info("Sent resume request for %s", name)
+                    logger.info("warm_endpoints: resume request sent for %s", name)
                 except Exception as e:
-                    logger.warning("Resume request for %s failed: %s", name, e)
+                    logger.warning("warm_endpoints: resume request for %s failed: %s", name, e)
             else:
-                # scaledToZero — any request wakes it up
+                logger.debug("warm_endpoints: sending wake-up request to '%s'", name)
                 try:
                     test_fn()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("warm_endpoints: wake-up request exception (expected): %s", e)
 
         start = time.time()
+        logger.info("warm_endpoints: polling '%s' until ready...", name)
         while time.time() - start < timeout_seconds:
+            elapsed = round(time.time() - start, 1)
             try:
                 s = get_endpoint_status(name)
+                logger.debug("warm_endpoints: '%s' poll at %ss: state=%s", name, elapsed, s["state"])
                 if s["state"] == "running":
                     try:
                         test_fn()
                         results[name]["status"] = "ready"
-                        results[name]["warmup_seconds"] = round(time.time() - start, 1)
+                        results[name]["warmup_seconds"] = elapsed
+                        logger.info("warm_endpoints: '%s' READY after %s seconds", name, elapsed)
                         break
-                    except Exception:
+                    except Exception as e:
+                        logger.debug("warm_endpoints: '%s' running but test failed at %ss: %s", name, elapsed, e)
                         time.sleep(5)
                         continue
                 elif s["state"] == "failed":
                     results[name]["status"] = "failed"
                     results[name]["error"] = s.get("message", "endpoint failed")
+                    logger.error("warm_endpoints: '%s' FAILED: %s", name, s.get("message", ""))
                     break
                 else:
+                    logger.debug("warm_endpoints: '%s' not ready yet (state=%s), waiting...", name, s["state"])
                     time.sleep(10)
-            except Exception:
+            except Exception as e:
+                logger.warning("warm_endpoints: poll exception at %ss: %s", elapsed, e)
                 time.sleep(10)
         else:
+            logger.error("warm_endpoints: '%s' TIMEOUT after %s seconds", name, timeout_seconds)
             results[name]["status"] = "timeout"
 
+    logger.info("warm_endpoints: COMPLETE, results=%s", json.dumps(results, indent=2))
     return results
 
 
 def _test_screen_parser() -> None:
     """Quick health-check for the screen parser endpoint."""
+    logger.debug("_test_screen_parser: START")
     url = _get_screen_parser_url()
     if not url:
+        logger.error("_test_screen_parser: AUTOMATE_SCREEN_PARSER_URL not set")
         raise RuntimeError("AUTOMATE_SCREEN_PARSER_URL not set")
     img = Image.new("RGB", (10, 10), color="red")
     buf = BytesIO()
     img.save(buf, format="PNG")
     b64 = base64.b64encode(buf.getvalue()).decode()
+    logger.debug("_test_screen_parser: sending test request to %s", url)
     resp = _curl_post(url, {
         "inputs": {
             "image": f"data:image/png;base64,{b64}",
@@ -288,21 +348,28 @@ def _test_screen_parser() -> None:
         }
     }, timeout=30)
     if "error" in resp:
+        logger.error("_test_screen_parser: endpoint returned error: %s", resp["error"])
         raise RuntimeError(resp["error"])
+    logger.info("_test_screen_parser: SUCCESS, response keys=%s", list(resp.keys()))
 
 
 def _test_action_model() -> None:
     """Quick health-check for the action model endpoint."""
+    logger.debug("_test_action_model: START")
     url = _get_action_model_url()
     if not url:
+        logger.error("_test_action_model: AUTOMATE_ACTION_MODEL_URL not set")
         raise RuntimeError("AUTOMATE_ACTION_MODEL_URL not set")
+    logger.debug("_test_action_model: sending test request to %s/v1/chat/completions", url)
     resp = _curl_post(f"{url}/v1/chat/completions", {
         "model": _get_action_model_name(),
         "messages": [{"role": "user", "content": "Say OK"}],
         "max_tokens": 5,
     }, timeout=30)
     if "error" in resp:
+        logger.error("_test_action_model: endpoint returned error: %s", resp["error"])
         raise RuntimeError(str(resp["error"]))
+    logger.info("_test_action_model: SUCCESS, response keys=%s", list(resp.keys()))
 
 
 # ---------------------------------------------------------------------------
@@ -324,15 +391,20 @@ def parse_screen(
 
     Returns dict with 'elements', 'annotated_image', and 'screen_size'.
     """
+    logger.info("parse_screen: START region=%s bbox_threshold=%s iou_threshold=%s", region, bbox_threshold, iou_threshold)
     url = _get_screen_parser_url()
     if not url:
+        logger.error("parse_screen: AUTOMATE_SCREEN_PARSER_URL not set")
         raise RuntimeError(
             "Screen parser not configured. Set AUTOMATE_SCREEN_PARSER_URL to an "
             "OmniParser-compatible HuggingFace Inference Endpoint URL."
         )
 
+    logger.debug("parse_screen: capturing screenshot...")
     b64, w, h = _screenshot_b64(region)
+    logger.debug("parse_screen: screenshot size %dx%d, base64_len=%d", w, h, len(b64))
 
+    logger.debug("parse_screen: sending to endpoint %s", url)
     resp = _curl_post(url, {
         "inputs": {
             "image": f"data:image/png;base64,{b64}",
@@ -343,13 +415,17 @@ def parse_screen(
     })
 
     if "error" in resp:
+        logger.error("parse_screen: endpoint error: %s", resp["error"])
         raise RuntimeError(f"Screen parser error: {resp['error']}")
+
+    bbox_count = len(resp.get("bboxes", []))
+    logger.info("parse_screen: SUCCESS, received %d bboxes", bbox_count)
 
     elements = []
     for i, bbox_info in enumerate(resp.get("bboxes", [])):
         norm = bbox_info["bbox"]
         px = [int(norm[0] * w), int(norm[1] * h), int(norm[2] * w), int(norm[3] * h)]
-        elements.append({
+        el = {
             "id": i,
             "type": bbox_info.get("type", "unknown"),
             "content": bbox_info.get("content"),
@@ -358,15 +434,20 @@ def parse_screen(
             "bbox_px": px,
             "center": [(px[0] + px[2]) // 2, (px[1] + px[3]) // 2],
             "source": bbox_info.get("source", ""),
-        })
+        }
+        elements.append(el)
+        if i < 5:
+            logger.debug("parse_screen: element[%d] type=%s content='%s' center=%s", i, el["type"], el.get("content", ""), el["center"])
 
     annotated = resp.get("image", "")
-    return {
+    result = {
         "elements": elements,
         "element_count": len(elements),
         "annotated_image": f"data:image/png;base64,{annotated}" if annotated else "",
         "screen_size": {"w": w, "h": h},
     }
+    logger.info("parse_screen: COMPLETE, %d elements, annotated_image_len=%d", len(elements), len(annotated))
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -393,17 +474,22 @@ def reason_action(
 
     Returns dict with 'reasoning', 'model', and 'usage'.
     """
+    logger.info("reason_action: START task='%s' elements=%d region=%s max_tokens=%d", task[:50], len(elements) if elements else 0, region, max_tokens)
     url = _get_action_model_url()
     if not url:
+        logger.error("reason_action: AUTOMATE_ACTION_MODEL_URL not set")
         raise RuntimeError(
             "Action model not configured. Set AUTOMATE_ACTION_MODEL_URL to an "
             "OpenAI-compatible vision-language model endpoint URL."
         )
 
+    logger.debug("reason_action: capturing screenshot...")
     b64, w, h = _screenshot_b64(region)
+    logger.debug("reason_action: screenshot size %dx%d, base64_len=%d", w, h, len(b64))
 
     prompt_parts = [f"Screen resolution: {w}x{h}\n"]
     if elements:
+        logger.debug("reason_action: including %d parsed elements in prompt", len(elements))
         prompt_parts.append("Detected UI elements:\n")
         for el in elements:
             prompt_parts.append(
@@ -425,24 +511,32 @@ def reason_action(
         "scroll(direction, amount), done()"
     )
 
+    prompt_text = "".join(prompt_parts)
+    logger.debug("reason_action: prompt length=%d chars", len(prompt_text))
+
+    logger.debug("reason_action: sending to %s/v1/chat/completions", url)
     resp = _curl_post(f"{url}/v1/chat/completions", {
         "model": _get_action_model_name(),
         "messages": [{
             "role": "user",
             "content": [
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
-                {"type": "text", "text": "".join(prompt_parts)},
+                {"type": "text", "text": prompt_text},
             ],
         }],
         "max_tokens": max_tokens,
     })
 
     if "error" in resp:
+        logger.error("reason_action: endpoint error: %s", resp["error"])
         raise RuntimeError(f"Action model error: {resp['error']}")
 
     choice = resp["choices"][0]["message"]
+    content = choice["content"]
+    logger.info("reason_action: SUCCESS, response length=%d chars", len(content))
+    logger.debug("reason_action: reasoning preview: %s", content[:200])
     return {
-        "reasoning": choice["content"],
+        "reasoning": content,
         "model": resp.get("model", _get_action_model_name()),
         "usage": resp.get("usage", {}),
     }
@@ -510,16 +604,29 @@ def smart_act(
 
     Returns list of step result dicts.
     """
+    logger.info("smart_act: START task='%s' max_steps=%d step_delay=%.1f", task[:50], max_steps, step_delay)
     steps: list[dict[str, Any]] = []
 
     for step_num in range(1, max_steps + 1):
-        # 1. Parse screen
-        parsed = parse_screen()
-        elements = parsed["elements"]
+        logger.info("smart_act: === Step %d/%d ===", step_num, max_steps)
+        
+        try:
+            parsed = parse_screen()
+            elements = parsed["elements"]
+            logger.debug("smart_act: step %d found %d elements", step_num, len(elements))
+        except Exception as e:
+            logger.error("smart_act: step %d parse_screen FAILED: %s", step_num, e)
+            steps.append({"step": step_num, "error": str(e), "action_taken": "parse_failed"})
+            break
 
-        # 2. Reason about next action
-        result = reason_action(task, elements=elements)
-        reasoning = result["reasoning"]
+        try:
+            result = reason_action(task, elements=elements)
+            reasoning = result["reasoning"]
+            logger.debug("smart_act: step %d reasoning: %s", step_num, reasoning[:200])
+        except Exception as e:
+            logger.error("smart_act: step %d reason_action FAILED: %s", step_num, e)
+            steps.append({"step": step_num, "elements_found": len(elements), "error": str(e), "action_taken": "reason_failed"})
+            break
 
         step_result: dict[str, Any] = {
             "step": step_num,
@@ -528,32 +635,38 @@ def smart_act(
             "action_taken": None,
         }
 
-        # 3. Extract action from model output
         action_match = re.search(
             r"Action:\s*(click|type|press|scroll|done)\(([^)]*)\)",
             reasoning, re.IGNORECASE,
         )
 
         if not action_match:
+            logger.warning("smart_act: step %d no action parsed from reasoning", step_num)
             step_result["action_taken"] = "no_action_parsed"
             steps.append(step_result)
             continue
 
         action_type = action_match.group(1).lower()
         params = action_match.group(2).strip()
+        logger.info("smart_act: step %d parsed action: %s(%s)", step_num, action_type, params)
 
         if action_type == "done":
+            logger.info("smart_act: step %d DONE signal received", step_num)
             step_result["action_taken"] = "done"
             steps.append(step_result)
             break
 
-        # 4. Execute
         try:
+            logger.debug("smart_act: step %d executing %s(%s)", step_num, action_type, params)
             step_result["action_taken"] = _execute_action(action_type, params)
+            logger.info("smart_act: step %d executed: %s", step_num, step_result["action_taken"])
         except Exception as e:
+            logger.error("smart_act: step %d execution FAILED: %s", step_num, e)
             step_result["action_taken"] = f"error: {e}"
 
         steps.append(step_result)
+        logger.debug("smart_act: step %d complete, sleeping %.1f seconds", step_num, step_delay)
         time.sleep(step_delay)
 
+    logger.info("smart_act: COMPLETE after %d steps", len(steps))
     return steps

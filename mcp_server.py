@@ -15,8 +15,10 @@ Zero-config setup:
 
 import base64
 import json
+import logging
 import platform
 import re
+import sys
 import time
 from datetime import datetime
 from io import BytesIO
@@ -31,6 +33,32 @@ pyautogui.PAUSE = 0.05
 
 SCRIPTS_DIR = Path.home() / ".automate" / "scripts"
 SCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
+
+LOGS_DIR = Path.home() / ".automate" / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger("automate.mcp_server")
+
+def _setup_logging():
+    if logger.handlers:
+        return
+    log_file = LOGS_DIR / "mcp_server.log"
+    handler = logging.FileHandler(log_file, encoding="utf-8")
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(formatter)
+    stderr_handler.setLevel(logging.INFO)
+    logger.addHandler(stderr_handler)
+    logger.info("=== MCP server logging initialized ===")
+    logger.info("Log file: %s", log_file)
+
+_setup_logging()
 
 # ---------------------------------------------------------------------------
 # Server identity — this is what Claude reads to decide when to use autoMate
@@ -432,15 +460,18 @@ def cloud_vision_config() -> str:
 
     Returns configuration status and env var hints if not configured.
     """
+    logger.info("MCP tool called: cloud_vision_config")
     try:
         import cloud_vision
     except ImportError:
+        logger.error("cloud_vision_config: cloud_vision module not available")
         return (
             "cloud_vision module not available. "
             "Ensure cloud_vision.py is in the same directory as mcp_server.py."
         )
 
     if not cloud_vision.is_configured():
+        logger.warning("cloud_vision_config: not configured")
         return (
             "Cloud vision not configured. Set these env vars:\n"
             "  AUTOMATE_HF_TOKEN              — HuggingFace API token\n"
@@ -453,7 +484,9 @@ def cloud_vision_config() -> str:
             "\nSee .env.example for details."
         )
 
-    return json.dumps(cloud_vision.get_config_summary(), indent=2)
+    summary = cloud_vision.get_config_summary()
+    logger.info("cloud_vision_config: configured, summary=%s", json.dumps(summary))
+    return json.dumps(summary, indent=2)
 
 
 @mcp.tool()
@@ -469,12 +502,15 @@ def warm_endpoints(timeout_seconds: int = 600) -> str:
     Args:
         timeout_seconds: Max seconds to wait for endpoints (default 600).
     """
+    logger.info("MCP tool called: warm_endpoints (timeout=%s)", timeout_seconds)
     try:
         import cloud_vision
     except ImportError:
+        logger.error("warm_endpoints: cloud_vision module not available")
         return "cloud_vision module not available."
 
     result = cloud_vision.warm_endpoints(timeout_seconds=timeout_seconds)
+    logger.info("warm_endpoints: result=%s", json.dumps(result))
     return json.dumps(result, indent=2)
 
 
@@ -498,9 +534,11 @@ def parse_screen(
         bbox_threshold: Confidence threshold for detection (default 0.05).
         iou_threshold: IoU threshold for NMS (default 0.7).
     """
+    logger.info("MCP tool called: parse_screen region=%s bbox_threshold=%s iou_threshold=%s", region, bbox_threshold, iou_threshold)
     try:
         import cloud_vision
     except ImportError:
+        logger.error("parse_screen: cloud_vision module not available")
         return "cloud_vision module not available."
 
     try:
@@ -509,8 +547,8 @@ def parse_screen(
             bbox_threshold=bbox_threshold,
             iou_threshold=iou_threshold,
         )
-        # Return elements as structured text (annotated image is too large for text response)
         elements = result["elements"]
+        logger.info("parse_screen: SUCCESS, %d elements found", len(elements))
         lines = [f"Found {len(elements)} UI elements (screen {result['screen_size']['w']}x{result['screen_size']['h']}):\n"]
         for el in elements:
             inter = " [interactive]" if el.get("interactivity") else ""
@@ -520,6 +558,7 @@ def parse_screen(
             )
         return "\n".join(lines)
     except Exception as e:
+        logger.error("parse_screen: FAILED with error: %s", e)
         return f"parse_screen error: {e}"
 
 
@@ -544,26 +583,32 @@ def reason_action(
         region: Optional [x, y, width, height] to capture a sub-region.
         max_tokens: Maximum tokens for the model response (default 512).
     """
+    logger.info("MCP tool called: reason_action task='%s' use_parser=%s region=%s max_tokens=%d", task[:50], use_parser, region, max_tokens)
     try:
         import cloud_vision
     except ImportError:
+        logger.error("reason_action: cloud_vision module not available")
         return "cloud_vision module not available."
 
     try:
         elements = None
         if use_parser and cloud_vision._get_screen_parser_url():
             try:
+                logger.debug("reason_action: parsing screen first...")
                 parsed = cloud_vision.parse_screen(region=region)
                 elements = parsed["elements"]
+                logger.debug("reason_action: parsed %d elements", len(elements))
             except Exception as e:
-                # Parser failed but we can still reason without it
+                logger.warning("reason_action: parse_screen failed, continuing without elements: %s", e)
                 elements = None
 
         result = cloud_vision.reason_action(
             task=task, elements=elements, region=region, max_tokens=max_tokens,
         )
+        logger.info("reason_action: SUCCESS, model=%s reasoning_len=%d", result['model'], len(result['reasoning']))
         return f"Model: {result['model']}\n\n{result['reasoning']}"
     except Exception as e:
+        logger.error("reason_action: FAILED with error: %s", e)
         return f"reason_action error: {e}"
 
 
@@ -586,15 +631,18 @@ def smart_act(
         max_steps: Safety limit on iterations (default 10).
         step_delay: Seconds between steps for UI to settle (default 1.0).
     """
+    logger.info("MCP tool called: smart_act task='%s' max_steps=%d step_delay=%.1f", task[:50], max_steps, step_delay)
     try:
         import cloud_vision
     except ImportError:
+        logger.error("smart_act: cloud_vision module not available")
         return "cloud_vision module not available."
 
     try:
         steps = cloud_vision.smart_act(
             task=task, max_steps=max_steps, step_delay=step_delay,
         )
+        logger.info("smart_act: SUCCESS, %d steps completed", len(steps))
         lines = [f"Completed {len(steps)} step(s):\n"]
         for s in steps:
             lines.append(
@@ -603,6 +651,7 @@ def smart_act(
             )
         return "\n".join(lines)
     except Exception as e:
+        logger.error("smart_act: FAILED with error: %s", e)
         return f"smart_act error: {e}"
 
 
