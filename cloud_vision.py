@@ -23,6 +23,7 @@ import logging
 import os
 import re
 import subprocess
+import tempfile
 import time
 from io import BytesIO
 from typing import Any
@@ -99,17 +100,37 @@ def get_config_summary() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def _curl_post(url: str, payload: dict, timeout: int = 120) -> dict:
-    """POST JSON via curl subprocess."""
+    """POST JSON via curl subprocess.
+
+    Uses a temp file for the request body to avoid Windows command-line
+    length limits (~32K chars) when payloads contain base64 image data.
+    """
     token = _get_hf_token()
     headers = ["-H", "Content-Type: application/json"]
     if token:
         headers += ["-H", f"Authorization: Bearer {token}"]
 
-    result = subprocess.run(
-        ["curl", "-s", "-X", "POST", url, *headers,
-         "-d", json.dumps(payload), "--max-time", str(timeout)],
-        capture_output=True, text=True, timeout=timeout + 10,
-    )
+    # Write payload to temp file to avoid [WinError 206] on large payloads
+    tmp = None
+    try:
+        tmp = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", delete=False, encoding="utf-8",
+        )
+        json.dump(payload, tmp)
+        tmp.close()
+
+        result = subprocess.run(
+            ["curl", "-s", "-X", "POST", url, *headers,
+             "-d", f"@{tmp.name}", "--max-time", str(timeout)],
+            capture_output=True, text=True, timeout=timeout + 10,
+        )
+    finally:
+        if tmp:
+            try:
+                os.unlink(tmp.name)
+            except OSError:
+                pass
+
     if result.returncode != 0:
         raise RuntimeError(f"curl POST failed (rc={result.returncode}): {result.stderr}")
     body = result.stdout.strip()
@@ -209,10 +230,20 @@ def warm_endpoints(timeout_seconds: int = 600) -> dict[str, Any]:
 
         if state in ("scaledToZero", "paused"):
             results[name]["warmup_needed"] = True
-            try:
-                test_fn()  # wake-up request
-            except Exception:
-                pass
+            if state == "paused":
+                # Paused endpoints must be explicitly resumed via API
+                try:
+                    api_base = _get_hf_api_base()
+                    _curl_post(f"{api_base}/{name}/resume", {}, timeout=30)
+                    logger.info("Sent resume request for %s", name)
+                except Exception as e:
+                    logger.warning("Resume request for %s failed: %s", name, e)
+            else:
+                # scaledToZero — any request wakes it up
+                try:
+                    test_fn()
+                except Exception:
+                    pass
 
         start = time.time()
         while time.time() - start < timeout_seconds:
