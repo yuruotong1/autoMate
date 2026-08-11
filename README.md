@@ -1,5 +1,7 @@
 # autoMate
 
+[![MCP Toplist](https://mcptoplist.com/badge/glama%2Fyuruotong1%2FautoMate.svg)](https://mcptoplist.com/server/glama%2Fyuruotong1%2FautoMate)
+
 > **A smart NAS for AI.** Notes · files · reminders · memory · 40+ tools.
 > Plug it into OpenClaw / Claude Desktop / Cursor / Cline as a tool
 > source, or use it standalone via its built-in web chat.
