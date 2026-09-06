@@ -11,7 +11,7 @@ import urllib.error
 import urllib.request
 from typing import Iterator
 
-from .base import ChatMessage, ChatResponse, ProviderClient, ToolCall, ToolSpec
+from .base import USER_AGENT, ChatMessage, ChatResponse, ProviderClient, ToolCall, ToolSpec
 
 
 class OpenAICompatClient(ProviderClient):
@@ -24,7 +24,7 @@ class OpenAICompatClient(ProviderClient):
         self.timeout = timeout
 
     def _headers(self) -> dict:
-        h = {"Content-Type": "application/json"}
+        h = {"Content-Type": "application/json", "User-Agent": USER_AGENT}
         if self.api_key:
             h["Authorization"] = f"Bearer {self.api_key}"
         return h
@@ -108,5 +108,12 @@ class OpenAICompatClient(ProviderClient):
                     chunk = json.loads(payload)
                 except json.JSONDecodeError:
                     continue
-                delta = chunk["choices"][0].get("delta", {})
+                choices = chunk.get("choices") or []
+                if not choices:
+                    # Usage-only terminal chunk: it carries token counts and an
+                    # empty choices list. Atlas Cloud sends one unconditionally,
+                    # OpenAI with stream_options.include_usage -- indexing [0]
+                    # here raised IndexError at the very end of every stream.
+                    continue
+                delta = choices[0].get("delta", {})
                 yield {"delta": delta.get("content") or "", "tool_calls": delta.get("tool_calls") or []}

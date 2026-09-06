@@ -7,6 +7,14 @@ Groq, Ollama, OpenRouter) speaks it natively or via a thin shim.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
+from ..version import __version__
+
+# urllib sends "Python-urllib/3.x" by default and some providers' edge layers
+# reject that outright -- Atlas Cloud answers 403 "error code: 1010" for it,
+# while the identical request with any real agent string succeeds. The plain
+# urllib clients below send this instead.
+USER_AGENT = f"autoMate/{__version__}"
 from typing import Any, Iterator, Protocol
 
 
