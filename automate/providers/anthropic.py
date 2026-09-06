@@ -9,7 +9,7 @@ import json
 import urllib.request
 from typing import Iterator
 
-from .base import ChatMessage, ChatResponse, ProviderClient, ToolCall, ToolSpec
+from .base import USER_AGENT, ChatMessage, ChatResponse, ProviderClient, ToolCall, ToolSpec
 
 
 class AnthropicClient(ProviderClient):
@@ -24,6 +24,7 @@ class AnthropicClient(ProviderClient):
     def _headers(self) -> dict:
         return {
             "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
             "x-api-key": self.api_key,
             "anthropic-version": "2023-06-01",
         }
