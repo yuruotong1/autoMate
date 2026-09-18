@@ -133,3 +133,9 @@ English: [README.md](./README.md)
 ## License
 
 MIT。
+## 执行步骤追踪
+
+使用 `automate serve --trace`、`automate mcp --trace`，或设置环境变量
+`AUTOMATE_DEVTOOLS=true`，可在本地记录工具执行步骤、耗时和异常类型。
+默认关闭，不记录参数和返回内容。事件格式及调试工具接入方式见
+[追踪文档](docs/tracing.md)。

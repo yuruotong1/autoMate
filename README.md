@@ -180,3 +180,9 @@ upcoming autoMate Cloud Pro tier.
 ## License
 
 MIT.
+# Execution tracing
+
+Use `automate serve --trace`, `automate mcp --trace`, or set
+`AUTOMATE_DEVTOOLS=true` to record local tool steps and timings. Tracing is off
+by default. See [tracing and devtools hooks](docs/tracing.md) for the event schema
+and adapter interface.

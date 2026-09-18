@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import threading
 import time
@@ -94,9 +95,11 @@ def main(argv: list[str] | None = None) -> int:
     p_serve.add_argument("--port", type=int, default=None)
     p_serve.add_argument("--open", dest="open", action="store_true", default=True)
     p_serve.add_argument("--no-open", dest="no_open", action="store_true")
+    p_serve.add_argument("--trace", action="store_true", help="record local tool execution traces")
     p_serve.set_defaults(func=_serve)
 
     p_mcp = sub.add_parser("mcp", help="expose tools as a stdio MCP server")
+    p_mcp.add_argument("--trace", action="store_true", help="record local tool execution traces")
     p_mcp.set_defaults(func=_mcp)
 
     p_doctor = sub.add_parser("doctor", help="print runtime status and config")
@@ -116,6 +119,8 @@ def main(argv: list[str] | None = None) -> int:
         argv = ["serve"]
 
     args = parser.parse_args(argv)
+    if getattr(args, "trace", False):
+        os.environ["AUTOMATE_DEVTOOLS"] = "true"
     if not getattr(args, "func", None):
         parser.print_help()
         return 0
