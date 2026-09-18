@@ -17,6 +17,8 @@ import inspect
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+from ..tracing import trace_action
+
 
 @dataclass
 class Tool:
@@ -30,9 +32,10 @@ class Tool:
     tier: str = "free"                 # 'free' | 'pro' — pro tools require a logged-in cloud session
 
     def call(self, args: dict[str, Any]) -> Any:
-        sig = inspect.signature(self.handler)
-        accepted = {k: v for k, v in args.items() if k in sig.parameters}
-        return self.handler(**accepted)
+        with trace_action(self.name, self.category):
+            sig = inspect.signature(self.handler)
+            accepted = {k: v for k, v in args.items() if k in sig.parameters}
+            return self.handler(**accepted)
 
 
 class ToolRegistry:
