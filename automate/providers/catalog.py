@@ -97,6 +97,12 @@ CATALOG: tuple[ProviderSpec, ...] = (
         "https://www.atlascloud.ai/console/api-keys",
         ("qwen/qwen3.5-35b-a3b", "zai-org/glm-5", "moonshotai/kimi-k2.6", "deepseek-ai/DeepSeek-V3.1"),
         notes="One key for open-weights models; model names are vendor-prefixed. GET /v1/models lists what the key can reach."),
+    ProviderSpec("cheaperinference", "Cheaper Inference", "global", "openai_compat",
+        "https://api.cheaperinference.com/v1",
+        "https://cheaperinference.com/#models",
+        "https://cheaperinference.com/signup",
+        ("gpt-5.4-mini", "gpt-5.4", "claude-sonnet-5", "gemini-3.1-pro", "deepseek-v4-flash"),
+        notes="One key for models from several labs; model names have no vendor prefix. GET /v1/models lists what the key can reach."),
 
     # ---------- China ----------
     ProviderSpec("deepseek", "DeepSeek", "china", "openai_compat",
