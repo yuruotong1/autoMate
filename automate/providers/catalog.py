@@ -97,6 +97,12 @@ CATALOG: tuple[ProviderSpec, ...] = (
         "https://www.atlascloud.ai/console/api-keys",
         ("qwen/qwen3.5-35b-a3b", "zai-org/glm-5", "moonshotai/kimi-k2.6", "deepseek-ai/DeepSeek-V3.1"),
         notes="One key for open-weights models; model names are vendor-prefixed. GET /v1/models lists what the key can reach."),
+    ProviderSpec("llmbuzz", "llm.buzz", "global", "openai_compat",
+        "https://api.llm.buzz/api/v1",
+        "https://llm.buzz",
+        "https://app.llm.buzz",
+        ("anthropic/claude-sonnet-5", "openai/gpt-4o-mini", "deepseek/deepseek-v4.1-flash"),
+        notes="One key, many models; OpenRouter-style model names. GET /api/v1/models lists them."),
 
     # ---------- China ----------
     ProviderSpec("deepseek", "DeepSeek", "china", "openai_compat",
