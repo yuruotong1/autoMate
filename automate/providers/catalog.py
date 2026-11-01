@@ -97,6 +97,12 @@ CATALOG: tuple[ProviderSpec, ...] = (
         "https://www.atlascloud.ai/console/api-keys",
         ("qwen/qwen3.5-35b-a3b", "zai-org/glm-5", "moonshotai/kimi-k2.6", "deepseek-ai/DeepSeek-V3.1"),
         notes="One key for open-weights models; model names are vendor-prefixed. GET /v1/models lists what the key can reach."),
+    ProviderSpec("runcrate", "Runcrate", "global", "openai_compat",
+        "https://api.runcrate.ai/v1",
+        "https://www.runcrate.ai/docs/models/overview",
+        "https://www.runcrate.ai/dashboard/api-keys",
+        ("deepseek-ai/DeepSeek-V4-Flash", "Qwen/Qwen3-Coder-480B-A35B-Instruct-Turbo", "moonshotai/Kimi-K2.6", "zai-org/GLM-5.3"),
+        notes="Open-weight models behind one OpenAI-compatible key; model names are vendor-prefixed. GET /v1/models lists them."),
 
     # ---------- China ----------
     ProviderSpec("deepseek", "DeepSeek", "china", "openai_compat",
