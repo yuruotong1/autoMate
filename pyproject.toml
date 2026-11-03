@@ -34,7 +34,11 @@ dependencies = [
     # Desktop / Cursor / Cline call autoMate as a tool source over MCP).
     # Promoted from optional to required so the /mcp endpoint always
     # works without an extras-install dance.
-    "mcp[cli]>=1.0.0",
+    # Pin <2: mcp 2.x renamed FastMCP to MCPServer and moved APIs; the
+    # bridge (automate/server/mcp_bridge.py) targets the 1.x FastMCP API.
+    # Without the upper bound a fresh install gets mcp 2.x and the /mcp
+    # mount silently disappears.
+    "mcp[cli]>=1.0.0,<2",
 ]
 
 [project.optional-dependencies]

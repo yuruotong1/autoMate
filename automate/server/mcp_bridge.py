@@ -14,8 +14,18 @@ Two transports:
 """
 from __future__ import annotations
 
+import inspect
 import json
-from typing import Any
+from typing import Any, Optional
+
+_JSON_TYPE_MAP = {
+    "string": str,
+    "integer": int,
+    "number": float,
+    "boolean": bool,
+    "array": list,
+    "object": dict,
+}
 
 
 def _build_mcp(state):
@@ -74,8 +84,38 @@ def build_http_app(state):
     return mcp.streamable_http_app(), mcp.session_manager
 
 
+def _typed_signature(tool) -> inspect.Signature:
+    """Build a real signature for a registry Tool from its JSON-schema params.
+
+    FastMCP infers the advertised input schema from the handler's signature.
+    A bare ``**kwargs`` handler yields a schema with a single required
+    ``kwargs`` property, so clients send ``{"kwargs": {...}}`` — which
+    ``Tool.call`` then filters out (the wrapped handler's signature has no
+    ``kwargs`` parameter), and the tool always fails with missing-argument
+    errors. Generating a typed signature per tool fixes both the advertised
+    schema and the argument flow.
+    """
+    params = []
+    schema = tool.parameters or {}
+    props = schema.get("properties", {})
+    required = set(schema.get("required", []))
+    for name, spec in props.items():
+        py_type = _JSON_TYPE_MAP.get((spec or {}).get("type"), Any)
+        if name in required:
+            annotation, default = py_type, inspect.Parameter.empty
+        else:
+            annotation, default = Optional[py_type], None
+        params.append(inspect.Parameter(
+            name,
+            kind=inspect.Parameter.KEYWORD_ONLY,
+            default=default,
+            annotation=annotation,
+        ))
+    return inspect.Signature(params)
+
+
 def _wrap_tool_for_mcp(mcp, tool) -> None:
-    """Register a registry Tool with FastMCP using a generic kwargs handler."""
+    """Register a registry Tool with FastMCP using a typed handler."""
     def handler(**kwargs: Any) -> str:  # noqa: ANN401
         try:
             result = tool.call(kwargs)
@@ -87,8 +127,5 @@ def _wrap_tool_for_mcp(mcp, tool) -> None:
 
     handler.__name__ = tool.name.replace(".", "_").replace("-", "_")
     handler.__doc__ = tool.description
-    # FastMCP infers schema from the wrapper's signature; we accept **kwargs
-    # and rely on the LLM-side schema (provided by the registry). Most clients
-    # accept this; if a client requires strict schema, we'd codegen typed
-    # wrappers.
+    handler.__signature__ = _typed_signature(tool)
     mcp.tool()(handler)
